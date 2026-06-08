@@ -1,0 +1,11 @@
+# Local dev secrets — copy to .dev.vars and fill in real values
+# NEVER commit .dev.vars
+
+# Test signer wallet (separate from production key — Base Sepolia testnet only)
+SIGNER_PRIVATE_KEY=0x0000000000000000000000000000000000000000000000000000000000000000
+
+# NFT.Storage API key for IPFS pinning
+NFT_STORAGE_KEY=your_nft_storage_key_here
+
+# Email (Resend) — optional for local dev
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
