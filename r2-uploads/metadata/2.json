@@ -1,0 +1,40 @@
+{
+  "name": "INKNOIR — Koi Ascending",
+  "description": "Koi Ascending by Koto Arai. Trained in the tebori tradition, Koto reinterprets classical Japanese motifs as one-off contemporary plates. Bold line, restrained palette, no repeats.",
+  "image": "https://pub-placeholder.r2.dev/metadata/2.json",
+  "external_url": "https://inknoir.pages.dev/design/d2",
+  "attributes": [
+    {
+      "trait_type": "Artist",
+      "value": "Koto Arai"
+    },
+    {
+      "trait_type": "Style",
+      "value": "Irezumi"
+    },
+    {
+      "trait_type": "Placement",
+      "value": "Back · 34cm"
+    },
+    {
+      "trait_type": "Medium",
+      "value": "Tebori + machine"
+    },
+    {
+      "trait_type": "Sessions",
+      "value": 2
+    },
+    {
+      "trait_type": "Edition",
+      "value": "002"
+    },
+    {
+      "trait_type": "Price (ETH)",
+      "value": 2.8
+    },
+    {
+      "trait_type": "City",
+      "value": "Osaka, JP"
+    }
+  ]
+}

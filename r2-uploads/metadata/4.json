@@ -1,0 +1,40 @@
+{
+  "name": "INKNOIR — Etched Moth",
+  "description": "Etched Moth by Vera Lindqvist. Etching-style stippling that mimics old engraving plates. Vera's releases come with a hand-pulled proof — the design is never inked twice.",
+  "image": "https://pub-placeholder.r2.dev/metadata/4.json",
+  "external_url": "https://inknoir.pages.dev/design/d4",
+  "attributes": [
+    {
+      "trait_type": "Artist",
+      "value": "Vera Lindqvist"
+    },
+    {
+      "trait_type": "Style",
+      "value": "Realism"
+    },
+    {
+      "trait_type": "Placement",
+      "value": "Thigh · 22cm"
+    },
+    {
+      "trait_type": "Medium",
+      "value": "Stipple / etch"
+    },
+    {
+      "trait_type": "Sessions",
+      "value": 1
+    },
+    {
+      "trait_type": "Edition",
+      "value": "004"
+    },
+    {
+      "trait_type": "Price (ETH)",
+      "value": 2.1
+    },
+    {
+      "trait_type": "City",
+      "value": "Stockholm, SE"
+    }
+  ]
+}

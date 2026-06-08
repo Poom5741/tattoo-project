@@ -1,0 +1,47 @@
+---
+export const prerender = false;
+
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav";
+import Footer from "../components/Footer.astro";
+import TweaksPanel from "../components/TweaksPanel";
+import TextureLayer from "../components/TextureLayer";
+import Toast from "../components/Toast";
+import MarketGrid from "../components/MarketGrid";
+import { cookieToInitialState } from "wagmi";
+import { config } from "../lib/wagmi";
+
+let designs: unknown[] = [];
+try {
+  const apiUrl = new URL("/api/designs", Astro.url);
+  const res = await fetch(apiUrl.toString());
+  if (res.ok) {
+    designs = await res.json();
+  }
+} catch {
+  // SSR fallback — empty designs
+}
+
+const cookieHeader = Astro.request.headers.get("cookie") ?? "";
+const initialState = cookieToInitialState(config, cookieHeader);
+---
+
+<Base title="Gallery — INKNOIR" description="One-of-one tattoo plates. Browse the gallery.">
+  <Nav client:load currentPath="/market" />
+  <TextureLayer client:idle />
+  <TweaksPanel client:load />
+  <Toast client:load />
+
+  <section style="padding: 56px 0 80px;">
+    <div class="wrap">
+      <div class="kicker" style="margin-bottom: 16px;">The gallery</div>
+      <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 40px;">
+        <h1 class="display" style="font-size: clamp(38px,6vw,72px);">Plates for acquisition</h1>
+        <span class="mono faint" style="font-size: 11px; letter-spacing: .12em;">{designs.length} PLATES · ONE OF EACH</span>
+      </div>
+      <MarketGrid client:load designs={designs} initialState={initialState} />
+    </div>
+  </section>
+
+  <Footer />
+</Base>

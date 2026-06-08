@@ -1,0 +1,64 @@
+---
+export const prerender = false;
+
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav";
+import Footer from "../../components/Footer.astro";
+import TweaksPanel from "../../components/TweaksPanel";
+import TextureLayer from "../../components/TextureLayer";
+import CheckoutFlow from "../../components/CheckoutFlow";
+import { cookieToInitialState } from "wagmi";
+import { config } from "../../lib/wagmi";
+
+const { id } = Astro.params;
+
+interface DesignRow {
+  id: string;
+  n: string;
+  title: string;
+  artist_id: string;
+  style: string | null;
+  price: number | null;
+  price_usd: number | null;
+  status: string;
+  placement: string | null;
+  seed: number | null;
+}
+
+let design: DesignRow | null = null;
+
+try {
+  const apiUrl = new URL(`/api/designs/${id}`, Astro.url);
+  const res = await fetch(apiUrl.toString());
+  if (res.ok) {
+    const data = await res.json() as { design: DesignRow };
+    design = data.design;
+  }
+} catch {
+  // fallback
+}
+
+if (!design) {
+  return Astro.redirect("/market");
+}
+
+if (design.status !== "available") {
+  return Astro.redirect(`/design/${id}`);
+}
+
+const cookieHeader = Astro.request.headers.get("cookie") ?? "";
+const initialState = cookieToInitialState(config, cookieHeader);
+---
+
+<Base
+  title={`Acquire "${design.title}" — INKNOIR`}
+  description={`Acquire ${design.title}. One-of-one tattoo plate on Base Sepolia.`}
+>
+  <Nav client:load currentPath="/checkout" />
+  <TextureLayer client:idle />
+  <TweaksPanel client:load />
+
+  <CheckoutFlow client:load design={design} initialState={initialState} />
+
+  <Footer />
+</Base>

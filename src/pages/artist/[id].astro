@@ -1,0 +1,171 @@
+---
+export const prerender = false;
+
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav";
+import Footer from "../../components/Footer.astro";
+import TweaksPanel from "../../components/TweaksPanel";
+import TextureLayer from "../../components/TextureLayer";
+import Toast from "../../components/Toast";
+import Plate from "../../components/Plate";
+
+const { id } = Astro.params;
+
+interface ArtistRow {
+  id: string;
+  name: string;
+  handle: string | null;
+  city: string | null;
+  style: string | null;
+  years: number | null;
+  booked: string | null;
+  rate: number | null;
+  bio: string | null;
+  pieces: number | null;
+  rating: string | null;
+  seed: number | null;
+}
+
+interface DesignRow {
+  id: string;
+  n: string;
+  title: string;
+  artist_id: string;
+  style: string | null;
+  price: number | null;
+  status: string;
+  placement: string | null;
+  seed: number | null;
+}
+
+let artist: ArtistRow | null = null;
+let plates: DesignRow[] = [];
+
+try {
+  const db = Astro.locals.runtime.env.DB;
+  const row = await db
+    .prepare("SELECT * FROM artists WHERE id = ?")
+    .bind(id)
+    .first<ArtistRow>();
+  artist = row ?? null;
+
+  if (artist) {
+    const { results } = await db
+      .prepare("SELECT * FROM designs WHERE artist_id = ? ORDER BY token_id ASC")
+      .bind(id)
+      .all<DesignRow>();
+    plates = results;
+  }
+} catch {
+  // fallback
+}
+
+if (!artist) {
+  return Astro.redirect("/artists");
+}
+
+const avail = plates.filter((d) => d.status === "available").length;
+
+function fmtEth(v: number | null) {
+  if (!v) return "—";
+  return v.toFixed(3) + " ETH";
+}
+---
+
+<Base
+  title={`${artist.name} — INKNOIR`}
+  description={artist.bio ?? `${artist.name} — ${artist.style}`}
+>
+  <Nav client:load currentPath="/artists" />
+  <TextureLayer client:idle />
+  <TweaksPanel client:load />
+  <Toast client:load />
+
+  <section style="padding: 32px 0 80px;">
+    <div class="wrap">
+      <a href="/artists" class="back-link">← All artists</a>
+
+      <div class="artist-hero">
+        <div class="artist-hero__img">
+          <Plate seed={artist.seed ?? 0} label={artist.style?.split(" · ")[0]?.toUpperCase()} density={1.1} client:load />
+        </div>
+        <div class="artist-hero__body">
+          <div class="mono dim" style="font-size: 12px; letter-spacing: .1em; display: flex; gap: 8px; align-items: center;">
+            📍 {artist.city} · {artist.handle}
+          </div>
+          <h1 class="display" style="font-size: clamp(40px,5vw,60px); margin: 16px 0 0;">{artist.name}</h1>
+          <div class="mono dim" style="font-size: 13px; margin-top: 12px; letter-spacing: .04em;">{artist.style}</div>
+          <p class="dim" style="font-size: 15px; margin: 24px 0; max-width: 48ch;">{artist.bio}</p>
+          <div style="display: flex; gap: 36px; margin: 8px 0 30px;">
+            {artist.years != null && (
+              <div>
+                <div class="display" style="font-size: 26px;">{artist.years} yrs</div>
+                <div class="mono faint" style="font-size: 10px; letter-spacing: .12em; text-transform: uppercase; margin-top: 4px;">Experience</div>
+              </div>
+            )}
+            {artist.pieces != null && (
+              <div>
+                <div class="display" style="font-size: 26px;">{artist.pieces}</div>
+                <div class="mono faint" style="font-size: 10px; letter-spacing: .12em; text-transform: uppercase; margin-top: 4px;">Plates released</div>
+              </div>
+            )}
+            {artist.rating != null && (
+              <div>
+                <div class="display" style="font-size: 26px;">{artist.rating} ★</div>
+                <div class="mono faint" style="font-size: 10px; letter-spacing: .12em; text-transform: uppercase; margin-top: 4px;">Rating</div>
+              </div>
+            )}
+            {artist.rate != null && (
+              <div>
+                <div class="display" style="font-size: 26px;">€{artist.rate}/hr</div>
+                <div class="mono faint" style="font-size: 10px; letter-spacing: .12em; text-transform: uppercase; margin-top: 4px;">Session rate</div>
+              </div>
+            )}
+          </div>
+          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+            <a href={`/booking?artistId=${artist.id}`} class="btn btn--solid btn--lg">Book a session</a>
+            {artist.booked && (
+              <span class="tag tag--avail" style="align-self: center;">
+                <span class="dot"></span>{artist.booked}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {plates.length > 0 && (
+        <div style="margin-top: 64px;">
+          <div class="sec-head">
+            <h2 class="display" style="font-size: 34px;">Available plates</h2>
+            <span class="mono faint" style="font-size: 11px; letter-spacing: .1em;">{avail} OF {plates.length} OPEN</span>
+          </div>
+          <div class="grid market-grid">
+            {plates.map((d) => (
+              <a href={`/design/${d.id}`} style="display: block; text-decoration: none; color: inherit;">
+                <div class="card">
+                  <div class="card__img">
+                    <Plate seed={d.seed ?? 0} density={1} client:load />
+                  </div>
+                  <div class="card__body">
+                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+                      <span class={`tag ${d.status === "available" ? "tag--avail" : d.status === "reserved" ? "tag--reserved" : "tag--sold"}`}>
+                        <span class="dot"></span>
+                        {d.status === "available" ? "Available" : d.status === "reserved" ? "Reserved" : "Claimed"}
+                      </span>
+                      <span class="mono faint" style="font-size: 10px;">№ {d.n}/001</span>
+                    </div>
+                    <h3 class="display" style="font-size: 20px; margin-bottom: 8px;">{d.title}</h3>
+                    <div class="mono dim" style="font-size: 11px; margin-bottom: 12px;">{d.style} · {d.placement}</div>
+                    <div class="display" style="font-size: 22px;">{fmtEth(d.price)}</div>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <Footer />
+</Base>

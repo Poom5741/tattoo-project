@@ -16,4 +16,5 @@ interface Env {
   SIGNER_PRIVATE_KEY: string;
   NFT_STORAGE_KEY: string;
   RESEND_API_KEY: string;
+  R2_PUBLIC_URL: string;
 }

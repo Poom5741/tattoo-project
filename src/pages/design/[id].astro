@@ -1,0 +1,195 @@
+---
+export const prerender = false;
+
+import Base from "../../layouts/Base.astro";
+import Nav from "../../components/Nav";
+import Footer from "../../components/Footer.astro";
+import TweaksPanel from "../../components/TweaksPanel";
+import TextureLayer from "../../components/TextureLayer";
+import Toast from "../../components/Toast";
+import Plate from "../../components/Plate";
+
+const { id } = Astro.params;
+
+interface DesignRow {
+  id: string;
+  n: string;
+  title: string;
+  artist_id: string;
+  style: string | null;
+  price: number | null;
+  price_usd: number | null;
+  status: string;
+  placement: string | null;
+  seed: number | null;
+  drawn: number | null;
+  token: string | null;
+  token_id: number | null;
+  ipfs_cid: string | null;
+}
+
+interface ArtistRow {
+  id: string;
+  name: string;
+  city: string | null;
+  style: string | null;
+  seed: number | null;
+}
+
+let design: DesignRow | null = null;
+let artist: ArtistRow | null = null;
+let moreDesigns: DesignRow[] = [];
+
+try {
+  const apiUrl = new URL(`/api/designs/${id}`, Astro.url);
+  const res = await fetch(apiUrl.toString());
+  if (res.ok) {
+    const data = await res.json() as { design: DesignRow; artist: ArtistRow };
+    design = data.design;
+    artist = data.artist;
+  }
+} catch {
+  // fallback
+}
+
+if (!design) {
+  return Astro.redirect("/market");
+}
+
+// Fetch more from same artist
+try {
+  const apiUrl = new URL(`/api/designs?artistId=${design.artist_id}`, Astro.url);
+  const res = await fetch(apiUrl.toString());
+  if (res.ok) {
+    const all = await res.json() as DesignRow[];
+    moreDesigns = all.filter((d) => d.id !== design!.id).slice(0, 3);
+  }
+} catch {
+  // ignore
+}
+
+function fmtEth(v: number | null) {
+  if (!v) return "—";
+  return v.toFixed(3) + " ETH";
+}
+---
+
+<Base
+  title={design.title + " — INKNOIR"}
+  description={`${design.title} by ${artist?.name ?? ""}. One-of-one tattoo plate.`}
+>
+  <Nav client:load currentPath="/market" />
+  <TextureLayer client:idle />
+  <TweaksPanel client:load />
+  <Toast client:load />
+
+  <section style="padding: 32px 0 80px;">
+    <div class="wrap">
+      <a href="/market" class="back-link">← Back to gallery</a>
+
+      <div class="detail">
+        <div class="detail__img">
+          <Plate seed={design.seed ?? 0} label={design.title.toUpperCase()} index={design.n} density={1.3} client:load />
+        </div>
+        <div class="detail__side">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px;">
+            <span class={`tag ${design.status === "available" ? "tag--avail" : design.status === "reserved" ? "tag--reserved" : "tag--sold"}`}>
+              <span class="dot"></span>
+              {design.status === "available" ? "Available" : design.status === "reserved" ? "Reserved" : "Claimed"}
+            </span>
+            <span class="mono faint" style="font-size: 11px; letter-spacing: .1em;">№ {design.n} / 001</span>
+          </div>
+          <h1 class="display" style="font-size: 46px; line-height: 1;">{design.title}</h1>
+
+          {artist && (
+            <a href={`/artist/${artist.id}`} style="display: flex; align-items: center; gap: 12px; margin: 20px 0 28px; text-decoration: none; color: inherit; cursor: pointer;">
+              <div class="avatar" style="width: 38px; height: 38px;">
+                <Plate seed={artist.seed ?? 0} density={0.6} client:load />
+              </div>
+              <div>
+                <div class="mono" style="font-size: 13px;">{artist.name}</div>
+                <div class="mono faint" style="font-size: 11px; letter-spacing: .06em;">{artist.city} · {design.style}</div>
+              </div>
+            </a>
+          )}
+
+          <div style="display: flex; align-items: baseline; gap: 14px; padding: 22px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 26px;">
+            <span class="price-big">{fmtEth(design.price)}</span>
+            {design.price_usd != null && (
+              <span class="mono dim" style="font-size: 13px;">≈ ${design.price_usd.toLocaleString()}</span>
+            )}
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 26px;">
+            {design.status === "available" ? (
+              <>
+                <a href={`/checkout/${design.id}`} class="btn btn--solid btn--block btn--lg">Acquire this plate</a>
+                {artist && (
+                  <a href={`/booking?designId=${design.id}`} class="btn btn--ghost btn--block">
+                    Book {artist.name.split(" ")[0]} to ink it
+                  </a>
+                )}
+              </>
+            ) : (
+              <button class="btn btn--ghost btn--block btn--lg" disabled>
+                🔒 {design.status === "reserved" ? "Reserved" : "Claimed — retired"}
+              </button>
+            )}
+          </div>
+
+          <div class="cert">
+            <div class="cert__head">
+              <span class="t">Certificate of plate</span>
+              <span class="cert__seal">{design.n}</span>
+            </div>
+            <div class="cert__rows">
+              {[
+                ["Edition", "№ " + design.n + " / 001"],
+                ["Medium", "Digital ink plate"],
+                ["Placement", design.placement ?? "—"],
+                ["Watching", String(design.drawn ?? 0) + " collectors"],
+              ].map(([k, v]) => (
+                <div class="cert__row">
+                  <span class="k">{k}</span>
+                  <span class="v">{v}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <p class="dim" style="font-size: 13.5px; margin-top: 26px; margin-bottom: 0;">
+            Drawn by hand and held in escrow until claimed.
+            {design.drawn != null && <> {design.drawn} collectors are watching this plate.</>}
+            {" "}On purchase it leaves the gallery permanently — the artist will ink it once, for you, and never again.
+          </p>
+        </div>
+      </div>
+
+      {moreDesigns.length > 0 && artist && (
+        <div style="margin-top: 72px;">
+          <div class="divider-label mono faint" style="font-size: 11px; letter-spacing: .2em; text-transform: uppercase;">
+            More from {artist.name}
+          </div>
+          <div class="grid market-grid">
+            {moreDesigns.map((m) => (
+              <a href={`/design/${m.id}`} style="display: block; text-decoration: none; color: inherit;">
+                <div class="card">
+                  <div class="card__img">
+                    <Plate seed={m.seed ?? 0} density={1} client:load />
+                  </div>
+                  <div class="card__body">
+                    <h3 class="display" style="font-size: 20px; margin-bottom: 8px;">{m.title}</h3>
+                    <div class="mono dim" style="font-size: 11px;">{m.style}</div>
+                    <div class="display" style="font-size: 22px; margin-top: 12px;">{fmtEth(m.price)}</div>
+                  </div>
+                </div>
+              </a>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  </section>
+
+  <Footer />
+</Base>

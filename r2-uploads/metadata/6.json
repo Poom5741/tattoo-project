@@ -1,0 +1,40 @@
+{
+  "name": "INKNOIR — Black Sun Mandala",
+  "description": "Black Sun Mandala by Sol Reyes. Heavy black, sacred geometry, and ornamental linework. Sol releases limited plates that read as objects first, tattoos second.",
+  "image": "https://pub-placeholder.r2.dev/metadata/6.json",
+  "external_url": "https://inknoir.pages.dev/design/d6",
+  "attributes": [
+    {
+      "trait_type": "Artist",
+      "value": "Sol Reyes"
+    },
+    {
+      "trait_type": "Style",
+      "value": "Blackwork"
+    },
+    {
+      "trait_type": "Placement",
+      "value": "Spine · 30cm"
+    },
+    {
+      "trait_type": "Medium",
+      "value": "Tebori + machine"
+    },
+    {
+      "trait_type": "Sessions",
+      "value": 3
+    },
+    {
+      "trait_type": "Edition",
+      "value": "006"
+    },
+    {
+      "trait_type": "Price (ETH)",
+      "value": 2.4
+    },
+    {
+      "trait_type": "City",
+      "value": "Mexico City, MX"
+    }
+  ]
+}

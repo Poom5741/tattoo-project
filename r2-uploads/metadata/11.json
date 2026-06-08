@@ -1,0 +1,40 @@
+{
+  "name": "INKNOIR — Thread & Needle",
+  "description": "Thread & Needle by Mara Vael. Mara works in negative space and single-needle linework — quiet compositions that sit close to the skin. Every flash piece she releases is drawn once and retired the moment it is claimed.",
+  "image": "https://pub-placeholder.r2.dev/metadata/11.json",
+  "external_url": "https://inknoir.pages.dev/design/d11",
+  "attributes": [
+    {
+      "trait_type": "Artist",
+      "value": "Mara Vael"
+    },
+    {
+      "trait_type": "Style",
+      "value": "Fine Line"
+    },
+    {
+      "trait_type": "Placement",
+      "value": "Collar · 13cm"
+    },
+    {
+      "trait_type": "Medium",
+      "value": "Machine, heavy black"
+    },
+    {
+      "trait_type": "Sessions",
+      "value": 2
+    },
+    {
+      "trait_type": "Edition",
+      "value": "011"
+    },
+    {
+      "trait_type": "Price (ETH)",
+      "value": 1.1
+    },
+    {
+      "trait_type": "City",
+      "value": "Berlin, DE"
+    }
+  ]
+}

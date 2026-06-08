@@ -1,0 +1,40 @@
+{
+  "name": "INKNOIR — The Ornamental Eye",
+  "description": "The Ornamental Eye by Sol Reyes. Heavy black, sacred geometry, and ornamental linework. Sol releases limited plates that read as objects first, tattoos second.",
+  "image": "https://pub-placeholder.r2.dev/metadata/3.json",
+  "external_url": "https://inknoir.pages.dev/design/d3",
+  "attributes": [
+    {
+      "trait_type": "Artist",
+      "value": "Sol Reyes"
+    },
+    {
+      "trait_type": "Style",
+      "value": "Geometric"
+    },
+    {
+      "trait_type": "Placement",
+      "value": "Sternum · 18cm"
+    },
+    {
+      "trait_type": "Medium",
+      "value": "Machine, heavy black"
+    },
+    {
+      "trait_type": "Sessions",
+      "value": 3
+    },
+    {
+      "trait_type": "Edition",
+      "value": "003"
+    },
+    {
+      "trait_type": "Price (ETH)",
+      "value": 1.6
+    },
+    {
+      "trait_type": "City",
+      "value": "Mexico City, MX"
+    }
+  ]
+}

@@ -1,0 +1,103 @@
+---
+export const prerender = true;
+
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav";
+import Footer from "../components/Footer.astro";
+import TweaksPanel from "../components/TweaksPanel";
+import TextureLayer from "../components/TextureLayer";
+import Toast from "../components/Toast";
+import Plate from "../components/Plate";
+import { ARTISTS, DESIGNS } from "../lib/catalog/seed";
+
+const STYLE_KIND: Record<string, number> = {
+  Geometric: 0,
+  Blackwork: 1,
+  "Fine Line": 2,
+  Irezumi: 3,
+  "Neo-Trad": 3,
+  Realism: 4,
+  Lettering: 5,
+};
+
+const artistDesignCounts = ARTISTS.map((a) => ({
+  ...a,
+  availableCount: DESIGNS.filter((d) => d.artistId === a.id && d.status === "available").length,
+}));
+---
+
+<Base title="Artists — INKNOIR">
+  <div class="app">
+    <Nav currentPath="/artists" client:load />
+    <main style="flex: 1">
+      <div class="fade-in">
+        <section style="padding: 56px 0 0">
+          <div class="wrap">
+            <div class="kicker" style="margin-bottom: 16px">The roster</div>
+            <h1 class="display" style="font-size: clamp(38px,6vw,72px); margin-bottom: 16px">Resident artists</h1>
+            <p class="dim" style="font-size: 16px; max-width: 48ch; margin: 0 0 56px">
+              Four artists. Each releases a limited run of one-off plates, draws them once, and inks them personally.
+            </p>
+          </div>
+        </section>
+
+        <section style="padding: 0 0 92px">
+          <div class="wrap">
+            <div class="grid" style="grid-template-columns: repeat(2, 1fr)">
+              {artistDesignCounts.map((a) => (
+                <a href={`/artist/${a.id}`} class="card" style="text-decoration: none; flex-direction: row; align-items: stretch">
+                  <div style="width: 200px; flex-shrink: 0; position: relative">
+                    <Plate seed={a.seed} label={a.style.split(" · ")[0].toUpperCase()} density={0.9} client:load />
+                  </div>
+                  <div class="card__body" style="flex: 1; padding: 28px 32px; display: flex; flex-direction: column; justify-content: center">
+                    <div class="kicker" style="margin-bottom: 12px">{a.style}</div>
+                    <h2 class="display" style="font-size: 32px; margin-bottom: 8px">{a.name}</h2>
+                    <div class="card__artist" style="margin-bottom: 16px">{a.city}</div>
+                    <p class="dim" style="font-size: 13px; margin: 0 0 20px; line-height: 1.6">{a.bio}</p>
+                    <div style="display: flex; gap: 24px; flex-wrap: wrap">
+                      <div>
+                        <div style="font-family: var(--font-display); font-size: 24px">{a.pieces}</div>
+                        <div class="kicker" style="margin-top: 4px">Plates</div>
+                      </div>
+                      <div>
+                        <div style="font-family: var(--font-display); font-size: 24px">{a.rating}</div>
+                        <div class="kicker" style="margin-top: 4px">Rating</div>
+                      </div>
+                      <div>
+                        <div style="font-family: var(--font-display); font-size: 24px">{a.availableCount}</div>
+                        <div class="kicker" style="margin-top: 4px">Available</div>
+                      </div>
+                    </div>
+                    <div style="margin-top: 24px">
+                      <span class="tag">
+                        <span class="dot" style="background: var(--ok)"></span>
+                        {a.booked}
+                      </span>
+                    </div>
+                  </div>
+                </a>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        <hr class="rule" />
+
+        <section class="section--tight" style="border-top: none; background: var(--ink-850)">
+          <div class="wrap" style="display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap">
+            <div>
+              <div class="kicker" style="margin-bottom: 12px">Join the house</div>
+              <h2 class="display" style="font-size: clamp(24px, 3vw, 36px); max-width: 22ch">Are you a tattoo artist? Apply to release your plates on INKNOIR.</h2>
+            </div>
+            <a href="/artists" class="btn btn--ghost btn--lg">Apply to sell</a>
+          </div>
+        </section>
+      </div>
+    </main>
+    <Footer />
+  </div>
+
+  <Toast client:load />
+  <TweaksPanel client:load />
+  <TextureLayer client:idle />
+</Base>

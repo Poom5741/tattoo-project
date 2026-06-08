@@ -1,0 +1,23 @@
+name = "inknoir"
+compatibility_date = "2026-06-01"
+compatibility_flags = ["nodejs_compat"]
+pages_build_output_dir = "./dist"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "inknoir-catalog"
+database_id = "18219077-0bbb-4a1b-8c85-ff088df600d7"
+
+[[r2_buckets]]
+binding = "ASSETS"
+bucket_name = "inknoir-assets"
+
+[vars]
+PUBLIC_CHAIN_ID = "84532"
+PUBLIC_BASE_RPC_PRIMARY = "https://sepolia.base.org"
+PUBLIC_BASE_RPC_FALLBACK = "https://base-sepolia.publicnode.com"
+PUBLIC_CONTRACT_ADDRESS = "PLACEHOLDER_FILLED_BY_PHASE_3_DEPLOY"
+R2_PUBLIC_URL = "PLACEHOLDER_FILLED_BY_PHASE_7_3"
+
+[triggers]
+crons = ["*/5 * * * *"]
