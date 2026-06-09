@@ -1,0 +1,191 @@
+---
+export const prerender = false;
+
+import Base from "../../layouts/Base.astro";
+import { getArtistSession } from "../../lib/artist/auth";
+import PrivyArtistGate from "../../components/PrivyArtistGate";
+
+const env = Astro.locals.runtime.env;
+const session = await getArtistSession(
+  Astro.request.headers.get("cookie") ?? "",
+  env.SESSION
+);
+
+interface DesignRow {
+  id: string;
+  n: string;
+  title: string;
+  style: string | null;
+  price: number | null;
+  status: string;
+  placement: string | null;
+}
+
+interface BookingRow {
+  id: number;
+  design_id: string | null;
+  name: string;
+  contact: string;
+  message: string | null;
+  buyer_wallet: string | null;
+  created_at: number;
+}
+
+let plates: DesignRow[] = [];
+let bookings: BookingRow[] = [];
+let artistName = "";
+
+if (session) {
+  const db = env.DB;
+  const [pRes, bRes, aRow] = await Promise.all([
+    db
+      .prepare("SELECT id, n, title, style, price, status, placement FROM designs WHERE artist_id = ? ORDER BY token_id ASC")
+      .bind(session.artistId)
+      .all<DesignRow>(),
+    db
+      .prepare("SELECT id, design_id, name, contact, message, buyer_wallet, created_at FROM booking_inquiries WHERE artist_id = ? ORDER BY created_at DESC")
+      .bind(session.artistId)
+      .all<BookingRow>(),
+    db
+      .prepare("SELECT name FROM artists WHERE id = ?")
+      .bind(session.artistId)
+      .first<{ name: string }>(),
+  ]);
+  plates = pRes.results;
+  bookings = bRes.results;
+  artistName = aRow?.name ?? session.name;
+}
+
+const stats = {
+  total: plates.length,
+  available: plates.filter((p) => p.status === "available").length,
+  reserved: plates.filter((p) => p.status === "reserved").length,
+  sold: plates.filter((p) => p.status === "sold").length,
+  inquiries: bookings.length,
+};
+
+function fmtDate(ts: number) {
+  return new Date(ts * 1000).toLocaleString("en-GB", {
+    day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+}
+
+const PRIVY_APP_ID = env.PRIVY_APP_ID;
+---
+
+<Base title="Artist Portal — INKNOIR">
+  <style>
+    .portal { max-width: 1000px; margin: 0 auto; padding: 40px 28px 80px; }
+    .portal-hd { display: flex; justify-content: space-between; align-items: center;
+      padding-bottom: 24px; border-bottom: 1px solid var(--line); margin-bottom: 40px; }
+    .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px;
+      background: var(--line); border: 1px solid var(--line); margin-bottom: 48px; }
+    .stat { background: var(--ink-800); padding: 20px 22px; }
+    .stat .n { font-family: var(--font-display); font-size: 36px; line-height: 1; }
+    .stat .l { font-family: var(--font-mono); font-size: 9px; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--fg-faint); margin-top: 6px; }
+    .sec { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .2em;
+      text-transform: uppercase; color: var(--fg-dim); margin-bottom: 14px; }
+    .tbl { width: 100%; border: 1px solid var(--line); border-collapse: collapse; margin-bottom: 52px; }
+    .tbl th { font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em;
+      text-transform: uppercase; color: var(--fg-faint); padding: 11px 16px; text-align: left;
+      border-bottom: 1px solid var(--line); background: var(--ink-850); white-space: nowrap; }
+    .tbl td { padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 13px; vertical-align: top; }
+    .tbl tr:last-child td { border-bottom: none; }
+    .tbl tr:hover td { background: var(--ink-750); }
+    .wallet-chip { font-family: var(--font-mono); font-size: 10px; background: var(--ink-750);
+      border: 1px solid var(--line); padding: 2px 7px; border-radius: 2px;
+      color: var(--fg-dim); overflow: hidden; max-width: 140px; white-space: nowrap;
+      text-overflow: ellipsis; display: inline-block; vertical-align: middle; }
+    @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+
+  {!session ? (
+    <PrivyArtistGate client:only="react" appId={PRIVY_APP_ID} />
+  ) : (
+    <div class="portal">
+      <div class="portal-hd">
+        <div>
+          <div class="kicker" style="margin-bottom: 8px;">INKNOIR / Artist Portal</div>
+          <h1 class="display" style="font-size: 32px;">{artistName}</h1>
+          <div class="wallet-chip" style="margin-top: 8px;" title={session.walletAddress}>
+            {session.walletAddress.slice(0, 6)}…{session.walletAddress.slice(-4)}
+          </div>
+        </div>
+        <form method="POST" action="/api/auth/artist-logout">
+          <button type="submit" class="btn btn--ghost">Sign out</button>
+        </form>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="n">{stats.total}</div><div class="l">Plates</div></div>
+        <div class="stat"><div class="n" style="color:var(--ok)">{stats.available}</div><div class="l">Available</div></div>
+        <div class="stat"><div class="n" style="color:var(--warn)">{stats.reserved}</div><div class="l">Reserved</div></div>
+        <div class="stat"><div class="n">{stats.sold}</div><div class="l">Sold</div></div>
+        <div class="stat"><div class="n">{stats.inquiries}</div><div class="l">Inquiries</div></div>
+      </div>
+
+      <div class="sec">Your plates</div>
+      {plates.length === 0 ? (
+        <p class="mono faint" style="font-size:13px; margin-bottom:48px;">No plates yet.</p>
+      ) : (
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>№</th><th>Title</th><th>Style</th><th>Placement</th><th>Price</th><th>Status</th>
+            </tr>
+          </thead>
+          <tbody>
+            {plates.map((p) => (
+              <tr>
+                <td class="mono faint" style="font-size:11px">{p.n}</td>
+                <td><a href={`/design/${p.id}`} style="text-decoration:underline;text-underline-offset:3px">{p.title}</a></td>
+                <td class="mono faint" style="font-size:11px">{p.style ?? "—"}</td>
+                <td class="mono faint" style="font-size:11px">{p.placement ?? "—"}</td>
+                <td class="mono" style="font-size:12px">{p.price != null ? p.price.toFixed(3) + " ETH" : "—"}</td>
+                <td>
+                  <span class={`tag ${p.status === "available" ? "tag--avail" : p.status === "reserved" ? "tag--reserved" : "tag--sold"}`}>
+                    <span class="dot"></span>{p.status}
+                  </span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      <div class="sec">Booking inquiries</div>
+      {bookings.length === 0 ? (
+        <p class="mono faint" style="font-size:13px;">No inquiries yet.</p>
+      ) : (
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>#</th><th>Date</th><th>Name</th><th>Contact</th><th>Plate</th><th>Buyer wallet</th><th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bookings.map((b) => (
+              <tr>
+                <td class="mono faint" style="font-size:11px">{b.id}</td>
+                <td class="mono" style="font-size:11px;white-space:nowrap">{fmtDate(b.created_at)}</td>
+                <td style="font-weight:500">{b.name}</td>
+                <td class="mono" style="font-size:12px">{b.contact}</td>
+                <td class="mono faint" style="font-size:11px">{b.design_id ?? "—"}</td>
+                <td>
+                  {b.buyer_wallet ? (
+                    <span class="wallet-chip" title={b.buyer_wallet}>
+                      {b.buyer_wallet.slice(0, 6)}…{b.buyer_wallet.slice(-4)}
+                    </span>
+                  ) : "—"}
+                </td>
+                <td><div style="font-size:12px;color:var(--fg-dim);max-width:220px">{b.message ?? "—"}</div></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+  )}
+</Base>

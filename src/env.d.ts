@@ -20,4 +20,6 @@ interface Env {
   RESEND_API_KEY: string;
   ADMIN_PASSWORD: string;
   R2_PUBLIC_URL: string;
+  PRIVY_APP_ID: string;
+  PRIVY_APP_SECRET: string;
 }

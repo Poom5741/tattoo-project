@@ -14,9 +14,11 @@
   "dependencies": {
     "@astrojs/cloudflare": "^12.0.0",
     "@astrojs/react": "^4.0.0",
+    "@privy-io/react-auth": "^3.29.2",
     "@rainbow-me/rainbowkit": "^2.2.0",
     "@tanstack/react-query": "^5.62.0",
     "astro": "^5.0.0",
+    "jose": "^6.2.3",
     "nft.storage": "^7.2.0",
     "react": "^18.3.0",
     "react-dom": "^18.3.0",

@@ -33,6 +33,7 @@ interface DesignRow {
 interface ArtistRow {
   id: string;
   name: string;
+  wallet_address?: string | null;
 }
 
 let bookings: BookingRow[] = [];
@@ -44,7 +45,7 @@ if (authed) {
   const [bRes, dRes, aRes] = await Promise.all([
     db.prepare("SELECT * FROM booking_inquiries ORDER BY created_at DESC").all<BookingRow>(),
     db.prepare("SELECT id, n, title, artist_id, style, price, status FROM designs ORDER BY token_id ASC").all<DesignRow>(),
-    db.prepare("SELECT id, name FROM artists ORDER BY name ASC").all<ArtistRow>(),
+    db.prepare("SELECT id, name, wallet_address FROM artists ORDER BY name ASC").all<ArtistRow>(),
   ]);
   bookings = bRes.results;
   designs = dRes.results;
@@ -183,6 +184,38 @@ function fmtDate(ts: number) {
                 <span class={`tag ${d.status === "available" ? "tag--avail" : d.status === "reserved" ? "tag--reserved" : "tag--sold"}`}>
                   <span class="dot"></span>{d.status}
                 </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+
+      <div class="sec" style="margin-top: 24px;">Artist wallet addresses</div>
+      <table class="tbl">
+        <thead>
+          <tr>
+            <th>Artist</th><th>ID</th><th>Current wallet</th><th>Update</th>
+          </tr>
+        </thead>
+        <tbody>
+          {artists.map((a) => (
+            <tr>
+              <td style="font-weight:500">{a.name}</td>
+              <td class="mono faint" style="font-size:11px">{a.id}</td>
+              <td class="mono" style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis">
+                {a.wallet_address ? a.wallet_address : <span style="color:var(--fg-faint)">not set</span>}
+              </td>
+              <td>
+                <form method="POST" action="/api/admin/update-artist-wallet"
+                  style="display:flex;gap:8px;align-items:center">
+                  <input type="hidden" name="artistId" value={a.id} />
+                  <input type="text" name="walletAddress" class="input"
+                    placeholder="0x…" style="font-size:11px;font-family:var(--font-mono);width:280px;padding:6px 10px"
+                    value={a.wallet_address ?? ""} />
+                  <button type="submit" class="btn btn--ghost" style="font-size:11px;padding:6px 14px">
+                    Save
+                  </button>
+                </form>
               </td>
             </tr>
           ))}
