@@ -50,6 +50,11 @@ export const BookingInquirySchema = z.object({
   name: z.string().min(1).max(200),
   contact: z.string().min(1).max(500),
   message: z.string().max(2000).optional(),
+  bookingType: z.enum(["plate", "custom"]).default("plate"),
+  customStyle: z.string().max(100).optional(),
+  customSize: z.enum(["small", "medium", "large", "extra-large"]).optional(),
+  customPlacement: z.string().max(200).optional(),
+  customBudget: z.string().max(100).optional(),
 });
 
 export const VoucherRequestSchema = z.object({

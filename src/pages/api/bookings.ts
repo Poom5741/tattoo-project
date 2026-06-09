@@ -27,7 +27,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 
-  const { artistId, designId, name, contact, message } = parsed.data;
+  const { artistId, designId, name, contact, message, bookingType, customStyle, customSize, customPlacement, customBudget } = parsed.data;
 
   const db = env.DB;
   let d1Ms = 0;
@@ -36,9 +36,9 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const d1Start = Date.now();
     await db
       .prepare(
-        "INSERT INTO booking_inquiries (artist_id, design_id, name, contact, message) VALUES (?, ?, ?, ?, ?)"
+        "INSERT INTO booking_inquiries (artist_id, design_id, name, contact, message, booking_type, custom_style, custom_size, custom_placement, custom_budget) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
       )
-      .bind(artistId, designId ?? null, name, contact, message ?? null)
+      .bind(artistId, designId ?? null, name, contact, message ?? null, bookingType, customStyle ?? null, customSize ?? null, customPlacement ?? null, customBudget ?? null)
       .run();
     d1Ms = Date.now() - d1Start;
   } catch (err) {
