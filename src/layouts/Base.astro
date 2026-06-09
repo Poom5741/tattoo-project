@@ -7,6 +7,17 @@ export interface Props {
 }
 
 const { title = "INKNOIR — One-of-one tattoo plates", description = "One-of-one tattoo plates. Blockchain-verified ownership." } = Astro.props;
+
+// Tawk.to live-chat widget. Loads on all public pages, suppressed on the
+// blocked prefixes below. Add wallet/signing routes here (e.g. "/checkout",
+// "/wallet") if the third-party-script risk on those pages is deemed
+// unacceptable — see .omc/plans/live-chat-widget-tawkto.md (ADR).
+const widgetBlockedPrefixes = ["/admin"];
+const isBlocked = widgetBlockedPrefixes.some((p) => Astro.url.pathname.startsWith(p));
+const tawkProperty = import.meta.env.PUBLIC_TAWK_PROPERTY_ID;
+const tawkWidget = import.meta.env.PUBLIC_TAWK_WIDGET_ID;
+const showTawk = !isBlocked && Boolean(tawkProperty) && Boolean(tawkWidget);
+const tawkSrc = showTawk ? `https://embed.tawk.to/${tawkProperty}/${tawkWidget}` : null;
 ---
 
 <!doctype html>
@@ -32,5 +43,22 @@ const { title = "INKNOIR — One-of-one tattoo plates", description = "One-of-on
         localStorage.removeItem("inknoir_book");
       } catch (_) {}
     </script>
+    {
+      showTawk && (
+        <script is:inline define:vars={{ tawkSrc }}>
+          var Tawk_API = Tawk_API || {},
+            Tawk_LoadStart = new Date();
+          (function () {
+            var s1 = document.createElement("script"),
+              s0 = document.getElementsByTagName("script")[0];
+            s1.async = true;
+            s1.src = tawkSrc;
+            s1.charset = "UTF-8";
+            s1.crossOrigin = "anonymous";
+            s0.parentNode.insertBefore(s1, s0);
+          })();
+        </script>
+      )
+    }
   </body>
 </html>

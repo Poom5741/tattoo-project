@@ -6,6 +6,19 @@ declare namespace App {
   interface Locals extends Runtime {}
 }
 
+// Build-time public vars, inlined by Vite via `import.meta.env.*`.
+// NOTE: this is a different mechanism from the Cloudflare `Env` runtime
+// bindings below (those are read via `Astro.locals.runtime.env`).
+interface ImportMetaEnv {
+  readonly PUBLIC_TAWK_PROPERTY_ID: string;
+  readonly PUBLIC_TAWK_WIDGET_ID: string;
+  readonly PUBLIC_PRIVY_APP_ID: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
 interface Env {
   DB: D1Database;
   ASSETS: Fetcher;
