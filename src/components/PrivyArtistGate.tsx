@@ -1,5 +1,5 @@
 import React from "react";
-import { PrivyProvider, usePrivy, useWallets } from "@privy-io/react-auth";
+import { PrivyProvider, usePrivy, useWallets, useCreateWallet } from "@privy-io/react-auth";
 import { baseSepolia } from "viem/chains";
 
 interface Props {
@@ -25,15 +25,25 @@ function LoginWall() {
 function AuthHandler({ onSession }: { onSession: () => void }) {
   const { authenticated, getAccessToken, logout } = usePrivy();
   const { wallets } = useWallets();
+  const { createWallet } = useCreateWallet();
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
   const calledRef = React.useRef(false);
+  const creatingWalletRef = React.useRef(false);
 
   const walletAddress = wallets[0]?.address ?? "";
 
+  // Explicitly create embedded wallet if user signed in without one
+  React.useEffect(() => {
+    if (!authenticated || walletAddress || creatingWalletRef.current) return;
+    creatingWalletRef.current = true;
+    createWallet().catch(() => {
+      creatingWalletRef.current = false;
+    });
+  }, [authenticated, walletAddress]);
+
   React.useEffect(() => {
     if (!authenticated || calledRef.current) return;
-    // Wait for Privy to finish creating the embedded wallet before proceeding
     if (!walletAddress) return;
     calledRef.current = true;
     setLoading(true);
