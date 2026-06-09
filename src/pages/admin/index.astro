@@ -190,7 +190,39 @@ function fmtDate(ts: number) {
         </tbody>
       </table>
 
-      <div class="sec" style="margin-top: 24px;">Artist wallet addresses</div>
+      <div class="sec" style="margin-top: 24px;">Register new artist</div>
+      <form method="POST" action="/api/admin/register-artist"
+        style="display:grid; grid-template-columns:1fr 1fr; gap:12px; border:1px solid var(--line); padding:20px; margin-bottom:36px; background:var(--ink-800);">
+        <div class="field" style="margin:0">
+          <label style="font-size:10px">Name *</label>
+          <input type="text" name="name" class="input" required placeholder="Artist name" style="font-size:12px;padding:7px 10px" />
+        </div>
+        <div class="field" style="margin:0">
+          <label style="font-size:10px">Handle</label>
+          <input type="text" name="handle" class="input" placeholder="@handle" style="font-size:12px;padding:7px 10px" />
+        </div>
+        <div class="field" style="margin:0">
+          <label style="font-size:10px">City</label>
+          <input type="text" name="city" class="input" placeholder="Bangkok" style="font-size:12px;padding:7px 10px" />
+        </div>
+        <div class="field" style="margin:0">
+          <label style="font-size:10px">Style</label>
+          <input type="text" name="style" class="input" placeholder="Neo-traditional" style="font-size:12px;padding:7px 10px" />
+        </div>
+        <div class="field" style="margin:0">
+          <label style="font-size:10px">Email</label>
+          <input type="email" name="email" class="input" placeholder="artist@email.com" style="font-size:12px;padding:7px 10px" />
+        </div>
+        <div class="field" style="margin:0">
+          <label style="font-size:10px">Wallet address</label>
+          <input type="text" name="walletAddress" class="input" placeholder="0x…" style="font-size:12px;font-family:var(--font-mono);padding:7px 10px" />
+        </div>
+        <div style="grid-column:1/-1">
+          <button type="submit" class="btn btn--solid" style="font-size:12px;padding:8px 24px">Register artist</button>
+        </div>
+      </form>
+
+      <div class="sec">Artist wallet addresses</div>
       <table class="tbl">
         <thead>
           <tr>
