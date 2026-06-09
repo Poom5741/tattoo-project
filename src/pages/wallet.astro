@@ -8,11 +8,6 @@ import TweaksPanel from "../components/TweaksPanel";
 import TextureLayer from "../components/TextureLayer";
 import Toast from "../components/Toast";
 import WalletOwnedPlates from "../components/WalletOwnedPlates";
-import { cookieToInitialState } from "wagmi";
-import { config } from "../lib/wagmi";
-
-const cookieHeader = Astro.request.headers.get("cookie") ?? "";
-const initialState = cookieToInitialState(config, cookieHeader);
 ---
 
 <Base title="Your Collection — INKNOIR" description="View your one-of-one tattoo plates.">
@@ -25,7 +20,7 @@ const initialState = cookieToInitialState(config, cookieHeader);
     <div class="wrap">
       <div class="kicker" style="margin-bottom: 16px;">Your collection</div>
       <h1 class="display" style="font-size: clamp(38px,6vw,72px); margin-bottom: 40px;">Held by you</h1>
-      <WalletOwnedPlates client:only="react" initialState={initialState} />
+      <WalletOwnedPlates client:only="react" />
     </div>
   </section>
 

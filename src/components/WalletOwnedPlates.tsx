@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useAccount } from "wagmi";
-import type { State } from "wagmi";
+import { usePrivy } from "@privy-io/react-auth";
 import WalletProvider from "./WalletProvider";
 import Plate from "./Plate";
 
@@ -18,6 +18,7 @@ interface OwnedPlate {
 
 function WalletOwnedPlatesInner() {
   const { address, isConnected } = useAccount();
+  const { login } = usePrivy();
   const [plates, setPlates] = useState<OwnedPlate[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -47,6 +48,7 @@ function WalletOwnedPlatesInner() {
         <p className="dim" style={{ fontSize: 14, margin: "12px auto 28px", maxWidth: "38ch" }}>
           Connect to see plates you own on-chain.
         </p>
+        <button className="btn btn--solid btn--lg" onClick={login}>Connect & Sign in</button>
       </div>
     );
   }
@@ -125,13 +127,9 @@ function WalletOwnedPlatesInner() {
   );
 }
 
-interface WalletOwnedPlatesProps {
-  initialState?: State;
-}
-
-export default function WalletOwnedPlates({ initialState }: WalletOwnedPlatesProps) {
+export default function WalletOwnedPlates() {
   return (
-    <WalletProvider initialState={initialState}>
+    <WalletProvider>
       <WalletOwnedPlatesInner />
     </WalletProvider>
   );

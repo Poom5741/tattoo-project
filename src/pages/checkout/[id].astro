@@ -7,8 +7,6 @@ import Footer from "../../components/Footer.astro";
 import TweaksPanel from "../../components/TweaksPanel";
 import TextureLayer from "../../components/TextureLayer";
 import CheckoutFlow from "../../components/CheckoutFlow";
-import { cookieToInitialState } from "wagmi";
-import { config } from "../../lib/wagmi";
 
 const { id } = Astro.params;
 
@@ -46,8 +44,6 @@ if (design.status !== "available") {
   return Astro.redirect(`/design/${id}`);
 }
 
-const cookieHeader = Astro.request.headers.get("cookie") ?? "";
-const initialState = cookieToInitialState(config, cookieHeader);
 ---
 
 <Base
@@ -58,7 +54,7 @@ const initialState = cookieToInitialState(config, cookieHeader);
   <TextureLayer client:idle />
   <TweaksPanel client:load />
 
-  <CheckoutFlow client:load design={design} initialState={initialState} />
+  <CheckoutFlow client:only="react" design={design} />
 
   <Footer />
 </Base>

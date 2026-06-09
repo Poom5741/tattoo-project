@@ -1,5 +1,5 @@
 import { useState } from "react";
-import DeferredConnectButton from "./DeferredConnectButton";
+import PrivyNavButton from "./PrivyNavButton";
 
 interface NavProps {
   currentPath?: string;
@@ -32,7 +32,7 @@ export default function Nav({ currentPath = "/" }: NavProps) {
                 {label}
               </a>
             ))}
-            <DeferredConnectButton />
+            <PrivyNavButton />
           </div>
           <button className="nav__burger" onClick={() => setOpen(!open)} aria-label="Menu">
             {open ? "✕" : "≡"}

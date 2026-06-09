@@ -1,4 +1,4 @@
-import { createConfig, http, fallback, cookieStorage, createStorage } from "wagmi";
+import { createConfig, http, fallback } from "wagmi";
 import { baseSepolia } from "wagmi/chains";
 import { QueryClient } from "@tanstack/react-query";
 
@@ -12,6 +12,4 @@ export const config = createConfig({
       http(import.meta.env.PUBLIC_BASE_RPC_FALLBACK),
     ]),
   },
-  storage: createStorage({ storage: cookieStorage }),
-  ssr: true,
 });

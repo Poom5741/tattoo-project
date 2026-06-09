@@ -1,7 +1,6 @@
 import { useState } from "react";
 import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import type { State } from "wagmi";
+import { usePrivy } from "@privy-io/react-auth";
 import WalletProvider from "./WalletProvider";
 import { CHAIN_ID, CONTRACT_ADDRESS, CONTRACT_ABI } from "../lib/config/contract";
 
@@ -41,6 +40,7 @@ function fmtEth(v: number | null | undefined) {
 
 function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
   const { address, isConnected, chain } = useAccount();
+  const { login } = usePrivy();
   const { switchChain } = useSwitchChain();
   const { writeContract, data: txHash, isPending: isWriting, error: writeError } = useWriteContract();
   const { isLoading: isWaiting, isSuccess: txConfirmed } = useWaitForTransactionReceipt({
@@ -202,7 +202,7 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
               {!isConnected ? (
                 <div style={{ padding: "32px 0" }}>
                   <p className="dim" style={{ fontSize: 14, marginBottom: 20 }}>Connect your wallet to acquire this plate.</p>
-                  <ConnectButton />
+                  <button className="btn btn--solid btn--lg" onClick={login}>Connect & Sign in</button>
                 </div>
               ) : onWrongChain ? (
                 <div style={{ padding: "24px 0" }}>
@@ -266,14 +266,9 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
   );
 }
 
-interface CheckoutFlowProps {
-  design: DesignData;
-  initialState?: State;
-}
-
-export default function CheckoutFlow({ design, initialState }: CheckoutFlowProps) {
+export default function CheckoutFlow({ design }: { design: DesignData }) {
   return (
-    <WalletProvider initialState={initialState}>
+    <WalletProvider>
       <CheckoutFlowInner design={design} />
     </WalletProvider>
   );
