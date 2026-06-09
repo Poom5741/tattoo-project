@@ -29,11 +29,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const token = randomUUID();
   await env.SESSION.put(`admin:${token}`, "1", { expirationTtl: 60 * 60 * 8 });
 
-  return new Response(JSON.stringify({ ok: true }), {
-    status: 200,
-    headers: {
-      "Content-Type": "application/json",
-      "Set-Cookie": `admin_token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=28800`,
-    },
-  });
+  const headers = new Headers();
+  headers.set("Content-Type", "application/json");
+  // Set new cookie at Path=/
+  headers.append("Set-Cookie", `admin_token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=28800`);
+  // Expire stale cookie at old Path=/admin
+  headers.append("Set-Cookie", "admin_token=; Path=/admin; HttpOnly; SameSite=Lax; Max-Age=0");
+
+  return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
 };
