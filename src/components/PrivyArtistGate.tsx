@@ -28,15 +28,18 @@ function AuthHandler({ onSession }: { onSession: () => void }) {
   const [loading, setLoading] = React.useState(false);
   const calledRef = React.useRef(false);
 
+  const walletAddress = user?.smartWallet?.address ?? user?.wallet?.address ?? "";
+
   React.useEffect(() => {
     if (!authenticated || calledRef.current) return;
+    // Wait for Privy to finish creating the embedded wallet before proceeding
+    if (!walletAddress) return;
     calledRef.current = true;
     setLoading(true);
     (async () => {
       try {
         const accessToken = await getAccessToken();
-        const walletAddress =
-          (user?.smartWallet?.address ?? user?.wallet?.address) || "";
+        if (!accessToken) throw new Error("Could not get access token");
         const res = await fetch("/api/auth/artist-login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -57,8 +60,15 @@ function AuthHandler({ onSession }: { onSession: () => void }) {
         setLoading(false);
       }
     })();
-  }, [authenticated]);
+  }, [authenticated, walletAddress]);
 
+  if (authenticated && !walletAddress) {
+    return (
+      <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p className="mono" style={{ fontSize: "13px", color: "var(--fg-dim)" }}>Setting up your wallet…</p>
+      </div>
+    );
+  }
   if (loading) {
     return (
       <div style={{ minHeight: "60vh", display: "flex", alignItems: "center", justifyContent: "center" }}>
