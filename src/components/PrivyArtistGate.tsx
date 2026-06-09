@@ -27,6 +27,7 @@ function AuthHandler({ onSession }: { onSession: () => void }) {
   const { wallets } = useWallets();
   const { createWallet } = useCreateWallet();
   const [error, setError] = React.useState<string | null>(null);
+  const [errorWallet, setErrorWallet] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
   const calledRef = React.useRef(false);
   const creatingWalletRef = React.useRef(false);
@@ -59,8 +60,9 @@ function AuthHandler({ onSession }: { onSession: () => void }) {
         if (res.ok) {
           onSession();
         } else {
-          const data = await res.json() as { error?: string };
+          const data = await res.json() as { error?: string; walletAddress?: string };
           setError(data.error ?? "Login failed");
+          if (data.walletAddress) setErrorWallet(data.walletAddress);
           await logout();
           calledRef.current = false;
         }
@@ -89,9 +91,30 @@ function AuthHandler({ onSession }: { onSession: () => void }) {
   }
   if (error) {
     return (
-      <div style={{ minHeight: "60vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "16px" }}>
+      <div style={{ minHeight: "60vh", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: "20px", padding: "0 24px" }}>
         <p className="mono" style={{ fontSize: "13px", color: "var(--warn)" }}>{error}</p>
-        <button className="btn btn--ghost" onClick={() => { setError(null); calledRef.current = false; }}>Try again</button>
+        {errorWallet && (
+          <div style={{ textAlign: "center", maxWidth: "420px" }}>
+            <p className="mono" style={{ fontSize: "11px", color: "var(--fg-dim)", marginBottom: "10px" }}>
+              Your wallet address — copy this and send it to your shop admin:
+            </p>
+            <div
+              onClick={() => navigator.clipboard.writeText(errorWallet)}
+              style={{
+                fontFamily: "var(--font-mono)", fontSize: "12px", background: "var(--ink-750)",
+                border: "1px solid var(--line)", padding: "10px 14px", borderRadius: "3px",
+                cursor: "pointer", wordBreak: "break-all", userSelect: "all",
+              }}
+              title="Click to copy"
+            >
+              {errorWallet}
+            </div>
+            <p className="mono" style={{ fontSize: "10px", color: "var(--fg-faint)", marginTop: "8px" }}>
+              Click to copy
+            </p>
+          </div>
+        )}
+        <button className="btn btn--ghost" onClick={() => { setError(null); setErrorWallet(null); calledRef.current = false; }}>Try again</button>
       </div>
     );
   }

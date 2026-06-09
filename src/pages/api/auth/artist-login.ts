@@ -59,7 +59,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   if (!artist) {
     return new Response(
-      JSON.stringify({ error: "Wallet not linked to any artist profile" }),
+      JSON.stringify({ error: "Wallet not linked to any artist profile", walletAddress }),
       { status: 403, headers: { "Content-Type": "application/json" } }
     );
   }
