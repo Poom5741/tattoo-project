@@ -46,15 +46,15 @@ export const ArtistSchema = z.object({
 
 export const BookingInquirySchema = z.object({
   artistId: z.string().min(1),
-  designId: z.string().optional(),
+  designId: z.string().nullish(),
   name: z.string().min(1).max(200),
   contact: z.string().min(1).max(500),
-  message: z.string().max(2000).optional(),
+  message: z.string().max(2000).nullish(),
   bookingType: z.enum(["plate", "custom"]).default("plate"),
-  customStyle: z.string().max(100).optional(),
-  customSize: z.enum(["small", "medium", "large", "extra-large"]).optional(),
-  customPlacement: z.string().max(200).optional(),
-  customBudget: z.string().max(100).optional(),
+  customStyle: z.string().max(100).nullish(),
+  customSize: z.enum(["small", "medium", "large", "extra-large"]).nullish(),
+  customPlacement: z.string().max(200).nullish(),
+  customBudget: z.string().max(100).nullish(),
 });
 
 export const VoucherRequestSchema = z.object({

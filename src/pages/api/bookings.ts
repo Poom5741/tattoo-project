@@ -52,7 +52,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   // Fire-and-forget email
-  void sendEmail({ artistId, name, contact, message, env }).catch((err) =>
+  void sendEmail({ artistId, name, contact, message: message ?? undefined, env }).catch((err) =>
     console.warn("[bookings] email send failed:", String(err))
   );
 
