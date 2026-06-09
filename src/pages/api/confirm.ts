@@ -3,7 +3,7 @@ export const prerender = false;
 import type { APIRoute } from "astro";
 import { randomUUID } from "crypto";
 import { createPublicClient, http, fallback, parseEventLogs, zeroAddress } from "viem";
-import { baseSepolia } from "wagmi/chains";
+import { bscTestnet } from "wagmi/chains";
 import { ConfirmRequestSchema } from "../../lib/api/schemas";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "../../lib/config/contract";
 
@@ -59,12 +59,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     }
 
     const transport = fallback([
-      http(env.BASE_RPC_PRIMARY),
-      http(env.BASE_RPC_FALLBACK),
+      http(env.BSC_RPC_PRIMARY),
+      http(env.BSC_RPC_FALLBACK),
     ]);
 
     const publicClient = createPublicClient({
-      chain: baseSepolia,
+      chain: bscTestnet,
       transport,
     });
 
@@ -143,6 +143,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
       });
     }
 
+    // Look up design for earnings tracking
+    const designRecord = await db
+      .prepare("SELECT id, price, artist_id FROM designs WHERE token_id = ?")
+      .bind(tokenId)
+      .first<{ id: string; price: number | null; artist_id: string }>();
+
     await db
       .prepare("UPDATE designs SET status = 'sold' WHERE token_id = ?")
       .bind(tokenId)
@@ -155,6 +161,21 @@ export const POST: APIRoute = async ({ request, locals }) => {
       )
       .bind(txHash, tokenId, decodedBuyer, confirmedAt)
       .run();
+
+    // Record earnings for the artist
+    if (designRecord?.price && designRecord.artist_id) {
+      const price = designRecord.price;
+      const platformFee = price * 0.03;
+      const artistAmount = price - platformFee;
+      const earningsId = randomUUID();
+      await db
+        .prepare(
+          `INSERT INTO earnings(id, artist_id, design_id, type, amount, platform_fee, tx_hash, payment_method, created_at)
+           VALUES (?, ?, ?, 'primary_sale', ?, ?, ?, 'on_chain', ?)`
+        )
+        .bind(earningsId, designRecord.artist_id, designRecord.id, artistAmount, platformFee, txHash, confirmedAt)
+        .run();
+    }
 
     console.log(
       JSON.stringify({

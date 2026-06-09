@@ -2,9 +2,9 @@ export const prerender = false;
 
 import type { APIRoute } from "astro";
 import { randomUUID } from "crypto";
-import { createPublicClient, createWalletClient, http, fallback, keccak256, toBytes, parseEther, zeroAddress } from "viem";
+import { createPublicClient, createWalletClient, http, fallback, keccak256, toBytes, parseUnits, zeroAddress } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { baseSepolia } from "wagmi/chains";
+import { bscTestnet } from "wagmi/chains";
 import { VoucherRequestSchema } from "../../lib/api/schemas";
 import { CONTRACT_ADDRESS, CHAIN_ID, CONTRACT_ABI } from "../../lib/config/contract";
 
@@ -47,10 +47,10 @@ export const POST: APIRoute = async ({ request, locals }) => {
          SET status = 'reserved', reserved_until = ?
          WHERE id = ?
            AND (status = 'available' OR (status = 'reserved' AND reserved_until < ?))
-         RETURNING token_id, price, artist_id, ipfs_cid`
+         RETURNING token_id, price, artist_id, ipfs_cid, selling_mode, royalty_pct`
       )
       .bind(expiry, designId, now)
-      .first<{ token_id: number; price: number; artist_id: string; ipfs_cid: string | null }>();
+      .first<{ token_id: number; price: number; artist_id: string; ipfs_cid: string | null; selling_mode: string; royalty_pct: number | null }>();
 
     const meta = await db
       .prepare("SELECT changes() as c")
@@ -72,15 +72,43 @@ export const POST: APIRoute = async ({ request, locals }) => {
       });
     }
 
-    const { token_id: tokenId, price, ipfs_cid } = reserveResult;
+    const { token_id: tokenId, price, ipfs_cid, artist_id: artistId, selling_mode, royalty_pct } = reserveResult;
+
+    // Look up artist's wallet address for per-artist treasury
+    const artistRow = await db
+      .prepare("SELECT wallet_address FROM artists WHERE id = ?")
+      .bind(artistId)
+      .first<{ wallet_address: string | null }>();
+
+    if (!artistRow?.wallet_address) {
+      console.log(
+        JSON.stringify({
+          request_id: requestId,
+          route: "/api/voucher",
+          status: 500,
+          duration_ms: Date.now() - start,
+          reason: "artist_has_no_wallet",
+          artist_id: artistId,
+        })
+      );
+      // Un-reserve the design
+      await db
+        .prepare("UPDATE designs SET status = 'available', reserved_until = NULL WHERE id = ?")
+        .bind(designId)
+        .run();
+      return new Response(JSON.stringify({ error: "artist_has_no_wallet" }), {
+        status: 500,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
     const transport = fallback([
-      http(env.BASE_RPC_PRIMARY),
-      http(env.BASE_RPC_FALLBACK),
+      http(env.BSC_RPC_PRIMARY),
+      http(env.BSC_RPC_FALLBACK),
     ]);
 
     const publicClient = createPublicClient({
-      chain: baseSepolia,
+      chain: bscTestnet,
       transport,
     });
 
@@ -124,16 +152,24 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const cid = ipfs_cid ?? "";
     const cidHash = keccak256(toBytes(cid));
 
-    const artistTreasury = (env.ARTIST_TREASURY_ADDR as string | undefined) ?? zeroAddress;
+    const artistTreasury = artistRow.wallet_address as `0x${string}`;
 
+    // Determine soulbound flag and royalty bps from selling_mode
+    const isSoulbound = selling_mode === "one-time";
+    // royaltyBps: royalty_pct * 100 (e.g. 10% -> 1000 bps). 0 for soulbound/one-time.
+    const royaltyBps = !isSoulbound && royalty_pct ? Math.round(royalty_pct * 100) : 0;
+
+    // BSC USDT uses 18 decimals (unlike Ethereum/Tron USDT which uses 6)
     const voucher = {
       tokenId: BigInt(tokenId),
       designId,
-      price: parseEther(String(price)),
-      artistTreasury: artistTreasury as `0x${string}`,
+      price: parseUnits(String(price), 18),
+      artistTreasury,
       expiry: BigInt(expiry),
       buyer: buyer as `0x${string}`,
       cidHash: cidHash as `0x${string}`,
+      soulbound: isSoulbound,
+      royaltyBps: royaltyBps,
     };
 
     const signerPrivKey = env.SIGNER_PRIVATE_KEY as string;
@@ -143,8 +179,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const walletClient = createWalletClient({
       account,
-      chain: baseSepolia,
-      transport: http(env.BASE_RPC_PRIMARY),
+      chain: bscTestnet,
+      transport: http(env.BSC_RPC_PRIMARY),
     });
 
     const signature = await walletClient.signTypedData({
@@ -163,6 +199,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
           { name: "expiry", type: "uint256" },
           { name: "buyer", type: "address" },
           { name: "cidHash", type: "bytes32" },
+          { name: "soulbound", type: "bool" },
+          { name: "royaltyBps", type: "uint96" },
         ],
       },
       primaryType: "LazyMintVoucher",
@@ -177,6 +215,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
       expiry: voucher.expiry.toString(),
       buyer: voucher.buyer,
       cidHash: voucher.cidHash,
+      soulbound: voucher.soulbound,
+      royaltyBps: voucher.royaltyBps,
     };
 
     console.log(

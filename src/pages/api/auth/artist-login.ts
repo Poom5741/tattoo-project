@@ -70,11 +70,15 @@ export const POST: APIRoute = async ({ request, locals }) => {
     expirationTtl: 60 * 60 * 8,
   });
 
+  const headers = new Headers();
+  headers.set("Content-Type", "application/json");
+  // Set new cookie at Path=/ so it reaches /api/* routes
+  headers.append("Set-Cookie", `artist_token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=28800`);
+  // Expire stale cookie at old Path=/artist
+  headers.append("Set-Cookie", "artist_token=; Path=/artist; HttpOnly; SameSite=Lax; Max-Age=0");
+
   return new Response(JSON.stringify({ ok: true, artistId: artist.id }), {
     status: 200,
-    headers: {
-      "Content-Type": "application/json",
-      "Set-Cookie": `artist_token=${token}; Path=/artist; HttpOnly; SameSite=Lax; Max-Age=28800`,
-    },
+    headers,
   });
 };

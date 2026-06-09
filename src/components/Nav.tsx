@@ -8,6 +8,9 @@ interface NavProps {
 const links: [string, string][] = [
   ["/market", "Gallery"],
   ["/artists", "Artists"],
+  ["/booking", "Book"],
+  ["/wallet", "My Wallet"],
+  ["/artist/portal", "Artist Portal"],
   ["/", "How it works"],
 ];
 

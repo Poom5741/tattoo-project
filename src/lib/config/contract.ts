@@ -8,11 +8,14 @@ export const CONTRACT_ADDRESS: `0x${string}` =
     ? (_DEPLOYMENT_ADDRESS as `0x${string}`)
     : "0x0000000000000000000000000000000000000000";
 
-export const CHAIN_ID = 84532 as const;
+export const CHAIN_ID = 97 as const; // BSC Testnet (use 56 for mainnet)
+
+export const USDT_ADDRESS = "0x337610d27c682E347C9cD60BD4b3b107C9d34dDd" as `0x${string}`; // BSC Testnet USDT
 
 export const DEPLOY_BLOCK = BigInt(_DEPLOYMENT_BLOCK);
 
 export const CONTRACT_ABI = [
+  // V2: mintWithVoucher with USDT payment (no payable/value)
   {
     type: "function",
     name: "mintWithVoucher",
@@ -28,13 +31,48 @@ export const CONTRACT_ABI = [
           { name: "expiry", type: "uint256" },
           { name: "buyer", type: "address" },
           { name: "cidHash", type: "bytes32" },
+          { name: "soulbound", type: "bool" },
+          { name: "royaltyBps", type: "uint96" },
         ],
       },
       { name: "signature", type: "bytes" },
       { name: "cid", type: "string" },
     ],
     outputs: [],
-    stateMutability: "payable",
+    stateMutability: "nonpayable",
+  },
+  // V2: buyResale for secondary market purchases
+  {
+    type: "function",
+    name: "buyResale",
+    inputs: [
+      { name: "tokenId", type: "uint256" },
+      { name: "price", type: "uint256" },
+    ],
+    outputs: [],
+    stateMutability: "nonpayable",
+  },
+  // V2: soulbound flag per token
+  {
+    type: "function",
+    name: "soulbound",
+    inputs: [{ name: "tokenId", type: "uint256" }],
+    outputs: [{ name: "", type: "bool" }],
+    stateMutability: "view",
+  },
+  // V2: ERC-2981 royalty info
+  {
+    type: "function",
+    name: "royaltyInfo",
+    inputs: [
+      { name: "tokenId", type: "uint256" },
+      { name: "salePrice", type: "uint256" },
+    ],
+    outputs: [
+      { name: "receiver", type: "address" },
+      { name: "royaltyAmount", type: "uint256" },
+    ],
+    stateMutability: "view",
   },
   {
     type: "function",
@@ -74,6 +112,16 @@ export const CONTRACT_ABI = [
       { name: "tokenId", type: "uint256", indexed: true },
       { name: "buyer", type: "address", indexed: true },
       { name: "designId", type: "string", indexed: false },
+    ],
+    anonymous: false,
+  },
+  {
+    type: "event",
+    name: "ResalePurchase",
+    inputs: [
+      { name: "tokenId", type: "uint256", indexed: true },
+      { name: "buyer", type: "address", indexed: true },
+      { name: "price", type: "uint256", indexed: false },
     ],
     anonymous: false,
   },

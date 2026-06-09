@@ -4,6 +4,9 @@ export const prerender = false;
 import Base from "../../layouts/Base.astro";
 import { getArtistSession } from "../../lib/artist/auth";
 import PrivyArtistGate from "../../components/PrivyArtistGate";
+import NewDesignForm from "../../components/NewDesignForm";
+import BookingCalendar from "../../components/BookingCalendar";
+import EarningsDashboard from "../../components/EarningsDashboard";
 
 const env = Astro.locals.runtime.env;
 const session = await getArtistSession(
@@ -19,6 +22,9 @@ interface DesignRow {
   price: number | null;
   status: string;
   placement: string | null;
+  selling_mode: string;
+  image_url: string | null;
+  royalty_pct: number | null;
 }
 
 interface BookingRow {
@@ -29,21 +35,24 @@ interface BookingRow {
   message: string | null;
   buyer_wallet: string | null;
   created_at: number;
+  status: string | null;
+  appointment_date: number | null;
 }
 
 let plates: DesignRow[] = [];
 let bookings: BookingRow[] = [];
 let artistName = "";
+let showNewForm = false;
 
 if (session) {
   const db = env.DB;
   const [pRes, bRes, aRow] = await Promise.all([
     db
-      .prepare("SELECT id, n, title, style, price, status, placement FROM designs WHERE artist_id = ? ORDER BY token_id ASC")
+      .prepare("SELECT id, n, title, style, price, status, placement, selling_mode, image_url, royalty_pct FROM designs WHERE artist_id = ? ORDER BY rowid ASC")
       .bind(session.artistId)
       .all<DesignRow>(),
     db
-      .prepare("SELECT id, design_id, name, contact, message, buyer_wallet, created_at FROM booking_inquiries WHERE artist_id = ? ORDER BY created_at DESC")
+      .prepare("SELECT id, design_id, name, contact, message, buyer_wallet, created_at, status, appointment_date FROM booking_inquiries WHERE artist_id = ? ORDER BY created_at DESC")
       .bind(session.artistId)
       .all<BookingRow>(),
     db
@@ -56,13 +65,29 @@ if (session) {
   artistName = aRow?.name ?? session.name;
 }
 
+// Check if "new" param is in URL
+const url = new URL(Astro.request.url);
+showNewForm = url.searchParams.has("new");
+
 const stats = {
   total: plates.length,
   available: plates.filter((p) => p.status === "available").length,
-  reserved: plates.filter((p) => p.status === "reserved").length,
+  pending: plates.filter((p) => p.status === "pending").length,
   sold: plates.filter((p) => p.status === "sold").length,
   inquiries: bookings.length,
 };
+
+function statusClass(status: string): string {
+  switch (status) {
+    case "available": return "tag--avail";
+    case "reserved": return "tag--reserved";
+    case "sold": return "tag--sold";
+    case "pending": return "tag--pending";
+    case "rejected": return "tag--rejected";
+    case "delisted": return "tag--delisted";
+    default: return "";
+  }
+}
 
 function fmtDate(ts: number) {
   return new Date(ts * 1000).toLocaleString("en-GB", {
@@ -98,6 +123,11 @@ const PRIVY_APP_ID = env.PRIVY_APP_ID;
       border: 1px solid var(--line); padding: 2px 7px; border-radius: 2px;
       color: var(--fg-dim); overflow: hidden; max-width: 140px; white-space: nowrap;
       text-overflow: ellipsis; display: inline-block; vertical-align: middle; }
+    .tag--pending { background: rgba(234,179,8,0.15); border-color: rgba(234,179,8,0.4); color: #eab308; }
+    .tag--rejected { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #ef4444; }
+    .tag--delisted { background: rgba(107,114,128,0.15); border-color: rgba(107,114,128,0.4); color: #6b7280; }
+    .new-form-wrap { border: 1px solid var(--line); padding: 28px; margin-bottom: 40px; background: var(--ink-850); }
+    .thumb { width: 44px; height: 44px; object-fit: cover; border: 1px solid var(--line); }
     @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
   </style>
 
@@ -113,41 +143,79 @@ const PRIVY_APP_ID = env.PRIVY_APP_ID;
             {session.walletAddress.slice(0, 6)}…{session.walletAddress.slice(-4)}
           </div>
         </div>
-        <form method="POST" action="/api/auth/artist-logout">
-          <button type="submit" class="btn btn--ghost">Sign out</button>
-        </form>
+        <div style="display:flex;gap:12px;align-items:center">
+          <a href="/artist/portal?new=1" class="btn btn--solid">+ List new design</a>
+          <form method="POST" action="/api/auth/artist-logout">
+            <button type="submit" class="btn btn--ghost">Sign out</button>
+          </form>
+        </div>
       </div>
 
       <div class="stats">
         <div class="stat"><div class="n">{stats.total}</div><div class="l">Plates</div></div>
         <div class="stat"><div class="n" style="color:var(--ok)">{stats.available}</div><div class="l">Available</div></div>
-        <div class="stat"><div class="n" style="color:var(--warn)">{stats.reserved}</div><div class="l">Reserved</div></div>
+        <div class="stat"><div class="n" style="color:#eab308">{stats.pending}</div><div class="l">Pending</div></div>
         <div class="stat"><div class="n">{stats.sold}</div><div class="l">Sold</div></div>
         <div class="stat"><div class="n">{stats.inquiries}</div><div class="l">Inquiries</div></div>
       </div>
 
+      {showNewForm && (
+        <div>
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+            <div class="sec" style="margin-bottom:0">List new design</div>
+            <a href="/artist/portal" class="mono faint" style="font-size:12px">Cancel</a>
+          </div>
+          <div class="new-form-wrap">
+            <NewDesignForm client:visible />
+          </div>
+        </div>
+      )}
+
       <div class="sec">Your plates</div>
       {plates.length === 0 ? (
-        <p class="mono faint" style="font-size:13px; margin-bottom:48px;">No plates yet.</p>
+        <p class="mono faint" style="font-size:13px; margin-bottom:48px;">No plates yet. <a href="/artist/portal?new=1">List your first design →</a></p>
       ) : (
         <table class="tbl">
           <thead>
             <tr>
-              <th>№</th><th>Title</th><th>Style</th><th>Placement</th><th>Price</th><th>Status</th>
+              <th>Photo</th><th>№</th><th>Title</th><th>Style</th><th>Mode</th><th>Price (USDT)</th><th>Status</th><th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {plates.map((p) => (
               <tr>
+                <td>
+                  {p.image_url ? (
+                    <img class="thumb" src={p.image_url} alt={p.title} />
+                  ) : (
+                    <div class="thumb" style="background:var(--line);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--fg-faint)">No img</div>
+                  )}
+                </td>
                 <td class="mono faint" style="font-size:11px">{p.n}</td>
                 <td><a href={`/design/${p.id}`} style="text-decoration:underline;text-underline-offset:3px">{p.title}</a></td>
                 <td class="mono faint" style="font-size:11px">{p.style ?? "—"}</td>
-                <td class="mono faint" style="font-size:11px">{p.placement ?? "—"}</td>
-                <td class="mono" style="font-size:12px">{p.price != null ? p.price.toFixed(3) + " ETH" : "—"}</td>
+                <td class="mono faint" style="font-size:11px">
+                  {p.selling_mode === "resellable" ? `Resellable (${p.royalty_pct}%)` : "Soulbound"}
+                </td>
+                <td class="mono" style="font-size:12px">{p.price != null ? p.price.toFixed(2) + " USDT" : "—"}</td>
                 <td>
-                  <span class={`tag ${p.status === "available" ? "tag--avail" : p.status === "reserved" ? "tag--reserved" : "tag--sold"}`}>
+                  <span class={`tag ${statusClass(p.status)}`}>
                     <span class="dot"></span>{p.status}
                   </span>
+                </td>
+                <td>
+                  {p.status === "rejected" && (
+                    <a href={`/artist/portal?new=1&editId=${p.id}`} class="mono" style="font-size:11px;text-decoration:underline">Edit &amp; resubmit</a>
+                  )}
+                  {p.status === "available" && (
+                    <button
+                      class="mono"
+                      style="font-size:11px;background:none;border:1px solid var(--line);padding:3px 10px;cursor:pointer;color:var(--fg-dim)"
+                      onclick={`if(confirm('Delist "${p.title}"?')) fetch('/api/designs/${p.id}/delist',{method:'DELETE',credentials:'include'}).then(r=>r.ok?location.reload():alert('Failed'))`}
+                    >
+                      Delist
+                    </button>
+                  )}
                 </td>
               </tr>
             ))}
@@ -155,37 +223,15 @@ const PRIVY_APP_ID = env.PRIVY_APP_ID;
         </table>
       )}
 
-      <div class="sec">Booking inquiries</div>
-      {bookings.length === 0 ? (
-        <p class="mono faint" style="font-size:13px;">No inquiries yet.</p>
-      ) : (
-        <table class="tbl">
-          <thead>
-            <tr>
-              <th>#</th><th>Date</th><th>Name</th><th>Contact</th><th>Plate</th><th>Buyer wallet</th><th>Message</th>
-            </tr>
-          </thead>
-          <tbody>
-            {bookings.map((b) => (
-              <tr>
-                <td class="mono faint" style="font-size:11px">{b.id}</td>
-                <td class="mono" style="font-size:11px;white-space:nowrap">{fmtDate(b.created_at)}</td>
-                <td style="font-weight:500">{b.name}</td>
-                <td class="mono" style="font-size:12px">{b.contact}</td>
-                <td class="mono faint" style="font-size:11px">{b.design_id ?? "—"}</td>
-                <td>
-                  {b.buyer_wallet ? (
-                    <span class="wallet-chip" title={b.buyer_wallet}>
-                      {b.buyer_wallet.slice(0, 6)}…{b.buyer_wallet.slice(-4)}
-                    </span>
-                  ) : "—"}
-                </td>
-                <td><div style="font-size:12px;color:var(--fg-dim);max-width:220px">{b.message ?? "—"}</div></td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
+      <div class="sec">Booking calendar</div>
+      <div style="margin-bottom:52px;">
+        <BookingCalendar client:load bookings={bookings} />
+      </div>
+
+      <div class="sec">Earnings</div>
+      <div style="margin-bottom:52px;">
+        <EarningsDashboard client:load />
+      </div>
     </div>
   )}
 </Base>

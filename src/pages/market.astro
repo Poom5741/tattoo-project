@@ -11,11 +11,59 @@ import MarketGrid from "../components/MarketGrid";
 import { cookieToInitialState } from "wagmi";
 import { config } from "../lib/wagmi";
 
-let designs: unknown[] = [];
+interface DesignRow {
+  id: string;
+  n: string;
+  title: string;
+  artist_id: string;
+  style: string | null;
+  price: number | null;
+  status: string;
+  placement: string | null;
+  seed: number | null;
+  drawn: number | null;
+  image_url: string | null;
+  selling_mode: string;
+  royalty_pct: number | null;
+  token_id: number | null;
+}
+
+interface ResaleListing {
+  id: string;
+  design_id: string;
+  seller_wallet: string;
+  asking_price: number;
+  token_id: number;
+  status: string;
+  title: string;
+  style: string | null;
+  placement: string | null;
+  image_url: string | null;
+  selling_mode: string;
+  royalty_pct: number | null;
+  artist_name: string;
+}
+
+let designs: DesignRow[] = [];
+let resaleListings: ResaleListing[] = [];
 try {
   const db = Astro.locals.runtime.env.DB;
-  const { results } = await db.prepare("SELECT * FROM designs ORDER BY token_id ASC").all();
-  designs = results;
+  const [dRes, rRes] = await Promise.all([
+    db
+      .prepare("SELECT id, n, title, artist_id, style, price, status, placement, seed, drawn, image_url, selling_mode, royalty_pct, token_id FROM designs WHERE status IN ('available', 'reserved', 'sold') ORDER BY rowid ASC")
+      .all<DesignRow>(),
+    db
+      .prepare(`SELECT rl.id, rl.design_id, rl.seller_wallet, rl.asking_price, rl.token_id, rl.status,
+                       d.title, d.style, d.placement, d.image_url, d.selling_mode, d.royalty_pct,
+                       a.name as artist_name
+                FROM resale_listings rl
+                JOIN designs d ON rl.design_id = d.id
+                JOIN artists a ON d.artist_id = a.id
+                WHERE rl.status = 'active'`)
+      .all<ResaleListing>(),
+  ]);
+  designs = dRes.results;
+  resaleListings = rRes.results;
 } catch {
   // SSR fallback — empty designs
 }
@@ -37,7 +85,7 @@ const initialState = cookieToInitialState(config, cookieHeader);
         <h1 class="display" style="font-size: clamp(38px,6vw,72px);">Plates for acquisition</h1>
         <span class="mono faint" style="font-size: 11px; letter-spacing: .12em;">{designs.length} PLATES · ONE OF EACH</span>
       </div>
-      <MarketGrid client:load designs={designs} initialState={initialState} />
+      <MarketGrid client:load designs={designs} resaleListings={resaleListings} initialState={initialState} />
     </div>
   </section>
 

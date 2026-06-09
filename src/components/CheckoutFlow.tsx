@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { usePrivy } from "@privy-io/react-auth";
 import WalletProvider from "./WalletProvider";
-import { CHAIN_ID, CONTRACT_ADDRESS, CONTRACT_ABI } from "../lib/config/contract";
+import { CHAIN_ID, CONTRACT_ADDRESS, CONTRACT_ABI, USDT_ADDRESS } from "../lib/config/contract";
 
 interface VoucherPayload {
   tokenId: string;
@@ -12,6 +12,8 @@ interface VoucherPayload {
   expiry: string;
   buyer: string;
   cidHash: string;
+  soulbound: boolean;
+  royaltyBps: number;
 }
 
 interface DesignData {
@@ -33,9 +35,9 @@ interface CheckoutFlowInnerProps {
   design: DesignData;
 }
 
-function fmtEth(v: number | null | undefined) {
+function fmtUsdt(v: number | null | undefined) {
   if (!v) return "—";
-  return v.toFixed(3) + " ETH";
+  return v.toFixed(2) + " USDT";
 }
 
 function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
@@ -43,9 +45,13 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
   const { login } = usePrivy();
   const { switchChain } = useSwitchChain();
   const { writeContract, data: txHash, isPending: isWriting, error: writeError } = useWriteContract();
+  const { writeContract: writeApprove, data: approveTxHash, isPending: isApproving } = useWriteContract();
   const { isLoading: isWaiting, isSuccess: txConfirmed } = useWaitForTransactionReceipt({
     hash: txHash,
     confirmations: 3,
+  });
+  const { isSuccess: approveConfirmed } = useWaitForTransactionReceipt({
+    hash: approveTxHash,
   });
 
   const [voucherData, setVoucherData] = useState<{ voucher: VoucherPayload; signature: string; cid: string } | null>(null);
@@ -54,10 +60,11 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
   const [isConfirming, setIsConfirming] = useState(false);
   const [confirmError, setConfirmError] = useState<string | null>(null);
   const [done, setDone] = useState(false);
+  const [usdtApproved, setUsdtApproved] = useState(false);
 
   const price = design.price;
-  const fee = price != null ? +(price * 0.025).toFixed(3) : 0;
-  const total = price != null ? +(price + fee).toFixed(3) : 0;
+  // Platform fee is 3% (included in contract split, not added on top)
+  const platformFee = price != null ? +(price * 0.03).toFixed(2) : 0;
 
   const onWrongChain = isConnected && chain?.id !== CHAIN_ID;
 
@@ -85,11 +92,32 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
     }
   };
 
-  const onAcquire = async () => {
-    if (!voucherData) {
-      await fetchVoucher();
-      return;
-    }
+  // Step 1: Approve USDT spending
+  const onApproveUsdt = () => {
+    if (!voucherData) return;
+    const { voucher } = voucherData;
+    writeApprove({
+      address: USDT_ADDRESS,
+      abi: [
+        {
+          type: "function",
+          name: "approve",
+          inputs: [
+            { name: "spender", type: "address" },
+            { name: "amount", type: "uint256" },
+          ],
+          outputs: [{ name: "", type: "bool" }],
+          stateMutability: "nonpayable",
+        },
+      ] as const,
+      functionName: "approve",
+      args: [CONTRACT_ADDRESS, BigInt(voucher.price)],
+    });
+  };
+
+  // Step 2: Mint after approval
+  const onMint = () => {
+    if (!voucherData) return;
     const { voucher, signature, cid } = voucherData;
     const voucherArgs = {
       tokenId: BigInt(voucher.tokenId),
@@ -99,6 +127,8 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
       expiry: BigInt(voucher.expiry),
       buyer: voucher.buyer as `0x${string}`,
       cidHash: voucher.cidHash as `0x${string}`,
+      soulbound: voucher.soulbound,
+      royaltyBps: BigInt(voucher.royaltyBps),
     };
 
     writeContract({
@@ -106,9 +136,25 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
       abi: CONTRACT_ABI,
       functionName: "mintWithVoucher",
       args: [voucherArgs, signature as `0x${string}`, cid],
-      value: BigInt(voucher.price),
     });
   };
+
+  const onAcquire = async () => {
+    if (!voucherData) {
+      await fetchVoucher();
+      return;
+    }
+    if (!usdtApproved && !approveConfirmed) {
+      onApproveUsdt();
+      return;
+    }
+    onMint();
+  };
+
+  // Mark USDT as approved when approval tx confirms
+  if (approveConfirmed && !usdtApproved) {
+    setUsdtApproved(true);
+  }
 
   const confirmMint = async (hash: string, tokenId: string) => {
     setIsConfirming(true);
@@ -180,9 +226,9 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
               </div>
               <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
                 {[
-                  ["Plate price", fmtEth(price)],
-                  ["Gallery fee (2.5%)", fmtEth(fee)],
-                  ["≈ in USD", price != null ? `$${Math.round(total * 2480).toLocaleString()}` : "—"],
+                  ["Plate price", fmtUsdt(price)],
+                  ["Platform fee (3%)", fmtUsdt(platformFee)],
+                  ["Artist receives", price != null ? fmtUsdt(price - platformFee) : "—"],
                 ].map(([k, v]) => (
                   <div key={k} style={{ display: "flex", justifyContent: "space-between" }}>
                     <span className="mono dim" style={{ fontSize: 13 }}>{k}</span>
@@ -190,8 +236,8 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
                   </div>
                 ))}
                 <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 16, borderTop: "1px solid var(--line)", marginTop: 6 }}>
-                  <span className="mono" style={{ fontSize: 14 }}>Total</span>
-                  <span className="display" style={{ fontSize: 30 }}>{fmtEth(total)}</span>
+                  <span className="mono" style={{ fontSize: 14 }}>You pay</span>
+                  <span className="display" style={{ fontSize: 30 }}>{fmtUsdt(price)}</span>
                 </div>
               </div>
             </div>
@@ -206,12 +252,12 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
                 </div>
               ) : onWrongChain ? (
                 <div style={{ padding: "24px 0" }}>
-                  <p className="dim" style={{ fontSize: 14, marginBottom: 16 }}>Please switch to Base Sepolia to continue.</p>
+                  <p className="dim" style={{ fontSize: 14, marginBottom: 16 }}>Please switch to BSC Testnet to continue.</p>
                   <button
                     className="btn btn--solid btn--lg"
                     onClick={() => switchChain({ chainId: CHAIN_ID })}
                   >
-                    Switch to Base Sepolia
+                    Switch to BSC
                   </button>
                 </div>
               ) : (
@@ -234,13 +280,20 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
                     <span className="dim" style={{ fontSize: 12.5 }}>I understand this plate is one-of-one. On purchase it is permanently retired from the gallery.</span>
                   </label>
 
+                  {voucherData && !usdtApproved && !approveConfirmed && (
+                    <div style={{ padding: "10px 14px", background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.3)", marginBottom: 16, fontSize: 12.5 }} className="mono">
+                      Step 1 of 2: Approve USDT spending, then mint
+                    </div>
+                  )}
                   <button
                     className="btn btn--solid btn--block btn--lg"
-                    disabled={isFetchingVoucher || isWriting || isWaiting || isConfirming || txConfirmed}
-                    onClick={voucherData ? onAcquire : fetchVoucher}
+                    disabled={isFetchingVoucher || isApproving || isWriting || isWaiting || isConfirming || txConfirmed}
+                    onClick={onAcquire}
                   >
                     {isFetchingVoucher
                       ? "Reserving…"
+                      : isApproving
+                      ? "Approving USDT…"
                       : isWriting
                       ? "Awaiting wallet…"
                       : isWaiting
@@ -249,13 +302,21 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
                       ? "Confirming…"
                       : txConfirmed
                       ? "Confirmed!"
-                      : voucherData
-                      ? `Confirm acquisition · ${fmtEth(total)}`
-                      : `Acquire this plate · ${fmtEth(total)}`}
+                      : !voucherData
+                      ? `Acquire this plate · ${fmtUsdt(price)}`
+                      : (!usdtApproved && !approveConfirmed)
+                      ? `Approve USDT · ${fmtUsdt(price)}`
+                      : `Mint · ${fmtUsdt(price)}`}
                   </button>
                   <p className="mono faint" style={{ fontSize: 10.5, textAlign: "center", marginTop: 14, letterSpacing: ".06em" }}>
-                    Funds held in escrow until certificate is issued
+                    Payment processed on BSC via USDT (BEP-20)
                   </p>
+                  <button
+                    style={{ width: "100%", marginTop: 12, padding: "10px 0", background: "transparent", border: "1px solid var(--line)", color: "var(--fg-dim)", fontSize: 13, cursor: "pointer" }}
+                    onClick={() => window.alert("PaySolution integration coming soon")}
+                  >
+                    Pay with PaySolution (alternative)
+                  </button>
                 </>
               )}
             </div>

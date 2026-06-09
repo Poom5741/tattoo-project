@@ -11,12 +11,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     await env.SESSION.delete(`artist:${token}`).catch(() => {});
   }
 
-  return new Response(null, {
-    status: 302,
-    headers: {
-      Location: "/artist/portal",
-      "Set-Cookie":
-        "artist_token=; Path=/artist; HttpOnly; SameSite=Lax; Max-Age=0",
-    },
-  });
+  const headers = new Headers();
+  headers.set("Location", "/artist/portal");
+  // Clear cookie at Path=/
+  headers.append("Set-Cookie", "artist_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0");
+  // Also expire stale cookie at old Path=/artist
+  headers.append("Set-Cookie", "artist_token=; Path=/artist; HttpOnly; SameSite=Lax; Max-Age=0");
+
+  return new Response(null, { status: 302, headers });
 };
