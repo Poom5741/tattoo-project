@@ -41,12 +41,18 @@ let artist: ArtistRow | null = null;
 let moreDesigns: DesignRow[] = [];
 
 try {
-  const apiUrl = new URL(`/api/designs/${id}`, Astro.url);
-  const res = await fetch(apiUrl.toString());
-  if (res.ok) {
-    const data = await res.json() as { design: DesignRow; artist: ArtistRow };
-    design = data.design;
-    artist = data.artist;
+  const db = Astro.locals.runtime.env.DB;
+  design = await db.prepare("SELECT * FROM designs WHERE id = ?").bind(id).first<DesignRow>();
+  if (design) {
+    artist = await db
+      .prepare("SELECT id, name, city, style, seed FROM artists WHERE id = ?")
+      .bind(design.artist_id)
+      .first<ArtistRow>();
+    const { results } = await db
+      .prepare("SELECT * FROM designs WHERE artist_id = ? AND id != ? ORDER BY token_id ASC LIMIT 3")
+      .bind(design.artist_id, id)
+      .all<DesignRow>();
+    moreDesigns = results;
   }
 } catch {
   // fallback
@@ -54,18 +60,6 @@ try {
 
 if (!design) {
   return Astro.redirect("/market");
-}
-
-// Fetch more from same artist
-try {
-  const apiUrl = new URL(`/api/designs?artistId=${design.artist_id}`, Astro.url);
-  const res = await fetch(apiUrl.toString());
-  if (res.ok) {
-    const all = await res.json() as DesignRow[];
-    moreDesigns = all.filter((d) => d.id !== design!.id).slice(0, 3);
-  }
-} catch {
-  // ignore
 }
 
 function fmtEth(v: number | null) {

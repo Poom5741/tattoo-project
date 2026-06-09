@@ -9,6 +9,8 @@ declare namespace App {
 interface Env {
   DB: D1Database;
   ASSETS: Fetcher;
+  MEDIA: R2Bucket;
+  SESSION: KVNamespace;
   BASE_RPC_PRIMARY: string;
   BASE_RPC_FALLBACK: string;
   PUBLIC_CONTRACT_ADDRESS: string;
@@ -16,5 +18,6 @@ interface Env {
   SIGNER_PRIVATE_KEY: string;
   NFT_STORAGE_KEY: string;
   RESEND_API_KEY: string;
+  ADMIN_PASSWORD: string;
   R2_PUBLIC_URL: string;
 }

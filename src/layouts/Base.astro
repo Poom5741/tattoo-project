@@ -1,4 +1,6 @@
 ---
+import "../styles/global.css";
+
 export interface Props {
   title?: string;
   description?: string;
@@ -20,7 +22,6 @@ const { title = "INKNOIR — One-of-one tattoo plates", description = "One-of-on
       href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:ital,opsz,wght@0,6..96,400;0,6..96,500;1,6..96,400&family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=Spectral:ital,wght@0,300;0,400;0,500;1,400&family=Archivo:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500&family=Space+Mono:wght@400;700&family=JetBrains+Mono:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="/styles/global.css" />
   </head>
   <body>
     <slot />

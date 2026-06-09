@@ -1,0 +1,193 @@
+---
+export const prerender = false;
+
+import Base from "../../layouts/Base.astro";
+import { isAdminAuthed } from "../../lib/admin/auth";
+
+const env = Astro.locals.runtime.env;
+const authed = await isAdminAuthed(
+  Astro.request.headers.get("cookie") ?? "",
+  env.SESSION
+);
+
+interface BookingRow {
+  id: number;
+  artist_id: string;
+  design_id: string | null;
+  name: string;
+  contact: string;
+  message: string | null;
+  created_at: number;
+}
+
+interface DesignRow {
+  id: string;
+  n: string;
+  title: string;
+  artist_id: string;
+  style: string | null;
+  price: number | null;
+  status: string;
+}
+
+interface ArtistRow {
+  id: string;
+  name: string;
+}
+
+let bookings: BookingRow[] = [];
+let designs: DesignRow[] = [];
+let artists: ArtistRow[] = [];
+
+if (authed) {
+  const db = env.DB;
+  const [bRes, dRes, aRes] = await Promise.all([
+    db.prepare("SELECT * FROM booking_inquiries ORDER BY created_at DESC").all<BookingRow>(),
+    db.prepare("SELECT id, n, title, artist_id, style, price, status FROM designs ORDER BY token_id ASC").all<DesignRow>(),
+    db.prepare("SELECT id, name FROM artists ORDER BY name ASC").all<ArtistRow>(),
+  ]);
+  bookings = bRes.results;
+  designs = dRes.results;
+  artists = aRes.results;
+}
+
+const artistMap = Object.fromEntries(artists.map((a) => [a.id, a.name]));
+const stats = {
+  bookings: bookings.length,
+  available: designs.filter((d) => d.status === "available").length,
+  reserved: designs.filter((d) => d.status === "reserved").length,
+  sold: designs.filter((d) => d.status === "sold").length,
+};
+
+function fmtDate(ts: number) {
+  return new Date(ts * 1000).toLocaleString("en-GB", {
+    day: "2-digit", month: "short", year: "numeric",
+    hour: "2-digit", minute: "2-digit",
+  });
+}
+---
+
+<Base title="Admin — INKNOIR">
+  <style>
+    .adm { max-width: 1100px; margin: 0 auto; padding: 40px 28px 80px; }
+    .adm-hd { display: flex; justify-content: space-between; align-items: center; padding-bottom: 24px; border-bottom: 1px solid var(--line); margin-bottom: 40px; }
+    .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--line); border: 1px solid var(--line); margin-bottom: 48px; }
+    .stat { background: var(--ink-800); padding: 24px 28px; }
+    .stat .n { font-family: var(--font-display); font-size: 44px; line-height: 1; }
+    .stat .l { font-family: var(--font-mono); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--fg-faint); margin-top: 8px; }
+    .sec { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--fg-dim); margin-bottom: 14px; }
+    .tbl { width: 100%; border: 1px solid var(--line); border-collapse: collapse; margin-bottom: 52px; }
+    .tbl th { font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em; text-transform: uppercase; color: var(--fg-faint); padding: 11px 16px; text-align: left; border-bottom: 1px solid var(--line); background: var(--ink-850); white-space: nowrap; }
+    .tbl td { padding: 13px 16px; border-bottom: 1px solid var(--line); font-size: 13px; vertical-align: top; }
+    .tbl tr:last-child td { border-bottom: none; }
+    .tbl tr:hover td { background: var(--ink-750); }
+    .msg-cell { font-size: 12px; color: var(--fg-dim); max-width: 260px; }
+    .login-outer { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+    .login-box { width: 360px; border: 1px solid var(--line-2); background: var(--ink-800); padding: 40px; }
+    #login-err { font-family: var(--font-mono); font-size: 11px; color: var(--warn); margin-top: 10px; display: none; }
+    @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
+  </style>
+
+  {!authed ? (
+    <div class="login-outer">
+      <div class="login-box">
+        <div class="kicker" style="margin-bottom: 18px;">INKNOIR / Admin</div>
+        <h1 class="display" style="font-size: 30px; margin-bottom: 28px;">Sign in</h1>
+        <form id="lf" novalidate>
+          <div class="field">
+            <label for="pw">Password</label>
+            <input id="pw" type="password" class="input" placeholder="••••••••" autocomplete="current-password" />
+          </div>
+          <div id="login-err">Incorrect password.</div>
+          <button type="submit" class="btn btn--solid btn--block btn--lg" style="margin-top: 22px;">Enter dashboard</button>
+        </form>
+        <script>
+          document.getElementById("lf")?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const pw = (document.getElementById("pw") as HTMLInputElement).value;
+            const res = await fetch("/api/admin/login", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ password: pw }),
+            });
+            if (res.ok) {
+              location.reload();
+            } else {
+              const el = document.getElementById("login-err");
+              if (el) el.style.display = "block";
+            }
+          });
+        </script>
+      </div>
+    </div>
+  ) : (
+    <div class="adm">
+      <div class="adm-hd">
+        <div>
+          <div class="kicker" style="margin-bottom: 8px;">INKNOIR / Admin</div>
+          <h1 class="display" style="font-size: 34px;">Dashboard</h1>
+        </div>
+        <form method="POST" action="/api/admin/logout">
+          <button type="submit" class="btn btn--ghost">Sign out</button>
+        </form>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="n">{stats.bookings}</div><div class="l">Bookings</div></div>
+        <div class="stat"><div class="n" style="color:var(--ok)">{stats.available}</div><div class="l">Available</div></div>
+        <div class="stat"><div class="n" style="color:var(--warn)">{stats.reserved}</div><div class="l">Reserved</div></div>
+        <div class="stat"><div class="n">{stats.sold}</div><div class="l">Sold</div></div>
+      </div>
+
+      <div class="sec">Booking inquiries</div>
+      {bookings.length === 0 ? (
+        <p class="mono faint" style="font-size:13px; margin-bottom:48px;">No bookings yet.</p>
+      ) : (
+        <table class="tbl">
+          <thead>
+            <tr>
+              <th>#</th><th>Date</th><th>Name</th><th>Contact</th>
+              <th>Artist</th><th>Plate</th><th>Message</th>
+            </tr>
+          </thead>
+          <tbody>
+            {bookings.map((b) => (
+              <tr>
+                <td class="mono faint" style="font-size:11px">{b.id}</td>
+                <td class="mono" style="font-size:11px;white-space:nowrap">{fmtDate(b.created_at)}</td>
+                <td style="font-weight:500">{b.name}</td>
+                <td class="mono" style="font-size:12px">{b.contact}</td>
+                <td class="mono" style="font-size:12px">{artistMap[b.artist_id] ?? b.artist_id}</td>
+                <td class="mono faint" style="font-size:11px">{b.design_id ?? "—"}</td>
+                <td><div class="msg-cell">{b.message ?? "—"}</div></td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+
+      <div class="sec">All plates</div>
+      <table class="tbl">
+        <thead>
+          <tr><th>№</th><th>Title</th><th>Artist</th><th>Style</th><th>Price</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+          {designs.map((d) => (
+            <tr>
+              <td class="mono faint" style="font-size:11px">{d.n}</td>
+              <td><a href={`/design/${d.id}`} style="text-decoration:underline;text-underline-offset:3px">{d.title}</a></td>
+              <td class="mono" style="font-size:12px">{artistMap[d.artist_id] ?? d.artist_id}</td>
+              <td class="mono faint" style="font-size:11px">{d.style ?? "—"}</td>
+              <td class="mono" style="font-size:12px">{d.price != null ? d.price.toFixed(3) + " ETH" : "—"}</td>
+              <td>
+                <span class={`tag ${d.status === "available" ? "tag--avail" : d.status === "reserved" ? "tag--reserved" : "tag--sold"}`}>
+                  <span class="dot"></span>{d.status}
+                </span>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</Base>

@@ -1,5 +1,5 @@
 ---
-export const prerender = true;
+export const prerender = false;
 
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav";
@@ -8,22 +8,39 @@ import TweaksPanel from "../components/TweaksPanel";
 import TextureLayer from "../components/TextureLayer";
 import Toast from "../components/Toast";
 import Plate from "../components/Plate";
-import { ARTISTS, DESIGNS } from "../lib/catalog/seed";
+
+interface ArtistRow {
+  id: string;
+  name: string;
+  handle: string | null;
+  city: string | null;
+  style: string | null;
+  years: number | null;
+  booked: string | null;
+  seed: number | null;
+}
+
+interface CountRow {
+  artist_id: string;
+  available_count: number;
+}
+
+const db = Astro.locals.runtime.env.DB;
+const [aRes, cRes] = await Promise.all([
+  db.prepare("SELECT id, name, handle, city, style, years, booked, seed FROM artists ORDER BY name ASC").all<ArtistRow>(),
+  db.prepare("SELECT artist_id, COUNT(*) AS available_count FROM designs WHERE status='available' GROUP BY artist_id").all<CountRow>(),
+]);
+
+const availMap = Object.fromEntries(cRes.results.map((r) => [r.artist_id, r.available_count]));
+const artistDesignCounts = aRes.results.map((a) => ({
+  ...a,
+  availableCount: availMap[a.id] ?? 0,
+}));
 
 const STYLE_KIND: Record<string, number> = {
-  Geometric: 0,
-  Blackwork: 1,
-  "Fine Line": 2,
-  Irezumi: 3,
-  "Neo-Trad": 3,
-  Realism: 4,
-  Lettering: 5,
+  Geometric: 0, Blackwork: 1, "Fine Line": 2,
+  Irezumi: 3, "Neo-Trad": 3, Realism: 4, Lettering: 5,
 };
-
-const artistDesignCounts = ARTISTS.map((a) => ({
-  ...a,
-  availableCount: DESIGNS.filter((d) => d.artistId === a.id && d.status === "available").length,
-}));
 ---
 
 <Base title="Artists — INKNOIR">
