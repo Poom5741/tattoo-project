@@ -33,7 +33,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     status: 200,
     headers: {
       "Content-Type": "application/json",
-      "Set-Cookie": `admin_token=${token}; Path=/admin; HttpOnly; SameSite=Lax; Max-Age=28800`,
+      "Set-Cookie": `admin_token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=28800`,
     },
   });
 };
