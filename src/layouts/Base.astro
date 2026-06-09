@@ -12,7 +12,7 @@ const { title = "INKNOIR — One-of-one tattoo plates", description = "One-of-on
 // blocked prefixes below. Add wallet/signing routes here (e.g. "/checkout",
 // "/wallet") if the third-party-script risk on those pages is deemed
 // unacceptable — see .omc/plans/live-chat-widget-tawkto.md (ADR).
-const widgetBlockedPrefixes = ["/admin"];
+const widgetBlockedPrefixes = ["/admin", "/checkout", "/wallet"];
 const isBlocked = widgetBlockedPrefixes.some((p) => Astro.url.pathname.startsWith(p));
 const tawkProperty = import.meta.env.PUBLIC_TAWK_PROPERTY_ID;
 const tawkWidget = import.meta.env.PUBLIC_TAWK_WIDGET_ID;
