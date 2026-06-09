@@ -1,11 +1,12 @@
-import { PrivyProvider, usePrivy } from "@privy-io/react-auth";
+import { PrivyProvider, usePrivy, useWallets } from "@privy-io/react-auth";
 import { baseSepolia } from "viem/chains";
 
 const PRIVY_APP_ID = import.meta.env.PUBLIC_PRIVY_APP_ID as string;
 
 function Button() {
-  const { login, logout, authenticated, ready, user } = usePrivy();
-  const address = user?.smartWallet?.address ?? user?.wallet?.address;
+  const { login, logout, authenticated, ready } = usePrivy();
+  const { wallets } = useWallets();
+  const address = wallets[0]?.address;
 
   if (!ready) {
     return (

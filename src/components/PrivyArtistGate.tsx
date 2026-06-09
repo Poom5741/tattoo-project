@@ -1,5 +1,5 @@
 import React from "react";
-import { PrivyProvider, usePrivy } from "@privy-io/react-auth";
+import { PrivyProvider, usePrivy, useWallets } from "@privy-io/react-auth";
 import { baseSepolia } from "viem/chains";
 
 interface Props {
@@ -23,12 +23,13 @@ function LoginWall() {
 }
 
 function AuthHandler({ onSession }: { onSession: () => void }) {
-  const { authenticated, getAccessToken, logout, user } = usePrivy();
+  const { authenticated, getAccessToken, logout } = usePrivy();
+  const { wallets } = useWallets();
   const [error, setError] = React.useState<string | null>(null);
   const [loading, setLoading] = React.useState(false);
   const calledRef = React.useRef(false);
 
-  const walletAddress = user?.smartWallet?.address ?? user?.wallet?.address ?? "";
+  const walletAddress = wallets[0]?.address ?? "";
 
   React.useEffect(() => {
     if (!authenticated || calledRef.current) return;
