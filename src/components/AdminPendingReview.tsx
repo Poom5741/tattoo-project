@@ -15,6 +15,9 @@ interface PendingDesign {
   artist_id: string;
 }
 
+const thCls = "text-left px-3 py-2 text-[11px] font-body font-semibold tracking-wider uppercase text-on-surface-variant/60 border-b border-outline-variant/40";
+const tdCls = "px-3 py-2 font-body text-body-md text-on-surface border-b border-outline-variant/20";
+
 export default function AdminPendingReview() {
   const [designs, setDesigns] = useState<PendingDesign[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +41,6 @@ export default function AdminPendingReview() {
         body: JSON.stringify({ designId, action }),
       });
       if (res.ok) {
-        // Optimistic: remove from list
         setDesigns((prev) => prev.filter((d) => d.id !== designId));
       } else {
         const err = await res.json() as { error: string };
@@ -56,91 +58,74 @@ export default function AdminPendingReview() {
   }
 
   if (loading) {
-    return <p className="dim" style={{ fontSize: 13 }}>Loading pending designs…</p>;
+    return <p className="font-body text-body-md text-on-surface-variant/60">Loading pending designs…</p>;
   }
 
   if (error) {
-    return <p style={{ color: "#ff4444", fontSize: 13 }}>{error}</p>;
+    return <p className="font-body text-body-md text-error">{error}</p>;
   }
 
   if (designs.length === 0) {
-    return <p className="dim" style={{ fontSize: 13 }}>No pending designs.</p>;
+    return <p className="font-body text-body-md text-on-surface-variant/60">No pending designs.</p>;
   }
 
   return (
-    <div style={{ overflowX: "auto" }}>
-      <table className="tbl" style={{ width: "100%", borderCollapse: "collapse" }}>
+    <div className="overflow-x-auto">
+      <table className="w-full border-collapse">
         <thead>
           <tr>
-            <th style={{ textAlign: "left", padding: "8px 12px", fontSize: 11 }}>PHOTO</th>
-            <th style={{ textAlign: "left", padding: "8px 12px", fontSize: 11 }}>TITLE</th>
-            <th style={{ textAlign: "left", padding: "8px 12px", fontSize: 11 }}>ARTIST</th>
-            <th style={{ textAlign: "left", padding: "8px 12px", fontSize: 11 }}>PRICE (USDT)</th>
-            <th style={{ textAlign: "left", padding: "8px 12px", fontSize: 11 }}>MODE</th>
-            <th style={{ textAlign: "left", padding: "8px 12px", fontSize: 11 }}>ROYALTY</th>
-            <th style={{ textAlign: "left", padding: "8px 12px", fontSize: 11 }}>ACTIONS</th>
+            <th className={thCls}>Photo</th>
+            <th className={thCls}>Title</th>
+            <th className={thCls}>Artist</th>
+            <th className={thCls}>Price (USDT)</th>
+            <th className={thCls}>Mode</th>
+            <th className={thCls}>Royalty</th>
+            <th className={thCls}>Actions</th>
           </tr>
         </thead>
         <tbody>
           {designs.map((d) => (
-            <tr key={d.id} style={{ borderTop: "1px solid var(--line)" }}>
-              <td style={{ padding: "8px 12px" }}>
+            <tr key={d.id} className="hover:bg-surface-container-low/50 transition-colors">
+              <td className={tdCls}>
                 {d.image_url ? (
-                  <img src={d.image_url} alt={d.title} style={{ width: 60, height: 60, objectFit: "cover" }} />
+                  <img src={d.image_url} alt={d.title} className="w-[60px] h-[60px] object-cover rounded" />
                 ) : (
-                  <div style={{ width: 60, height: 60, background: "var(--line)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 10 }}>
-                    No img
+                  <div className="w-[60px] h-[60px] bg-surface-container-high rounded flex items-center justify-center">
+                    <span className="font-body text-label-sm text-on-surface-variant/40">No img</span>
                   </div>
                 )}
               </td>
-              <td style={{ padding: "8px 12px" }}>
-                <div style={{ fontWeight: 500, fontSize: 14 }}>{d.title}</div>
-                <div className="dim" style={{ fontSize: 12 }}>{d.style} · {d.placement}</div>
+              <td className={tdCls}>
+                <div className="font-medium text-on-surface">{d.title}</div>
+                <div className="font-body text-label-sm text-on-surface-variant/60">{d.style} · {d.placement}</div>
               </td>
-              <td style={{ padding: "8px 12px", fontSize: 13 }}>{d.artist_name}</td>
-              <td style={{ padding: "8px 12px", fontSize: 13 }}>{d.price ?? "—"} USDT</td>
-              <td style={{ padding: "8px 12px", fontSize: 12 }}>
-                <span style={{
-                  padding: "2px 8px",
-                  background: d.selling_mode === "resellable" ? "rgba(100,200,100,0.15)" : "rgba(201,169,110,0.15)",
-                  border: "1px solid var(--line)",
-                  fontSize: 11,
-                }}>
+              <td className={`${tdCls} text-body-md`}>{d.artist_name}</td>
+              <td className={`${tdCls} text-body-md`}>{d.price ?? "—"} USDT</td>
+              <td className={tdCls}>
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-label-sm font-semibold border ${
+                  d.selling_mode === "resellable"
+                    ? "bg-green-50 text-green-700 border-green-200"
+                    : "bg-surface-container-high text-on-surface-variant border-outline-variant/30"
+                }`}>
                   {d.selling_mode === "resellable" ? "Resellable" : "Soulbound"}
                 </span>
               </td>
-              <td style={{ padding: "8px 12px", fontSize: 13 }}>
+              <td className={`${tdCls} text-body-md`}>
                 {d.selling_mode === "resellable" ? `${d.royalty_pct}%` : "—"}
               </td>
-              <td style={{ padding: "8px 12px" }}>
-                <div style={{ display: "flex", gap: 8 }}>
+              <td className={tdCls}>
+                <div className="flex gap-2">
                   <button
                     onClick={() => handleAction(d.id, "approve")}
                     disabled={actionPending.has(d.id)}
-                    style={{
-                      padding: "6px 14px",
-                      background: "#22c55e",
-                      color: "#fff",
-                      border: "none",
-                      cursor: "pointer",
-                      fontSize: 12,
-                      opacity: actionPending.has(d.id) ? 0.6 : 1,
-                    }}
+                    className="px-3 py-1.5 bg-green-600 text-white font-body text-label-sm font-semibold rounded-full transition-all hover:bg-green-700 disabled:opacity-40 cursor-pointer"
                   >
                     Approve
                   </button>
                   <button
                     onClick={() => handleAction(d.id, "reject")}
                     disabled={actionPending.has(d.id)}
-                    style={{
-                      padding: "6px 14px",
-                      background: "#ef4444",
-                      color: "#fff",
-                      border: "none",
-                      cursor: "pointer",
-                      fontSize: 12,
-                      opacity: actionPending.has(d.id) ? 0.6 : 1,
-                    }}
+                    className="px-3 py-1.5 bg-error text-white font-body text-label-sm font-semibold rounded-full transition-all hover:bg-primary disabled:opacity-40 cursor-pointer"
                   >
                     Reject
                   </button>

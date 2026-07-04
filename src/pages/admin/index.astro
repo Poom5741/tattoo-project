@@ -64,12 +64,12 @@ const stats = {
 
 function statusClass(status: string): string {
   switch (status) {
-    case "available": return "bg-[#2E7D32]/15 text-[#2E7D32] border-[#2E7D32]/40";
-    case "reserved": return "bg-[#F9A825]/15 text-[#F9A825] border-[#F9A825]/40";
-    case "sold": return "bg-[#5A5B55]/15 text-[#5A5B55] border-[#5A5B55]/40";
-    case "pending": return "bg-[#F9A825]/15 text-[#F9A825] border-[#F9A825]/40";
-    case "rejected": return "bg-[#D32F2F]/15 text-[#D32F2F] border-[#D32F2F]/40";
-    case "delisted": return "bg-[#5A5B55]/15 text-[#5A5B55] border-[#5A5B55]/40";
+    case "available": return "bg-green-50 text-green-700 border-green-200";
+    case "reserved": return "bg-amber-50 text-amber-600 border-amber-200";
+    case "sold": return "bg-surface-container-high text-on-surface-variant border-outline-variant/40";
+    case "pending": return "bg-amber-50 text-amber-600 border-amber-200";
+    case "rejected": return "bg-error/container text-error border-error/20";
+    case "delisted": return "bg-surface-container-high text-on-surface-variant border-outline-variant/40";
     default: return "";
   }
 }
@@ -80,25 +80,36 @@ function fmtDate(ts: number) {
     hour: "2-digit", minute: "2-digit",
   });
 }
+
+/* Shared table header class */
+const thBase = "font-body text-label-sm tracking-wider uppercase text-on-surface-variant/60 px-4 py-3 text-left border-b border-outline-variant bg-surface-container-low whitespace-nowrap";
+/* Shared table body cell class */
+const tdBase = "px-4 py-3 border-b border-outline-variant/40 text-body-md font-body";
 ---
 
 <Base title="Admin — INKNOIR">
   <style>
-    #login-err { font-family: var(--font-mono); font-size: 11px; color: var(--warn); margin-top: 10px; display: none; }
+    #login-err {
+      font-family: 'Sora', sans-serif;
+      font-size: 12px;
+      color: #ba1a1a;
+      margin-top: 10px;
+      display: none;
+    }
   </style>
 
   {!authed ? (
-    <div class="min-h-screen flex items-center justify-center">
-      <div class="w-[360px] border border-[#E8E3D8] bg-[#F0EBE1] p-10 rounded-lg">
-        <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023]" style="margin-bottom: 18px;">INKNOIR / Admin</div>
-        <h1 class="font-playfair font-semibold text-[#1B1C18]" style="font-size: 30px; margin-bottom: 28px;">Sign in</h1>
+    <div class="min-h-screen flex items-center justify-center bg-surface px-5">
+      <div class="w-full max-w-[400px] card-bb p-10">
+        <div class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-5">INKNOIR / Admin</div>
+        <h1 class="font-display text-headline-sm text-on-surface mb-7">Sign in</h1>
         <form id="lf" novalidate>
           <div class="mb-5">
-            <label for="pw" class="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Password</label>
-            <input id="pw" type="password" class="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors" placeholder="••••••••" autocomplete="current-password" />
+            <label for="pw" class="label-bb">Password</label>
+            <input id="pw" type="password" class="input-bb" placeholder="••••••••" autocomplete="current-password" />
           </div>
           <div id="login-err">Incorrect password.</div>
-          <button type="submit" class="inline-flex items-center justify-center gap-2 px-8 py-4 text-base rounded-full font-sora font-semibold text-sm transition-all bg-[#E60023] text-white hover:bg-[#C4001F] disabled:opacity-40 w-full" style="margin-top: 22px;">Enter dashboard</button>
+          <button type="submit" class="btn-primary w-full mt-5">Enter dashboard</button>
         </form>
         <script>
           document.getElementById("lf")?.addEventListener("submit", async (e) => {
@@ -120,143 +131,186 @@ function fmtDate(ts: number) {
       </div>
     </div>
   ) : (
-    <div class="max-w-[1100px] mx-auto px-7 py-10 pb-20">
-      <div class="flex justify-between items-center pb-6 border-b border-[#E8E3D8] mb-10">
+    <div class="max-w-container-max mx-auto px-5 md:px-16 py-10 pb-20">
+      {/* ── Header ── */}
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-outline-variant mb-10">
         <div>
-          <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023]" style="margin-bottom: 8px;">INKNOIR / Admin</div>
-          <h1 class="font-playfair font-semibold text-[#1B1C18]" style="font-size: 34px;">Dashboard</h1>
+          <div class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-2">INKNOIR / Admin</div>
+          <h1 class="font-display text-headline-md text-on-surface">Dashboard</h1>
         </div>
         <form method="POST" action="/api/admin/logout">
-          <button type="submit" class="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-transparent text-[#1B1C18] border border-[#E8E3D8] hover:border-[#D4CFC4]">Sign out</button>
+          <button type="submit" class="btn-secondary">Sign out</button>
         </form>
       </div>
 
-      <div class="grid grid-cols-2 md:grid-cols-5 gap-px bg-[#E8E3D8] border border-[#E8E3D8] mb-12 rounded-lg overflow-hidden">
-        <div class="bg-[#F0EBE1] p-6 md:p-7"><div class="font-playfair text-4xl md:text-5xl leading-none">{stats.bookings}</div><div class="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-2">Bookings</div></div>
-        <div class="bg-[#F0EBE1] p-6 md:p-7"><div class="font-playfair text-4xl md:text-5xl leading-none text-[#F9A825]">{stats.pending}</div><div class="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-2">Pending review</div></div>
-        <div class="bg-[#F0EBE1] p-6 md:p-7"><div class="font-playfair text-4xl md:text-5xl leading-none text-[#2E7D32]">{stats.available}</div><div class="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-2">Available</div></div>
-        <div class="bg-[#F0EBE1] p-6 md:p-7"><div class="font-playfair text-4xl md:text-5xl leading-none text-[#F9A825]">{stats.reserved}</div><div class="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-2">Reserved</div></div>
-        <div class="bg-[#F0EBE1] p-6 md:p-7"><div class="font-playfair text-4xl md:text-5xl leading-none">{stats.sold}</div><div class="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-2">Sold</div></div>
+      {/* ── Stats ── */}
+      <div class="stats grid grid-cols-2 md:grid-cols-5 gap-4 mb-12">
+        <div class="card-bb p-6">
+          <div class="font-display text-4xl md:text-5xl leading-none text-on-surface">{stats.bookings}</div>
+          <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant/60 mt-2">Bookings</div>
+        </div>
+        <div class="card-bb p-6">
+          <div class="font-display text-4xl md:text-5xl leading-none text-amber-500">{stats.pending}</div>
+          <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant/60 mt-2">Pending review</div>
+        </div>
+        <div class="card-bb p-6">
+          <div class="font-display text-4xl md:text-5xl leading-none text-green-600">{stats.available}</div>
+          <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant/60 mt-2">Available</div>
+        </div>
+        <div class="card-bb p-6">
+          <div class="font-display text-4xl md:text-5xl leading-none text-amber-500">{stats.reserved}</div>
+          <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant/60 mt-2">Reserved</div>
+        </div>
+        <div class="card-bb p-6">
+          <div class="font-display text-4xl md:text-5xl leading-none text-on-surface">{stats.sold}</div>
+          <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant/60 mt-2">Sold</div>
+        </div>
       </div>
 
-      <div class="font-sora text-[10.5px] tracking-[0.2em] uppercase text-[#5A5B55] mb-4">Pending design review</div>
-      <div class="border border-[#F9A825]/30 p-6 mb-12 bg-[#F9A825]/[0.03] rounded-lg">
+      {/* ── Pending design review ── */}
+      <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant mb-4">Pending design review</div>
+      <div class="card-bb p-6 mb-12 border-amber-200/50">
         <AdminPendingReview client:load />
       </div>
 
-      <div class="font-sora text-[10.5px] tracking-[0.2em] uppercase text-[#5A5B55] mb-4">Booking inquiries</div>
+      {/* ── Booking inquiries ── */}
+      <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant mb-4">Booking inquiries</div>
       {bookings.length === 0 ? (
-        <p class="font-sora text-[#5A5B55]/60" style="font-size:13px; margin-bottom:48px;">No bookings yet.</p>
+        <p class="font-body text-body-md text-on-surface-variant/60 mb-12">No bookings yet.</p>
       ) : (
-        <table class="w-full border border-[#E8E3D8] border-collapse mb-[52px]">
+        <div class="overflow-x-auto mb-12">
+          <table class="w-full border border-outline-variant/40 border-collapse rounded-lg overflow-hidden">
+            <thead>
+              <tr>
+                <th class={thBase}>#</th>
+                <th class={thBase}>Date</th>
+                <th class={thBase}>Name</th>
+                <th class={thBase}>Contact</th>
+                <th class={thBase}>Artist</th>
+                <th class={thBase}>Plate</th>
+                <th class={thBase}>Message</th>
+              </tr>
+            </thead>
+            <tbody>
+              {bookings.map((b) => (
+                <tr class="hover:bg-surface-container-low/50 transition-colors">
+                  <td class={`${tdBase} text-label-sm text-on-surface-variant/60`}>{b.id}</td>
+                  <td class={`${tdBase} text-label-sm whitespace-nowrap`}>{fmtDate(b.created_at)}</td>
+                  <td class={`${tdBase} font-medium text-on-surface`}>{b.name}</td>
+                  <td class={`${tdBase} text-body-md`}>{b.contact}</td>
+                  <td class={`${tdBase} text-body-md`}>{artistMap[b.artist_id] ?? b.artist_id}</td>
+                  <td class={`${tdBase} text-label-sm text-on-surface-variant/60`}>{b.design_id ?? "—"}</td>
+                  <td class={`${tdBase}`}><div class="text-body-md text-on-surface-variant max-w-[260px] truncate">{b.message ?? "—"}</div></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {/* ── All plates ── */}
+      <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant mb-4">All plates</div>
+      <div class="overflow-x-auto mb-12">
+        <table class="w-full border border-outline-variant/40 border-collapse rounded-lg overflow-hidden">
           <thead>
             <tr>
-              <th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">#</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Date</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Name</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Contact</th>
-              <th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Artist</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Plate</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Message</th>
+              <th class={thBase}>№</th>
+              <th class={thBase}>Title</th>
+              <th class={thBase}>Artist</th>
+              <th class={thBase}>Style</th>
+              <th class={thBase}>Price</th>
+              <th class={thBase}>Status</th>
             </tr>
           </thead>
           <tbody>
-            {bookings.map((b) => (
-              <tr>
-                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora text-[#5A5B55]/60" style="font-size:11px">{b.id}</td>
-                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora whitespace-nowrap" style="font-size:11px">{fmtDate(b.created_at)}</td>
-                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-medium">{b.name}</td>
-                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora" style="font-size:12px">{b.contact}</td>
-                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora" style="font-size:12px">{artistMap[b.artist_id] ?? b.artist_id}</td>
-                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora text-[#5A5B55]/60" style="font-size:11px">{b.design_id ?? "—"}</td>
-                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm"><div class="text-xs text-[#5A5B55] max-w-[260px]">{b.message ?? "—"}</div></td>
+            {designs.map((d) => (
+              <tr class="hover:bg-surface-container-low/50 transition-colors">
+                <td class={`${tdBase} text-label-sm text-on-surface-variant/60`}>{d.n}</td>
+                <td class={`${tdBase}`}><a href={`/design/${d.id}`} class="text-primary-container underline underline-offset-3 hover:text-primary transition-colors">{d.title}</a></td>
+                <td class={`${tdBase} text-body-md`}>{artistMap[d.artist_id] ?? d.artist_id}</td>
+                <td class={`${tdBase} text-label-sm text-on-surface-variant/60`}>{d.style ?? "—"}</td>
+                <td class={`${tdBase} text-body-md`}>{d.price != null ? d.price.toFixed(2) + " USDT" : "—"}</td>
+                <td class={`${tdBase}`}>
+                  <span class={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border ${statusClass(d.status)}`}>
+                    <span class="w-2 h-2 rounded-full bg-current"></span>{d.status}
+                  </span>
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
-      )}
+      </div>
 
-      <div class="font-sora text-[10.5px] tracking-[0.2em] uppercase text-[#5A5B55] mb-4">All plates</div>
-      <table class="w-full border border-[#E8E3D8] border-collapse mb-[52px]">
-        <thead>
-          <tr><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">№</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Title</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Artist</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Style</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Price</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Status</th></tr>
-        </thead>
-        <tbody>
-          {designs.map((d) => (
-            <tr>
-              <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora text-[#5A5B55]/60" style="font-size:11px">{d.n}</td>
-              <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm"><a href={`/design/${d.id}`} style="text-decoration:underline;text-underline-offset:3px">{d.title}</a></td>
-              <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora" style="font-size:12px">{artistMap[d.artist_id] ?? d.artist_id}</td>
-              <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora text-[#5A5B55]/60" style="font-size:11px">{d.style ?? "—"}</td>
-              <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora" style="font-size:12px">{d.price != null ? d.price.toFixed(2) + " USDT" : "—"}</td>
-              <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm">
-                <span class={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border ${statusClass(d.status)}`}>
-                  <span class="w-2 h-2 rounded-full bg-current"></span>{d.status}
-                </span>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-
-      <div class="font-sora text-[10.5px] tracking-[0.2em] uppercase text-[#5A5B55] mb-4" style="margin-top: 24px;">Register new artist</div>
+      {/* ── Register new artist ── */}
+      <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant mb-4 mt-6">Register new artist</div>
       <form method="POST" action="/api/admin/register-artist"
-        className="grid grid-cols-2 gap-3 border border-[#E8E3D8] p-5 mb-9 bg-[#F0EBE1] rounded-lg">
-        <div class="mb-0">
-          <label class="block font-sora font-semibold text-sm text-[#5A5B55] mb-2" style="font-size:10px">Name *</label>
-          <input type="text" name="name" class="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors" required placeholder="Artist name" style="font-size:12px;padding:7px 10px" />
+        class="grid grid-cols-1 sm:grid-cols-2 gap-4 card-bb p-6 mb-9">
+        <div>
+          <label class="label-bb text-label-sm">Name *</label>
+          <input type="text" name="name" class="input-bb text-body-md py-2" required placeholder="Artist name" />
         </div>
-        <div class="mb-0">
-          <label class="block font-sora font-semibold text-sm text-[#5A5B55] mb-2" style="font-size:10px">Handle</label>
-          <input type="text" name="handle" class="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors" placeholder="@handle" style="font-size:12px;padding:7px 10px" />
+        <div>
+          <label class="label-bb text-label-sm">Handle</label>
+          <input type="text" name="handle" class="input-bb text-body-md py-2" placeholder="@handle" />
         </div>
-        <div class="mb-0">
-          <label class="block font-sora font-semibold text-sm text-[#5A5B55] mb-2" style="font-size:10px">City</label>
-          <input type="text" name="city" class="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors" placeholder="Bangkok" style="font-size:12px;padding:7px 10px" />
+        <div>
+          <label class="label-bb text-label-sm">City</label>
+          <input type="text" name="city" class="input-bb text-body-md py-2" placeholder="Bangkok" />
         </div>
-        <div class="mb-0">
-          <label class="block font-sora font-semibold text-sm text-[#5A5B55] mb-2" style="font-size:10px">Style</label>
-          <input type="text" name="style" class="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors" placeholder="Neo-traditional" style="font-size:12px;padding:7px 10px" />
+        <div>
+          <label class="label-bb text-label-sm">Style</label>
+          <input type="text" name="style" class="input-bb text-body-md py-2" placeholder="Neo-traditional" />
         </div>
-        <div class="mb-0">
-          <label class="block font-sora font-semibold text-sm text-[#5A5B55] mb-2" style="font-size:10px">Email</label>
-          <input type="email" name="email" class="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors" placeholder="artist@email.com" style="font-size:12px;padding:7px 10px" />
+        <div>
+          <label class="label-bb text-label-sm">Email</label>
+          <input type="email" name="email" class="input-bb text-body-md py-2" placeholder="artist@email.com" />
         </div>
-        <div class="mb-0">
-          <label class="block font-sora font-semibold text-sm text-[#5A5B55] mb-2" style="font-size:10px">Wallet address</label>
-          <input type="text" name="walletAddress" class="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors" placeholder="0x…" style="font-size:12px;font-family:var(--font-mono);padding:7px 10px" />
+        <div>
+          <label class="label-bb text-label-sm">Wallet address</label>
+          <input type="text" name="walletAddress" class="input-bb text-body-md py-2 font-mono" placeholder="0x…" />
         </div>
-        <div style="grid-column:1/-1">
-          <button type="submit" class="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-[#E60023] text-white hover:bg-[#C4001F] disabled:opacity-40" style="font-size:12px;padding:8px 24px">Register artist</button>
+        <div class="sm:col-span-2">
+          <button type="submit" class="btn-primary text-label-md py-2 px-6">Register artist</button>
         </div>
       </form>
 
-      <div class="sec">Artist wallet addresses</div>
-      <table class="tbl">
-        <thead>
-          <tr>
-            <th>Artist</th><th>ID</th><th>Current wallet</th><th>Update</th>
-          </tr>
-        </thead>
-        <tbody>
-          {artists.map((a) => (
+      {/* ── Artist wallet addresses ── */}
+      <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant mb-4">Artist wallet addresses</div>
+      <div class="overflow-x-auto mb-12">
+        <table class="w-full border border-outline-variant/40 border-collapse rounded-lg overflow-hidden">
+          <thead>
             <tr>
-              <td style="font-weight:500">{a.name}</td>
-              <td class="mono faint" style="font-size:11px">{a.id}</td>
-              <td class="mono" style="font-size:11px;max-width:200px;overflow:hidden;text-overflow:ellipsis">
-                {a.wallet_address ? a.wallet_address : <span style="color:var(--fg-faint)">not set</span>}
-              </td>
-              <td>
-                <form method="POST" action="/api/admin/update-artist-wallet"
-                  style="display:flex;gap:8px;align-items:center">
-                  <input type="hidden" name="artistId" value={a.id} />
-                  <input type="text" name="walletAddress" class="input"
-                    placeholder="0x…" style="font-size:11px;font-family:var(--font-mono);width:280px;padding:6px 10px"
-                    value={a.wallet_address ?? ""} />
-                  <button type="submit" class="btn btn--ghost" style="font-size:11px;padding:6px 14px">
-                    Save
-                  </button>
-                </form>
-              </td>
+              <th class={thBase}>Artist</th>
+              <th class={thBase}>ID</th>
+              <th class={thBase}>Current wallet</th>
+              <th class={thBase}>Update</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {artists.map((a) => (
+              <tr class="hover:bg-surface-container-low/50 transition-colors">
+                <td class={`${tdBase} font-medium text-on-surface`}>{a.name}</td>
+                <td class={`${tdBase} text-label-sm text-on-surface-variant/60 font-mono`}>{a.id}</td>
+                <td class={`${tdBase} text-label-sm font-mono max-w-[200px] truncate`}>
+                  {a.wallet_address ? a.wallet_address : <span class="text-on-surface-variant/40">not set</span>}
+                </td>
+                <td class={tdBase}>
+                  <form method="POST" action="/api/admin/update-artist-wallet"
+                    class="flex gap-2 items-center">
+                    <input type="hidden" name="artistId" value={a.id} />
+                    <input type="text" name="walletAddress" class="input-bb text-label-sm font-mono w-[280px] py-1.5"
+                      placeholder="0x…"
+                      value={a.wallet_address ?? ""} />
+                    <button type="submit" class="btn-secondary text-label-sm py-1.5 px-4">
+                      Save
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   )}
 </Base>
