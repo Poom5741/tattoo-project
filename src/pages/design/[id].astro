@@ -4,8 +4,6 @@ export const prerender = false;
 import Base from "../../layouts/Base.astro";
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer.astro";
-import TweaksPanel from "../../components/TweaksPanel";
-import TextureLayer from "../../components/TextureLayer";
 import Toast from "../../components/Toast";
 import Plate from "../../components/Plate";
 import ResaleButton from "../../components/ResaleButton";
@@ -103,32 +101,30 @@ const PRIVY_APP_ID = Astro.locals.runtime.env.PRIVY_APP_ID;
   description={`${design.title} by ${artist?.name ?? ""}. One-of-one tattoo plate.`}
 >
   <Nav client:load currentPath="/market" />
-  <TextureLayer client:idle />
-  <TweaksPanel client:load />
   <Toast client:load />
 
-  <section style="padding: 32px 0 80px;">
-    <div class="wrap">
-      <a href="/market" class="back-link">← Back to gallery</a>
+  <section class="py-8 pb-20">
+    <div class="max-w-[1280px] mx-auto px-5 md:px-16">
+      <a href="/market" class="inline-flex items-center gap-2 text-[#5A5B55] hover:text-[#1B1C18] mb-8 font-sora text-sm">← Back to gallery</a>
 
-      <div class="detail">
-        <div class="detail__img">
+      <div class="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 lg:gap-12">
+        <div class="aspect-square rounded-lg overflow-hidden bg-[#F5F0E8]">
           {design.image_url ? (
             <img src={design.image_url} alt={design.title} style="width:100%;height:100%;object-fit:cover;display:block" />
           ) : (
             <Plate seed={design.seed ?? 0} label={design.title.toUpperCase()} index={design.n} density={1.3} client:load />
           )}
         </div>
-        <div class="detail__side">
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 22px;">
-            <span class={`tag ${design.status === "available" ? "tag--avail" : design.status === "reserved" ? "tag--reserved" : "tag--sold"}`}>
-              <span class="dot"></span>
+        <div class="flex flex-col">
+          <div class="flex justify-between items-center mb-[22px]">
+            <span class={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border ${design.status === "available" ? "bg-[#2E7D32]/15 text-[#2E7D32] border-[#2E7D32]/40" : design.status === "reserved" ? "bg-[#F9A825]/15 text-[#F9A825] border-[#F9A825]/40" : "bg-[#5A5B55]/15 text-[#5A5B55] border-[#5A5B55]/40"}`}>
+              <span class="w-2 h-2 rounded-full bg-current"></span>
               {design.status === "available" ? "Available" : design.status === "reserved" ? "Reserved" : "Claimed"}
             </span>
-            <span class="mono faint" style="font-size: 11px; letter-spacing: .1em;">№ {design.n} / 001</span>
+            <span class="font-sora text-[#5A5B55]/60 text-[11px] tracking-[0.1em]">№ {design.n} / 001</span>
           </div>
           {design.status === "sold" && design.selling_mode === "resellable" && design.token_id != null && (
-            <div style="margin-bottom: 16px;">
+            <div class="mb-4">
               <ResaleButton
                 client:load
                 designId={design.id}
@@ -137,65 +133,65 @@ const PRIVY_APP_ID = Astro.locals.runtime.env.PRIVY_APP_ID;
               />
             </div>
           )}
-          <h1 class="display" style="font-size: 46px; line-height: 1;">{design.title}</h1>
+          <h1 class="font-playfair font-semibold text-[#1B1C18] text-[46px] leading-none">{design.title}</h1>
 
           {artist && (
-            <a href={`/artist/${artist.id}`} style="display: flex; align-items: center; gap: 12px; margin: 20px 0 28px; text-decoration: none; color: inherit; cursor: pointer;">
-              <div class="avatar" style="width: 38px; height: 38px;">
+            <a href={`/artist/${artist.id}`} class="flex items-center gap-3 my-5 mb-7 no-underline text-inherit cursor-pointer">
+              <div class="w-10 h-10 rounded-full overflow-hidden" style="width: 38px; height: 38px;">
                 <Plate seed={artist.seed ?? 0} density={0.6} client:load />
               </div>
               <div>
-                <div class="mono" style="font-size: 13px;">{artist.name}</div>
-                <div class="mono faint" style="font-size: 11px; letter-spacing: .06em;">{artist.city} · {design.style}</div>
+                <div class="font-sora text-[13px]">{artist.name}</div>
+                <div class="font-sora text-[#5A5B55]/60 text-[11px] tracking-[0.06em]">{artist.city} · {design.style}</div>
               </div>
             </a>
           )}
 
-          <div style="display: flex; align-items: baseline; gap: 14px; padding: 22px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); margin-bottom: 26px;">
-            <span class="price-big">{fmtUsdt(design.price)}</span>
-            <span class="mono faint" style="font-size: 11px; letter-spacing: .06em;">
+          <div class="flex items-baseline gap-3.5 py-[22px] border-t border-[#E8E3D8]/30 border-b border-[#E8E3D8]/30 mb-[26px]">
+            <span class="font-playfair text-3xl font-semibold text-[#1B1C18]">{fmtUsdt(design.price)}</span>
+            <span class="font-sora text-[#5A5B55]/60 text-[11px] tracking-[0.06em]">
               {design.selling_mode === "one-time" ? "SOULBOUND" : `RESELLABLE · ${design.royalty_pct ?? 0}% ROYALTY`}
             </span>
           </div>
 
-          <div style="display: flex; flex-direction: column; gap: 12px; margin-bottom: 26px;">
+          <div class="flex flex-col gap-3 mb-[26px]">
             {design.status === "available" ? (
               <>
-                <a href={`/checkout/${design.id}`} class="btn btn--solid btn--block btn--lg">Acquire this plate</a>
+                <a href={`/checkout/${design.id}`} class="inline-flex items-center justify-center gap-2 w-full px-8 py-4 text-base rounded-full font-sora font-semibold text-sm transition-all bg-[#E60023] text-white hover:bg-[#C4001F] disabled:opacity-40">Acquire this plate</a>
                 {artist && (
-                  <a href={`/booking?designId=${design.id}`} class="btn btn--ghost btn--block">
+                  <a href={`/booking?designId=${design.id}`} class="inline-flex items-center justify-center gap-2 w-full px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-transparent text-[#1B1C18] border border-[#E8E3D8] hover:border-[#D4CFC4]">
                     Book {artist.name.split(" ")[0]} to ink it
                   </a>
                 )}
               </>
             ) : (
-              <button class="btn btn--ghost btn--block btn--lg" disabled>
+              <button class="inline-flex items-center justify-center gap-2 w-full px-8 py-4 text-base rounded-full font-sora font-semibold text-sm transition-all bg-transparent text-[#1B1C18] border border-[#E8E3D8] hover:border-[#D4CFC4]" disabled>
                 🔒 {design.status === "reserved" ? "Reserved" : "Claimed — retired"}
               </button>
             )}
           </div>
 
-          <div class="cert">
-            <div class="cert__head">
-              <span class="t">Certificate of plate</span>
-              <span class="cert__seal">{design.n}</span>
+          <div class="border border-[#E8E3D8]/30 rounded-lg p-6 bg-[#F5F0E8]">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-[#E8E3D8]/30">
+              <span class="font-playfair font-semibold text-[#1B1C18]">Certificate of plate</span>
+              <span class="w-14 h-14 rounded-full bg-[#E60023] text-white flex items-center justify-center font-sora font-bold text-lg">{design.n}</span>
             </div>
-            <div class="cert__rows">
+            <div class="flex flex-col gap-3">
               {[
                 ["Edition", "№ " + design.n + " / 001"],
                 ["Medium", "Digital ink plate"],
                 ["Placement", design.placement ?? "—"],
                 ["Watching", String(design.drawn ?? 0) + " collectors"],
               ].map(([k, v]) => (
-                <div class="cert__row">
-                  <span class="k">{k}</span>
-                  <span class="v">{v}</span>
+                <div class="flex justify-between font-sora text-sm">
+                  <span class="text-[#5A5B55]">{k}</span>
+                  <span class="text-[#1B1C18] font-medium">{v}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          <p class="dim" style="font-size: 13.5px; margin-top: 26px; margin-bottom: 0;">
+          <p class="text-[#5A5B55] text-[13.5px] mt-[26px] mb-0">
             Drawn by hand and held in escrow until claimed.
             {design.drawn != null && <> {design.drawn} collectors are watching this plate.</>}
             {" "}On purchase it leaves the gallery permanently — the artist will ink it once, for you, and never again.
@@ -204,33 +200,33 @@ const PRIVY_APP_ID = Astro.locals.runtime.env.PRIVY_APP_ID;
       </div>
 
       {resaleListings.length > 0 && (
-        <div style="margin-top: 56px;">
-          <div class="divider-label mono faint" style="font-size: 11px; letter-spacing: .2em; text-transform: uppercase; margin-bottom: 20px;">
+        <div class="mt-14">
+          <div class="font-sora text-xs tracking-[0.2em] uppercase text-[#5A5B55]/60 mb-5">
             Active resale listings
           </div>
-          <table style="width:100%;border:1px solid var(--line);border-collapse:collapse;">
+          <table class="w-full border border-[#E8E3D8]/30 border-collapse">
             <thead>
               <tr>
-                <th class="mono" style="font-size:10px;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);color:var(--fg-faint);letter-spacing:.1em">Seller</th>
-                <th class="mono" style="font-size:10px;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);color:var(--fg-faint);letter-spacing:.1em">Price</th>
-                <th class="mono" style="font-size:10px;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);color:var(--fg-faint);letter-spacing:.1em">Listed</th>
-                <th class="mono" style="font-size:10px;text-align:left;padding:10px 14px;border-bottom:1px solid var(--line);color:var(--fg-faint);letter-spacing:.1em">Action</th>
+                <th class="font-sora text-[10px] text-left p-2.5 px-3.5 border-b border-[#E8E3D8]/30 text-[#5A5B55]/60 tracking-[0.1em]">Seller</th>
+                <th class="font-sora text-[10px] text-left p-2.5 px-3.5 border-b border-[#E8E3D8]/30 text-[#5A5B55]/60 tracking-[0.1em]">Price</th>
+                <th class="font-sora text-[10px] text-left p-2.5 px-3.5 border-b border-[#E8E3D8]/30 text-[#5A5B55]/60 tracking-[0.1em]">Listed</th>
+                <th class="font-sora text-[10px] text-left p-2.5 px-3.5 border-b border-[#E8E3D8]/30 text-[#5A5B55]/60 tracking-[0.1em]">Action</th>
               </tr>
             </thead>
             <tbody>
               {resaleListings.map((r) => (
                 <tr>
-                  <td class="mono" style="font-size:11px;padding:10px 14px;border-bottom:1px solid var(--line);color:var(--fg-dim)">
+                  <td class="font-sora text-[11px] p-2.5 px-3.5 border-b border-[#E8E3D8]/30 text-[#5A5B55]">
                     {r.seller_wallet.slice(0, 6)}…{r.seller_wallet.slice(-4)}
                   </td>
-                  <td class="display" style="font-size:16px;padding:10px 14px;border-bottom:1px solid var(--line)">
+                  <td class="font-playfair font-semibold text-[#1B1C18] text-base p-2.5 px-3.5 border-b border-[#E8E3D8]/30">
                     {r.asking_price.toFixed(2)} USDT
                   </td>
-                  <td class="mono" style="font-size:11px;padding:10px 14px;border-bottom:1px solid var(--line);color:var(--fg-dim)">
+                  <td class="font-sora text-[11px] p-2.5 px-3.5 border-b border-[#E8E3D8]/30 text-[#5A5B55]">
                     {fmtDate(r.created_at)}
                   </td>
-                  <td style="padding:10px 14px;border-bottom:1px solid var(--line)">
-                    <a href={`/checkout/${design.id}?resale=${r.id}`} class="btn btn--solid" style="font-size:11px;padding:6px 14px">Buy resale</a>
+                  <td class="p-2.5 px-3.5 border-b border-[#E8E3D8]/30">
+                    <a href={`/checkout/${design.id}?resale=${r.id}`} class="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-[#E60023] text-white hover:bg-[#C4001F] disabled:opacity-40" style="font-size:11px;padding:6px 14px">Buy resale</a>
                   </td>
                 </tr>
               ))}
@@ -240,25 +236,25 @@ const PRIVY_APP_ID = Astro.locals.runtime.env.PRIVY_APP_ID;
       )}
 
       {moreDesigns.length > 0 && artist && (
-        <div style="margin-top: 72px;">
-          <div class="divider-label mono faint" style="font-size: 11px; letter-spacing: .2em; text-transform: uppercase;">
+        <div class="mt-[72px]">
+          <div class="font-sora text-xs tracking-[0.2em] uppercase text-[#5A5B55]/60 mb-6">
             More from {artist.name}
           </div>
-          <div class="grid market-grid">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {moreDesigns.map((m) => (
-              <a href={`/design/${m.id}`} style="display: block; text-decoration: none; color: inherit;">
-                <div class="card">
-                  <div class="card__img">
+              <a href={`/design/${m.id}`} class="block no-underline text-inherit">
+                <div class="bg-[#F0EBE1] rounded-lg border border-[#E8E3D8]/30 overflow-hidden hover:shadow-md transition-all">
+                  <div class="aspect-[3/4] overflow-hidden bg-[#F5F0E8]">
                     {m.image_url ? (
                       <img src={m.image_url} alt={m.title} style="width:100%;height:100%;object-fit:cover;display:block" />
                     ) : (
                       <Plate seed={m.seed ?? 0} density={1} client:load />
                     )}
                   </div>
-                  <div class="card__body">
-                    <h3 class="display" style="font-size: 20px; margin-bottom: 8px;">{m.title}</h3>
-                    <div class="mono dim" style="font-size: 11px;">{m.style}</div>
-                    <div class="display" style="font-size: 22px; margin-top: 12px;">{fmtUsdt(m.price)}</div>
+                  <div class="p-5">
+                    <h3 class="font-playfair font-semibold text-[#1B1C18] text-xl mb-2">{m.title}</h3>
+                    <div class="font-sora text-[#5A5B55] text-[11px]">{m.style}</div>
+                    <div class="font-playfair font-semibold text-[#1B1C18] text-[22px] mt-3">{fmtUsdt(m.price)}</div>
                   </div>
                 </div>
               </a>

@@ -1,0 +1,1 @@
+Achieve 90% Playwright e2e test coverage across all pages and API routes of the inknoir tattoo marketplace (Astro.js + Cloudflare Workers). Currently only one visual regression spec exists. Need functional e2e tests for all public pages, auth flows, booking, artist portal, admin panel, checkout/wallet, and API endpoints.

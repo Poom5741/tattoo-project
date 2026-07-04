@@ -17,7 +17,7 @@ export const GET: APIRoute = async ({ request, locals }) => {
   try {
     const { results } = await env.DB.prepare(
       `SELECT d.id, d.n, d.title, d.style, d.price, d.placement, d.medium,
-              d.selling_mode, d.royalty_pct, d.image_url, d.created_at,
+              d.selling_mode, d.royalty_pct, d.image_url,
               a.name as artist_name, a.id as artist_id
        FROM designs d
        JOIN artists a ON d.artist_id = a.id

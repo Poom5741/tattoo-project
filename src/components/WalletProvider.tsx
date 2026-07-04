@@ -20,7 +20,7 @@ export default function WalletProvider({ children }: WalletProviderProps) {
         embeddedWallets: { createOnLogin: "all-users", requireUserPasswordOnCreate: false },
         defaultChain: bscTestnet,
         supportedChains: [bscTestnet],
-        appearance: { theme: "dark", accentColor: "#c9a96e" },
+        appearance: { theme: "light", accentColor: "#E60023" },
       }}
     >
       <QueryClientProvider client={queryClient}>

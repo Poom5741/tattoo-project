@@ -187,20 +187,20 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
 
   if (done) {
     return (
-      <div className="fade-in">
-        <section style={{ padding: "72px 0 100px" }}>
-          <div className="wrap" style={{ maxWidth: 700 }}>
-            <div style={{ textAlign: "center" }}>
-              <div className="cert__seal" style={{ width: 56, height: 56, margin: "0 auto 26px", fontSize: 12 }}>✓</div>
-              <div className="kicker" style={{ marginBottom: 16 }}>Plate claimed</div>
-              <h1 className="display" style={{ fontSize: 48 }}>It&apos;s yours alone.</h1>
-              <p className="dim" style={{ fontSize: 15, margin: "18px auto 36px", maxWidth: "46ch" }}>
+      <div>
+        <section className="py-[72px] pb-[100px]">
+          <div className="max-w-[700px] mx-auto px-5 md:px-16">
+            <div className="text-center">
+              <div className="w-14 h-14 rounded-full bg-[#E60023] text-white flex items-center justify-center font-sora font-bold text-lg mx-auto mb-6">✓</div>
+              <div className="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mb-4">Plate claimed</div>
+              <h1 className="font-playfair font-semibold text-[#1B1C18] text-[48px]">It&apos;s yours alone.</h1>
+              <p className="text-[#5A5B55] text-[15px] mt-[18px] mx-auto mb-9 max-w-[46ch]">
                 &ldquo;{design.title}&rdquo; has left the gallery and been retired. The certificate of authenticity is now in your collection.
               </p>
             </div>
-            <div style={{ display: "flex", gap: 12, marginTop: 28, justifyContent: "center", flexWrap: "wrap" }}>
-              <a href="/wallet" className="btn btn--solid btn--lg">View collection</a>
-              <a href="/market" className="btn btn--ghost btn--lg">Back to gallery</a>
+            <div className="flex gap-3 mt-7 justify-center flex-wrap">
+              <a href="/wallet" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sora font-semibold text-base transition-all bg-[#E60023] text-white hover:bg-[#C4001F]">View collection</a>
+              <a href="/market" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sora font-semibold text-base transition-all bg-transparent text-[#1B1C18] border border-[#E8E3D8] hover:border-[#D4CFC4]">Back to gallery</a>
             </div>
           </div>
         </section>
@@ -209,52 +209,52 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
   }
 
   return (
-    <div className="fade-in">
-      <section style={{ padding: "32px 0 90px" }}>
-        <div className="wrap" style={{ maxWidth: 980 }}>
-          <a href={`/design/${design.id}`} className="back-link">← Back to plate</a>
-          <h1 className="display" style={{ fontSize: "clamp(34px,5vw,56px)", marginBottom: 36 }}>Acquire the plate</h1>
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 44 }}>
+    <div>
+      <section className="py-8 pb-[90px]">
+        <div className="max-w-[980px] mx-auto px-5 md:px-16">
+          <a href={`/design/${design.id}`} className="inline-flex items-center gap-2 text-[#5A5B55] hover:text-[#1B1C18] mb-8 font-sora text-sm">← Back to plate</a>
+          <h1 className="font-playfair font-semibold text-[#1B1C18] text-[clamp(34px,5vw,56px)] mb-9">Acquire the plate</h1>
+          <div className="grid grid-cols-2 gap-11">
             <div>
-              <div style={{ display: "flex", gap: 18, paddingBottom: 24, borderBottom: "1px solid var(--line)", marginBottom: 24 }}>
+              <div className="flex gap-[18px] pb-6 border-b border-[#E8E3D8] mb-6">
                 <div>
-                  <div className="mono dim" style={{ fontSize: 11, marginBottom: 8 }}>AVAILABLE</div>
-                  <h3 className="display" style={{ fontSize: 26, margin: "12px 0 6px" }}>{design.title}</h3>
-                  <div className="mono dim" style={{ fontSize: 12 }}>{design.style}</div>
-                  <div className="mono faint" style={{ fontSize: 11, marginTop: 10 }}>№ {design.n} / 001 · {design.placement}</div>
+                  <div className="font-sora text-[#5A5B55] text-[11px] mb-2">AVAILABLE</div>
+                  <h3 className="font-playfair font-semibold text-[#1B1C18] text-[26px] mt-3 mb-1.5">{design.title}</h3>
+                  <div className="font-sora text-[#5A5B55] text-xs">{design.style}</div>
+                  <div className="font-sora text-[#5A5B55]/60 text-[11px] mt-2.5">№ {design.n} / 001 · {design.placement}</div>
                 </div>
               </div>
-              <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <div className="flex flex-col gap-3">
                 {[
                   ["Plate price", fmtUsdt(price)],
                   ["Platform fee (3%)", fmtUsdt(platformFee)],
                   ["Artist receives", price != null ? fmtUsdt(price - platformFee) : "—"],
                 ].map(([k, v]) => (
-                  <div key={k} style={{ display: "flex", justifyContent: "space-between" }}>
-                    <span className="mono dim" style={{ fontSize: 13 }}>{k}</span>
-                    <span className="mono" style={{ fontSize: 13 }}>{v}</span>
+                  <div key={k} className="flex justify-between font-sora text-sm">
+                    <span className="font-sora text-[#5A5B55] text-[13px]">{k}</span>
+                    <span className="font-sora text-[13px]">{v}</span>
                   </div>
                 ))}
-                <div style={{ display: "flex", justifyContent: "space-between", paddingTop: 16, borderTop: "1px solid var(--line)", marginTop: 6 }}>
-                  <span className="mono" style={{ fontSize: 14 }}>You pay</span>
-                  <span className="display" style={{ fontSize: 30 }}>{fmtUsdt(price)}</span>
+                <div className="flex justify-between pt-4 border-t border-[#E8E3D8] mt-1.5">
+                  <span className="font-sora text-sm">You pay</span>
+                  <span className="font-playfair font-semibold text-[#1B1C18] text-[30px]">{fmtUsdt(price)}</span>
                 </div>
               </div>
             </div>
 
             <div>
-              <h3 className="display" style={{ fontSize: 24, marginBottom: 20 }}>Payment</h3>
+              <h3 className="font-playfair font-semibold text-[#1B1C18] text-2xl mb-5">Payment</h3>
 
               {!isConnected ? (
-                <div style={{ padding: "32px 0" }}>
-                  <p className="dim" style={{ fontSize: 14, marginBottom: 20 }}>Connect your wallet to acquire this plate.</p>
-                  <button className="btn btn--solid btn--lg" onClick={login}>Connect & Sign in</button>
+                <div className="py-8">
+                  <p className="text-[#5A5B55] text-sm mb-5">Connect your wallet to acquire this plate.</p>
+                  <button className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sora font-semibold text-base transition-all bg-[#E60023] text-white hover:bg-[#C4001F]" onClick={login}>Connect & Sign in</button>
                 </div>
               ) : onWrongChain ? (
-                <div style={{ padding: "24px 0" }}>
-                  <p className="dim" style={{ fontSize: 14, marginBottom: 16 }}>Please switch to BSC Testnet to continue.</p>
+                <div className="py-6">
+                  <p className="text-[#5A5B55] text-sm mb-4">Please switch to BSC Testnet to continue.</p>
                   <button
-                    className="btn btn--solid btn--lg"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sora font-semibold text-base transition-all bg-[#E60023] text-white hover:bg-[#C4001F]"
                     onClick={() => switchChain({ chainId: CHAIN_ID })}
                   >
                     Switch to BSC
@@ -262,31 +262,31 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
                 </div>
               ) : (
                 <>
-                  <div className="field" style={{ marginBottom: 20 }}>
-                    <label>Connected wallet</label>
-                    <div className="input mono" style={{ padding: "10px 14px", opacity: 0.7, fontSize: 12 }}>
+                  <div className="mb-5">
+                    <label className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Connected wallet</label>
+                    <div className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors font-sora px-3.5 py-2.5 opacity-70 text-xs">
                       {address?.slice(0, 6)}…{address?.slice(-4)}
                     </div>
                   </div>
 
                   {(voucherError || writeError || confirmError) && (
-                    <div style={{ padding: "12px 16px", background: "rgba(255,60,60,0.1)", border: "1px solid rgba(255,60,60,0.3)", marginBottom: 16, fontSize: 13 }} className="mono">
+                    <div className="p-3 bg-[#D32F2F]/10 border border-[#D32F2F]/30 text-[#D32F2F] text-sm font-sora mb-4">
                       {voucherError || (writeError ? writeError.message.split("\n")[0] : null) || confirmError}
                     </div>
                   )}
 
-                  <label style={{ display: "flex", gap: 10, alignItems: "flex-start", margin: "6px 0 24px", cursor: "pointer" }}>
-                    <input type="checkbox" defaultChecked style={{ marginTop: 3 }} />
-                    <span className="dim" style={{ fontSize: 12.5 }}>I understand this plate is one-of-one. On purchase it is permanently retired from the gallery.</span>
+                  <label className="flex gap-2.5 items-start mt-1.5 mb-6 cursor-pointer">
+                    <input type="checkbox" defaultChecked className="mt-0.5" />
+                    <span className="text-[#5A5B55] text-[12.5px]">I understand this plate is one-of-one. On purchase it is permanently retired from the gallery.</span>
                   </label>
 
                   {voucherData && !usdtApproved && !approveConfirmed && (
-                    <div style={{ padding: "10px 14px", background: "rgba(201,169,110,0.1)", border: "1px solid rgba(201,169,110,0.3)", marginBottom: 16, fontSize: 12.5 }} className="mono">
+                    <div className="p-2.5 px-3.5 bg-[#E60023]/10 border border-[#E60023]/30 mb-4 text-[12.5px] font-sora">
                       Step 1 of 2: Approve USDT spending, then mint
                     </div>
                   )}
                   <button
-                    className="btn btn--solid btn--block btn--lg"
+                    className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sora font-semibold text-base transition-all bg-[#E60023] text-white hover:bg-[#C4001F] disabled:opacity-40 disabled:cursor-not-allowed w-full"
                     disabled={isFetchingVoucher || isApproving || isWriting || isWaiting || isConfirming || txConfirmed}
                     onClick={onAcquire}
                   >
@@ -308,11 +308,11 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
                       ? `Approve USDT · ${fmtUsdt(price)}`
                       : `Mint · ${fmtUsdt(price)}`}
                   </button>
-                  <p className="mono faint" style={{ fontSize: 10.5, textAlign: "center", marginTop: 14, letterSpacing: ".06em" }}>
+                  <p className="font-sora text-[#5A5B55]/60 text-[10.5px] text-center mt-3.5 tracking-[0.06em]">
                     Payment processed on BSC via USDT (BEP-20)
                   </p>
                   <button
-                    style={{ width: "100%", marginTop: 12, padding: "10px 0", background: "transparent", border: "1px solid var(--line)", color: "var(--fg-dim)", fontSize: 13, cursor: "pointer" }}
+                    className="w-full mt-3 px-0 py-2.5 bg-transparent border border-[#E8E3D8] text-[#5A5B55] text-[13px] cursor-pointer font-sora hover:border-[#D4CFC4] transition-colors"
                     onClick={() => window.alert("PaySolution integration coming soon")}
                   >
                     Pay with PaySolution (alternative)

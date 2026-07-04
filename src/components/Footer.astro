@@ -1,42 +1,47 @@
 ---
 ---
 
-<footer class="footer">
-  <div class="wrap">
-    <div class="footer__top">
-      <div style="max-width: 340px">
-        <div class="brand" style="margin-bottom: 14px">
-          <span class="brand__mark">INKNOIR</span>
-        </div>
-        <p class="dim" style="font-size: 13px; margin: 0">
+<footer class="bg-surface-container-low w-full mt-20 border-t border-outline-variant/30">
+  <div class="max-w-container-max mx-auto px-5 md:px-16 py-14">
+    <div class="flex flex-col md:flex-row justify-between gap-12">
+      <div class="max-w-xs">
+        <a href="/" class="font-display text-2xl font-bold tracking-tight text-on-surface">INKNOIR</a>
+        <p class="font-body text-sm text-on-surface-variant mt-4 leading-relaxed">
           A gallery of one-of-one tattoo plates. Each design is drawn once, claimed once, and inked by its maker. No repeats, ever.
         </p>
       </div>
-      <div class="footer__cols">
-        <div class="footer__col">
-          <h5>Gallery</h5>
-          <a href="/market">Browse plates</a>
-          <a href="/market">New releases</a>
-          <a href="/wallet">Your collection</a>
+
+      <div class="grid grid-cols-3 gap-8 md:gap-16">
+        <div>
+          <h5 class="font-body text-label-md font-semibold text-on-surface mb-4 uppercase tracking-wider">Gallery</h5>
+          <div class="flex flex-col gap-2.5">
+            <a href="/market" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">Browse plates</a>
+            <a href="/market" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">New releases</a>
+            <a href="/wallet" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">Your collection</a>
+          </div>
         </div>
-        <div class="footer__col">
-          <h5>Artists</h5>
-          <a href="/artists">The roster</a>
-          <a href="/artists">Apply to sell</a>
-          <a href="/artists">Book a session</a>
+        <div>
+          <h5 class="font-body text-label-md font-semibold text-on-surface mb-4 uppercase tracking-wider">Artists</h5>
+          <div class="flex flex-col gap-2.5">
+            <a href="/artists" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">The roster</a>
+            <a href="/artists" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">Apply to sell</a>
+            <a href="/artists" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">Book a session</a>
+          </div>
         </div>
-        <div class="footer__col">
-          <h5>House</h5>
-          <a href="/">How it works</a>
-          <a href="/">Authenticity</a>
-          <a href="/">Aftercare</a>
+        <div>
+          <h5 class="font-body text-label-md font-semibold text-on-surface mb-4 uppercase tracking-wider">House</h5>
+          <div class="flex flex-col gap-2.5">
+            <a href="/" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">How it works</a>
+            <a href="/" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">Authenticity</a>
+            <a href="/" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">Aftercare</a>
+          </div>
         </div>
       </div>
     </div>
-    <hr class="rule" />
-    <div class="footer__bottom" style="margin-top: 22px">
-      <span>© 2026 INKNOIR — house of one-off ink</span>
-      <span>Berlin · Osaka · CDMX · Stockholm</span>
+
+    <div class="mt-12 pt-6 border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center gap-4">
+      <span class="font-body text-xs text-on-surface-variant">© 2026 INKNOIR — house of one-off ink</span>
+      <span class="font-body text-xs text-on-surface-variant">Berlin · Osaka · CDMX · Stockholm</span>
     </div>
   </div>
 </footer>

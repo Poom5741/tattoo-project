@@ -4,22 +4,18 @@ export const prerender = false;
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer.astro";
-import TweaksPanel from "../components/TweaksPanel";
-import TextureLayer from "../components/TextureLayer";
 import Toast from "../components/Toast";
 import WalletOwnedPlates from "../components/WalletOwnedPlates";
 ---
 
 <Base title="Your Collection — INKNOIR" description="View your one-of-one tattoo plates.">
   <Nav client:load currentPath="/wallet" />
-  <TextureLayer client:idle />
-  <TweaksPanel client:load />
   <Toast client:load />
 
-  <section style="padding: 56px 0 90px;">
-    <div class="wrap">
-      <div class="kicker" style="margin-bottom: 16px;">Your collection</div>
-      <h1 class="display" style="font-size: clamp(38px,6vw,72px); margin-bottom: 40px;">Held by you</h1>
+  <section class="py-14 pb-[90px]">
+    <div class="max-w-[1280px] mx-auto px-5 md:px-16">
+      <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mb-4">Your collection</div>
+      <h1 class="font-playfair font-semibold text-[#1B1C18] text-[clamp(38px,6vw,72px)] mb-10">Held by you</h1>
       <WalletOwnedPlates client:only="react" />
     </div>
   </section>

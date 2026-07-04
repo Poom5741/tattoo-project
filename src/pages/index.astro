@@ -4,8 +4,6 @@ export const prerender = true;
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer.astro";
-import TweaksPanel from "../components/TweaksPanel";
-import TextureLayer from "../components/TextureLayer";
 import Toast from "../components/Toast";
 import Plate from "../components/Plate";
 import { DESIGNS, ARTISTS } from "../lib/catalog/seed";
@@ -25,163 +23,229 @@ const STYLE_KIND: Record<string, number> = {
 ---
 
 <Base title="INKNOIR — One-of-one tattoo plates">
-  <div class="app">
+  <div class="min-h-screen flex flex-col">
     <Nav currentPath="/" client:load />
-    <main style="flex: 1">
-      <div class="fade-in">
-        {/* hero */}
-        <section class="hero">
-          <div class="wrap hero__grid">
-            <div>
-              <div class="kicker" style="margin-bottom: 22px">One plate · One owner · One needle</div>
-              <h1>Ink you<br />can <em>own</em>.</h1>
-              <p class="hero__lead">
-                A gallery of one-of-one tattoo plates. Each design is drawn a single time, claimed by a single collector,
-                and inked by the artist who made it. When it's gone, it's gone.
-              </p>
-              <div class="hero__cta">
-                <a href="/market" class="btn btn--solid btn--lg">
-                  Enter the gallery
-                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2"/></svg>
-                </a>
-                <a href="/artists" class="btn btn--ghost btn--lg">Book an artist</a>
-              </div>
-              <div class="hero__stats">
-                <div class="hero__stat"><div class="n">189</div><div class="l">Plates released</div></div>
-                <div class="hero__stat"><div class="n">4</div><div class="l">Resident artists</div></div>
-                <div class="hero__stat"><div class="n">100%</div><div class="l">One of one</div></div>
-              </div>
-            </div>
-            <a href={`/design/${drop.id}`} class="hero__art" style="cursor: pointer; display: block; text-decoration: none">
-              <div class="hero__badge">Featured drop</div>
-              <Plate
-                seed={drop.seed}
-                kind={STYLE_KIND[drop.style]}
-                label={drop.title.toUpperCase()}
-                index={drop.n}
-                density={1.3}
-                client:load
-              />
-            </a>
-          </div>
-        </section>
 
-        <hr class="rule" />
-
-        {/* featured plates */}
-        <section class="section">
-          <div class="wrap">
-            <div class="sec-head">
-              <div>
-                <div class="kicker" style="margin-bottom: 14px">Available now</div>
-                <h2>Latest plates</h2>
-              </div>
-              <a href="/market" class="btn btn--ghost">
-                All plates
+    <main class="flex-1 w-full max-w-container-max mx-auto px-5 md:px-16 pt-12 md:pt-24 pb-20">
+      {/* ── Hero ── */}
+      <section class="bg-surface rounded-2xl px-6 py-12 md:px-12 md:py-16 mb-32 border border-outline-variant/20">
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-center">
+          <div class="lg:col-span-5 flex flex-col justify-center order-2 lg:order-1 mt-12 lg:mt-0">
+            <span class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-6">
+              One plate · One owner · One needle
+            </span>
+            <h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface mb-6 leading-tight">
+              Ink you<br />can <em>own</em>.
+            </h1>
+            <p class="font-body text-body-lg text-on-surface-variant mb-10 max-w-md">
+              A gallery of one-of-one tattoo plates. Each design is drawn a single time, claimed by a single collector,
+              and inked by the artist who made it. When it's gone, it's gone.
+            </p>
+            <div class="flex items-center gap-4 flex-wrap">
+              <a href="/market" class="btn-primary">
+                Explore Drop
                 <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2"/></svg>
               </a>
+              <a href="/artists" class="btn-secondary">
+                View Artist
+              </a>
             </div>
-            <div class="grid market-grid">
-              {featured.map((d) => (
-                <a href={`/design/${d.id}`} class="card" style="text-decoration: none">
-                  <div class="card__img">
-                    <Plate seed={d.seed} kind={STYLE_KIND[d.style]} label={d.style.toUpperCase()} index={d.n} client:load />
-                    <div class="card__hover">
-                      <span class="btn btn--ghost" style="pointer-events: none; border-color: rgba(255,255,255,.5)">
-                        View plate
-                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2"/></svg>
-                      </span>
-                    </div>
-                  </div>
-                  <div class="card__body">
-                    <div class="card__row">
-                      <h3 class="card__title">{d.title}</h3>
-                      <span class="card__price">{d.price.toFixed(2)} ETH</span>
-                    </div>
-                    <div class="card__meta">
-                      <span class="card__artist">{d.artistName}</span>
-                      <span class="card__edition">№ {d.n} / 001</span>
-                    </div>
-                    <div style="margin-top: 14px">
-                      <span class="tag tag--avail"><span class="dot"></span>1 of 1 · available</span>
-                    </div>
-                  </div>
-                </a>
-              ))}
+            <div class="hero__stats flex gap-10 mt-12">
+              <div>
+                <div class="font-display text-headline-sm text-on-surface">189</div>
+                <div class="font-body text-xs text-on-surface-variant mt-1">Plates released</div>
+              </div>
+              <div>
+                <div class="font-display text-headline-sm text-on-surface">4</div>
+                <div class="font-body text-xs text-on-surface-variant mt-1">Resident artists</div>
+              </div>
+              <div>
+                <div class="font-display text-headline-sm text-on-surface">100%</div>
+                <div class="font-body text-xs text-on-surface-variant mt-1">One of one</div>
+              </div>
             </div>
           </div>
-        </section>
 
-        <hr class="rule" />
-
-        {/* how it works */}
-        <section class="section">
-          <div class="wrap">
-            <div class="kicker" style="margin-bottom: 40px; text-align: center">The house principle</div>
-            <div class="grid" style="grid-template-columns: repeat(3,1fr)">
-              {[
-                ["01", "Claim the plate", "Every design exists once. Acquire it and a certificate of authenticity is issued to your collection — the plate is retired from the gallery the moment you do."],
-                ["02", "Book the maker", "The artist who drew your plate inks it, and only it. Schedule your session, choose placement and size, and reserve with a deposit."],
-                ["03", "Wear the original", "You leave with a one-of-one tattoo and a signed proof. The design will never be drawn, sold, or inked again. Provenance stays on your certificate."],
-              ].map(([n, t, b]) => (
-                <div style="background: var(--ink-800); padding: 40px 36px">
-                  <div class="display" style="font-size: 56px; color: var(--fg-faint)">{n}</div>
-                  <h3 class="display" style="font-size: 26px; margin: 18px 0 14px">{t}</h3>
-                  <p class="dim" style="font-size: 14px; margin: 0">{b}</p>
+          {/* Featured drop */}
+          <a href={`/design/${drop.id}`} class="lg:col-span-7 order-1 lg:order-2 relative group block no-underline">
+            <div class="absolute inset-0 bg-surface-container-highest rounded-2xl transform translate-x-3 translate-y-3 opacity-40"></div>
+            <div class="relative bg-surface-container-low border border-outline-variant/30 rounded-2xl p-4 md:p-6 overflow-hidden transition-all duration-500 hover:-translate-y-1 hover:shadow-lg shadow-md">
+              <div class="aspect-[4/5] bg-surface-dim rounded-xl overflow-hidden relative">
+                <Plate
+                  seed={drop.seed}
+                  kind={STYLE_KIND[drop.style]}
+                  label={drop.title.toUpperCase()}
+                  index={drop.n}
+                  density={1.3}
+                  client:load
+                />
+                <div class="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-surface-container/95 via-surface-container/60 to-transparent flex justify-between items-end">
+                  <div>
+                    <span class="tag-bb mb-2">Featured drop</span>
+                    <h3 class="font-display text-headline-sm text-on-surface">{drop.title}</h3>
+                    <p class="font-body text-body-md text-on-surface-variant">
+                      by <span class="text-primary-container font-semibold">{drop.artistName}</span>
+                    </p>
+                  </div>
                 </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        <hr class="rule" />
-
-        {/* artists */}
-        <section class="section">
-          <div class="wrap">
-            <div class="sec-head">
-              <div>
-                <div class="kicker" style="margin-bottom: 14px">The roster</div>
-                <h2>Resident artists</h2>
               </div>
-              <a href="/artists" class="btn btn--ghost">
-                Meet them all
-                <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2"/></svg>
-              </a>
             </div>
-            <div class="grid" style="grid-template-columns: repeat(4,1fr)">
-              {ARTISTS.map((a) => (
-                <a href={`/artist/${a.id}`} class="card" style="text-decoration: none">
-                  <div style="aspect-ratio: 1/1; position: relative">
-                    <Plate seed={a.seed} label={a.style.split(" · ")[0].toUpperCase()} density={0.8} client:load />
-                  </div>
-                  <div class="card__body">
-                    <h3 class="display" style="font-size: 22px">{a.name}</h3>
-                    <div class="card__artist" style="margin-top: 6px">{a.city}</div>
-                    <div class="dim" style="font-size: 12.5px; margin-top: 10px; font-family: var(--font-mono); letter-spacing: .04em">{a.booked}</div>
-                  </div>
-                </a>
-              ))}
-            </div>
-          </div>
-        </section>
+          </a>
+        </div>
+      </section>
 
-        {/* cta band */}
-        <section class="section--tight" style="border-top: 1px solid var(--line); background: var(--ink-850)">
-          <div class="wrap" style="display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap">
-            <h2 class="display" style="font-size: clamp(26px,3.4vw,40px); max-width: 16ch">Your skin deserves an original.</h2>
-            <a href="/market" class="btn btn--solid btn--lg">
-              Browse the gallery
-              <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2"/></svg>
-            </a>
+      {/* ── Featured Plates ── */}
+      <section class="mb-32">
+        <div class="flex justify-between items-end mb-10 flex-wrap gap-4">
+          <div>
+            <span class="font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-3 block">Available now</span>
+            <h2 class="font-display text-headline-md text-on-surface">Latest plates</h2>
           </div>
-        </section>
-      </div>
+          <a href="/market" class="btn-secondary">
+            All plates
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2"/></svg>
+          </a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter" data-testid="featured-plates-grid">
+          {featured.map((d) => (
+            <a href={`/design/${d.id}`} class="card-bb block no-underline group" data-testid="plate-card">
+              <div class="aspect-square relative overflow-hidden bg-surface-dim">
+                <Plate seed={d.seed} kind={STYLE_KIND[d.style]} label={d.style.toUpperCase()} index={d.n} client:load />
+              </div>
+              <div class="p-5">
+                <div class="flex flex-wrap gap-2 mb-3">
+                  <span class="tag-bb">{d.style}</span>
+                  <span class="tag-bb">
+                    <span class="w-2 h-2 rounded-full bg-green-600"></span>
+                    1 of 1
+                  </span>
+                </div>
+                <h3 class="font-display text-headline-sm text-on-surface mb-1 group-hover:text-primary transition-colors duration-200">{d.title}</h3>
+                <p class="font-body text-body-md text-on-surface-variant mb-3">
+                  by <span class="text-primary-container font-semibold">{d.artistName}</span>
+                </p>
+                <div class="flex justify-between items-center pt-3 border-t border-outline-variant/20">
+                  <span class="font-body text-label-sm text-on-surface-variant">№ {d.n} / 001</span>
+                  <span class="font-display text-headline-sm text-on-surface">{d.price.toFixed(2)} ETH</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
+
+      {/* ── How It Works ── */}
+      <section class="how-it-works mb-32">
+        <div class="text-center mb-16">
+          <span class="font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-3 block">The house principle</span>
+          <h2 class="font-display text-headline-md text-on-surface">The Process</h2>
+          <p class="font-body text-body-md text-on-surface-variant max-w-lg mx-auto mt-4">From digital acquisition to physical realization.</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-y-16 md:gap-x-8 relative">
+          {/* Connecting lines — desktop only */}
+          <div class="hidden md:block absolute top-[52px] left-[20%] right-[20%] z-0" aria-hidden="true">
+            <div class="how-it-works__line"></div>
+          </div>
+          {/* Step 1 */}
+          <div class="relative z-10 flex flex-col items-center text-center group">
+            <div class="how-it-works__icon-ring">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                <path d="m9 12 2 2 4-4"/>
+              </svg>
+            </div>
+            <span class="font-display text-label-md text-primary-container/60 mb-2">01</span>
+            <h3 class="font-display text-headline-sm text-on-surface mb-3">Claim the plate</h3>
+            <p class="font-body text-body-md text-on-surface-variant px-4 max-w-xs">Every design exists once. Acquire it and a certificate of authenticity is issued to your collection — the plate is retired from the gallery the moment you do.</p>
+          </div>
+          {/* Step 2 */}
+          <div class="relative z-10 flex flex-col items-center text-center group">
+            <div class="how-it-works__icon-ring">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+                <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
+              </svg>
+            </div>
+            <span class="font-display text-label-md text-primary-container/60 mb-2">02</span>
+            <h3 class="font-display text-headline-sm text-on-surface mb-3">Book the maker</h3>
+            <p class="font-body text-body-md text-on-surface-variant px-4 max-w-xs">The artist who drew your plate inks it, and only it. Schedule your session, choose placement and size, and reserve with a deposit.</p>
+          </div>
+          {/* Step 3 */}
+          <div class="relative z-10 flex flex-col items-center text-center group">
+            <div class="how-it-works__icon-ring">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <circle cx="12" cy="8" r="6"/>
+                <path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>
+              </svg>
+            </div>
+            <span class="font-display text-label-md text-primary-container/60 mb-2">03</span>
+            <h3 class="font-display text-headline-sm text-on-surface mb-3">Wear the original</h3>
+            <p class="font-body text-body-md text-on-surface-variant px-4 max-w-xs">You leave with a one-of-one tattoo and a signed proof. The design will never be drawn, sold, or inked again. Provenance stays on your certificate.</p>
+          </div>
+        </div>
+      </section>
+
+      {/* ── Artists ── */}
+      <section class="mb-32">
+        <div class="flex justify-between items-end mb-10 flex-wrap gap-4">
+          <div>
+            <span class="font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-3 block">The roster</span>
+            <h2 class="font-display text-headline-md text-on-surface">Resident artists</h2>
+          </div>
+          <a href="/artists" class="btn-secondary">
+            Meet them all
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2"/></svg>
+          </a>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+          {ARTISTS.map((a) => (
+            <a href={`/artist/${a.id}`} class="card-bb block no-underline group" data-testid={`artist-card-${a.id}`}>
+              <div class="aspect-square relative overflow-hidden">
+                <Plate seed={a.seed} label={a.style.split(" · ")[0].toUpperCase()} density={0.8} client:load />
+              </div>
+              <div class="p-5">
+                <div class="flex items-center gap-3 mb-3">
+                  <div class="w-12 h-12 rounded-full bg-surface-container-highest border border-outline-variant/50 flex items-center justify-center flex-shrink-0">
+                    <span class="font-display text-lg text-primary-container">{a.name[0]}</span>
+                  </div>
+                  <div class="min-w-0">
+                    <h3 class="font-display text-lg text-on-surface leading-tight">{a.name}</h3>
+                    <div class="font-body text-xs text-on-surface-variant mt-0.5">{a.style}</div>
+                  </div>
+                </div>
+                <p class="font-body text-sm text-on-surface-variant line-clamp-2 mb-3">{a.bio}</p>
+                <div class="flex items-center justify-between">
+                  <span class="font-body text-xs text-on-surface-variant">{a.city}</span>
+                  <span class="tag-bb text-[10px] px-2 py-1">{a.booked}</span>
+                </div>
+              </div>
+            </a>
+          ))}
+        </div>
+      </section>
     </main>
+
+    {/* ── CTA Band (full-width) ── */}
+    <section class="w-full bg-primary-container py-16 md:py-24" data-testid="cta-band">
+      <div class="max-w-container-max mx-auto px-5 md:px-16 flex flex-col items-center text-center">
+        <h2 class="font-display text-headline-md md:text-display-lg text-on-primary-container mb-4">
+          Your skin deserves an original.
+        </h2>
+        <p class="font-body text-body-lg text-on-primary-container/80 mb-8 max-w-lg">
+          One-of-one tattoo plates. Each design drawn once, claimed once, inked once.
+        </p>
+        <a href="/market" class="inline-flex items-center gap-2 px-8 py-4 bg-on-primary-container text-primary-container font-body font-semibold text-label-md rounded-full transition-all duration-200 hover:opacity-90 active:scale-95 whitespace-nowrap">
+          Browse the gallery
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.2"/></svg>
+        </a>
+      </div>
+    </section>
+
     <Footer />
   </div>
 
   <Toast client:load />
-  <TweaksPanel client:load />
-  <TextureLayer client:idle />
 </Base>

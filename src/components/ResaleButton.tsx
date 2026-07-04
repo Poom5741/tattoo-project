@@ -32,7 +32,7 @@ export default function ResaleButton({ designId, tokenId }: ResaleButtonProps) {
 
   if (done) {
     return (
-      <div style={{ padding: "12px 16px", background: "rgba(34,197,94,0.1)", border: "1px solid rgba(34,197,94,0.3)", fontSize: 13 }}>
+      <div className="p-3 bg-[#2E7D32]/10 border border-[#2E7D32]/30 text-sm font-sora">
         Listed for resale successfully. Refresh the page to see your listing.
       </div>
     );
@@ -76,7 +76,7 @@ export default function ResaleButton({ designId, tokenId }: ResaleButtonProps) {
     <>
       <button
         onClick={() => setShowModal(true)}
-        className="btn btn--ghost"
+        className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-transparent text-[#1B1C18] border border-[#E8E3D8] hover:border-[#D4CFC4]"
         style={{ fontSize: 13 }}
       >
         List for resale
@@ -84,18 +84,14 @@ export default function ResaleButton({ designId, tokenId }: ResaleButtonProps) {
 
       {showModal && (
         <div
-          style={{
-            position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-            zIndex: 1000,
-          }}
+          className="fixed inset-0 bg-black/70 flex items-center justify-center z-[1000]"
           onClick={(e) => { if (e.target === e.currentTarget) setShowModal(false); }}
         >
-          <div style={{ width: 360, background: "var(--ink-800)", border: "1px solid var(--line)", padding: 28 }}>
-            <div className="mono" style={{ fontSize: 10, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--fg-dim)", marginBottom: 16 }}>
+          <div className="w-[360px] bg-[#F0EBE1] border border-[#E8E3D8] p-7 rounded-lg">
+            <div className="font-sora text-[#5A5B55]/60 text-[10px] tracking-[0.2em] uppercase mb-4">
               List for resale
             </div>
-            <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="field">
                 <label>Asking price (USDT) *</label>
                 <input
@@ -110,20 +106,19 @@ export default function ResaleButton({ designId, tokenId }: ResaleButtonProps) {
                 />
               </div>
               {error && (
-                <div style={{ fontSize: 12, color: "#ef4444" }}>{error}</div>
+                <div className="text-xs text-red-500">{error}</div>
               )}
-              <div style={{ display: "flex", gap: 10 }}>
+              <div className="flex gap-2.5">
                 <button
                   type="submit"
-                  className="btn btn--solid"
+                  className="inline-flex items-center justify-center gap-2 flex-1 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-[#E60023] text-white hover:bg-[#C4001F] disabled:opacity-40"
                   disabled={submitting}
-                  style={{ flex: 1 }}
                 >
                   {submitting ? "Listing…" : "Confirm listing"}
                 </button>
                 <button
                   type="button"
-                  className="btn btn--ghost"
+                  className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-transparent text-[#1B1C18] border border-[#E8E3D8] hover:border-[#D4CFC4]"
                   onClick={() => setShowModal(false)}
                 >
                   Cancel

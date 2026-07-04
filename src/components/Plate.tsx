@@ -44,13 +44,13 @@ export default function Plate({ seed = 1, label, index, density = 1.0, kind, cla
     const ctx = canvas.getContext("2d")!;
     ctx.scale(dpr, dpr);
     const rnd = mulberry32(seed * 100 + 7);
-    const INK = (a: number) => `rgba(236,233,227,${a})`;
+    const INK = (a: number) => `rgba(27,28,24,${a})`;
 
-    ctx.fillStyle = "#060607";
+    ctx.fillStyle = "#F0EBE1";
     ctx.fillRect(0, 0, W, H);
     const vg = ctx.createRadialGradient(W / 2, H * 0.42, 10, W / 2, H * 0.42, Math.max(W, H) * 0.7);
-    vg.addColorStop(0, "rgba(236,233,227,0.05)");
-    vg.addColorStop(1, "rgba(236,233,227,0)");
+    vg.addColorStop(0, "rgba(27,28,24,0.04)");
+    vg.addColorStop(1, "rgba(27,28,24,0)");
     ctx.fillStyle = vg;
     ctx.fillRect(0, 0, W, H);
 
@@ -196,13 +196,12 @@ export default function Plate({ seed = 1, label, index, density = 1.0, kind, cla
   }, [seed, density, kind]);
 
   return (
-    <div className={`tile${className ? " " + className : ""}`}>
+    <div className={`relative aspect-[3/4] bg-[#F0EBE1] rounded-lg overflow-hidden${className ? " " + className : ""}`}>
       <canvas ref={ref}></canvas>
-      <div className="tile__frame"></div>
       {(label || index) && (
-        <div className="tile__cap">
-          <span>{label || "INK PLATE"}</span>
-          <span>{index || ""}</span>
+        <div className="absolute bottom-0 left-0 right-0 p-3 bg-gradient-to-t from-black/40 to-transparent flex justify-between items-end">
+          <span className="font-body text-xs text-white">{label || "INK PLATE"}</span>
+          <span className="font-body text-xs text-white">{index || ""}</span>
         </div>
       )}
     </div>

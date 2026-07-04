@@ -4,61 +4,54 @@ export const prerender = true;
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer.astro";
-import TweaksPanel from "../components/TweaksPanel";
-import TextureLayer from "../components/TextureLayer";
 import Toast from "../components/Toast";
 import BookingForm from "../components/BookingForm";
 import { ARTISTS, DESIGNS } from "../lib/catalog/seed";
 ---
 
 <Base title="Book a session — INKNOIR" description="Book a session with one of our resident artists. One-of-one tattoo plates, hand-drawn and inked once.">
-  <div class="app">
+  <div class="min-h-screen flex flex-col">
     <Nav currentPath="/booking" client:load />
-    <main style="flex: 1">
-      <div class="fade-in">
-        <section style="padding: 32px 0 90px">
-          <div class="wrap" style="max-width: 920px">
-            <a href="/artists" class="back-link">&#8592; All artists</a>
+    <main class="flex-1">
+      <section class="py-8 pb-[90px]">
+        <div class="max-w-[920px] mx-auto px-5 md:px-16">
+          <a href="/artists" class="inline-flex items-center gap-2 text-[#5A5B55] hover:text-[#1B1C18] mb-8 font-sora text-sm">&larr; All artists</a>
 
-            <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 40px">
-              <div>
-                <div class="kicker" style="margin-bottom: 12px">Book a session</div>
-                <h1 class="display" style="font-size: clamp(32px,4.5vw,52px)">Request an appointment</h1>
-                <p class="dim" style="font-size: 15px; margin: 14px 0 0; max-width: 48ch">
-                  Choose an artist, select a plate or describe your custom commission, and we'll reach out to confirm your session.
-                </p>
-              </div>
-            </div>
-
-            <div style="display: grid; grid-template-columns: 1.3fr 0.7fr; gap: 48px; align-items: start">
-              <div style="border: 1px solid var(--line); padding: 36px; background: var(--ink-800)">
-                <BookingForm artists={ARTISTS} designs={DESIGNS} client:load />
-              </div>
-
-              <div style="display: flex; flex-direction: column; gap: 1px; background: var(--line); border: 1px solid var(--line)">
-                {ARTISTS.map((a) => (
-                  <div style="padding: 20px 22px; background: var(--ink-800); display: flex; flex-direction: column; gap: 6px">
-                    <div class="display" style="font-size: 18px">{a.name}</div>
-                    <div class="mono faint" style="font-size: 10.5px; letter-spacing: .08em">{a.style}</div>
-                    <div class="mono dim" style="font-size: 11px; letter-spacing: .06em; margin-top: 2px">{a.city}</div>
-                    <div style="margin-top: 8px">
-                      <span class="tag tag--avail">
-                        <span class="dot"></span>
-                        {a.booked}
-                      </span>
-                    </div>
-                  </div>
-                ))}
-              </div>
+          <div class="flex justify-between items-end flex-wrap gap-4 mb-10">
+            <div>
+              <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mb-3">Book a session</div>
+              <h1 class="font-playfair font-semibold text-[#1B1C18] text-[clamp(32px,4.5vw,52px)]">Request an appointment</h1>
+              <p class="text-[#5A5B55] text-[15px] mt-3.5 max-w-[48ch]">
+                Choose an artist, select a plate or describe your custom commission, and we'll reach out to confirm your session.
+              </p>
             </div>
           </div>
-        </section>
-      </div>
+
+          <div class="grid grid-cols-[1.3fr_0.7fr] gap-12 items-start">
+            <div class="border border-[#E8E3D8] p-9 bg-[#F5F0E8]">
+              <BookingForm artists={ARTISTS} designs={DESIGNS} client:load />
+            </div>
+
+            <div class="flex flex-col gap-px bg-[#E8E3D8] border border-[#E8E3D8]">
+              {ARTISTS.map((a) => (
+                <div class="p-5 px-[22px] bg-[#F5F0E8] flex flex-col gap-1.5">
+                  <div class="font-playfair font-semibold text-[#1B1C18] text-[18px]">{a.name}</div>
+                  <div class="font-sora text-[#5A5B55]/60 text-[10.5px] tracking-[0.08em]">{a.style}</div>
+                  <div class="font-sora text-[#5A5B55] text-[11px] tracking-[0.06em] mt-0.5">{a.city}</div>
+                  <div class="mt-2">
+                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border bg-[#2E7D32]/15 text-[#2E7D32] border-[#2E7D32]/40">
+                      {a.booked}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
     </main>
     <Footer />
   </div>
 
   <Toast client:load />
-  <TweaksPanel client:load />
-  <TextureLayer client:idle />
 </Base>

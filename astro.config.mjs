@@ -1,6 +1,7 @@
 import { defineConfig } from "astro/config";
 import cloudflare from "@astrojs/cloudflare";
 import react from "@astrojs/react";
+import tailwind from "@astrojs/tailwind";
 
 export default defineConfig({
   output: "server",
@@ -9,5 +10,5 @@ export default defineConfig({
       enabled: true,
     },
   }),
-  integrations: [react()],
+  integrations: [react(), tailwind()],
 });

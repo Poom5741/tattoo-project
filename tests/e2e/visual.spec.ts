@@ -1,10 +1,10 @@
 import { test, expect } from "@playwright/test";
-import { createReadStream, existsSync } from "fs";
+import { existsSync, readFileSync } from "fs";
 import path from "path";
 import { PNG } from "pngjs";
 import pixelmatch from "pixelmatch";
 
-const BASELINES_DIR = path.join(__dirname, "..", "baselines");
+const BASELINES_DIR = path.join(import.meta.dirname, "..", "baselines");
 const TOLERANCE = 0.02; // 2%
 
 const VIEWPORTS = [
@@ -25,17 +25,7 @@ for (const vp of VIEWPORTS) {
 
     const screenshot = await page.screenshot({ fullPage: false });
 
-    // Load baseline PNG
-    const baseline = await new Promise<Buffer>((resolve, reject) => {
-      const chunks: Buffer[] = [];
-      const rs = createReadStream(baselinePath);
-      const png = new PNG();
-      rs.pipe(png);
-      png.on("parsed", () => resolve(PNG.sync.write(png)));
-      png.on("error", reject);
-    });
-
-    const baselinePNG = PNG.sync.read(baseline);
+    const baselinePNG = PNG.sync.read(readFileSync(baselinePath));
     const screenshotPNG = PNG.sync.read(screenshot);
 
     const { width, height } = baselinePNG;

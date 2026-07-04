@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>INKNOIR - Design Detail</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&amp;family=Sora:wght@100..800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "error": "#ba1a1a",
+                      "secondary-fixed": "#e7e1de",
+                      "secondary-container": "#e5dedb",
+                      "surface-container-lowest": "#ffffff",
+                      "on-surface": "#1b1c18",
+                      "background": "#fbf9f3",
+                      "on-tertiary-container": "#fff8f1",
+                      "on-secondary-container": "#65625f",
+                      "surface-tint": "#c0001b",
+                      "primary-fixed": "#ffdad7",
+                      "on-primary-fixed": "#410004",
+                      "secondary-fixed-dim": "#cbc5c2",
+                      "on-error": "#ffffff",
+                      "tertiary-fixed-dim": "#ccc5bc",
+                      "primary-container": "#e60023",
+                      "surface-bright": "#fbf9f3",
+                      "on-secondary-fixed-variant": "#494644",
+                      "secondary": "#615e5b",
+                      "on-primary-container": "#fff7f6",
+                      "error-container": "#ffdad6",
+                      "primary": "#b7001a",
+                      "on-background": "#1b1c18",
+                      "surface-container-highest": "#e4e2dd",
+                      "primary-fixed-dim": "#ffb3ad",
+                      "surface-variant": "#e4e2dd",
+                      "on-tertiary": "#ffffff",
+                      "on-secondary": "#ffffff",
+                      "on-surface-variant": "#5e3f3c",
+                      "inverse-surface": "#30312d",
+                      "on-primary-fixed-variant": "#930012",
+                      "on-tertiary-fixed": "#1e1b15",
+                      "tertiary": "#5e5a52",
+                      "surface-container": "#f0eee8",
+                      "surface": "#fbf9f3",
+                      "inverse-on-surface": "#f3f1eb",
+                      "tertiary-container": "#77726a",
+                      "on-error-container": "#93000a",
+                      "outline-variant": "#e8bcb8",
+                      "outline": "#936e6b",
+                      "surface-container-low": "#f5f3ed",
+                      "tertiary-fixed": "#e9e1d8",
+                      "surface-container-high": "#eae8e2",
+                      "on-tertiary-fixed-variant": "#4a463f",
+                      "on-secondary-fixed": "#1d1b19",
+                      "on-primary": "#ffffff",
+                      "inverse-primary": "#ffb3ad",
+                      "surface-dim": "#dcdad4"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "container-max": "1280px",
+                      "margin-mobile": "20px",
+                      "unit": "4px",
+                      "margin-desktop": "64px",
+                      "gutter": "24px"
+              },
+              "fontFamily": {
+                      "headline-md": [
+                              "Playfair Display"
+                      ],
+                      "label-md": [
+                              "Sora"
+                      ],
+                      "body-md": [
+                              "Sora"
+                      ],
+                      "display-lg": [
+                              "Playfair Display"
+                      ],
+                      "label-sm": [
+                              "Sora"
+                      ],
+                      "display-lg-mobile": [
+                              "Playfair Display"
+                      ],
+                      "headline-sm": [
+                              "Playfair Display"
+                      ],
+                      "body-lg": [
+                              "Sora"
+                      ]
+              },
+              "fontSize": {
+                      "headline-md": [
+                              "32px",
+                              {
+                                      "lineHeight": "40px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "label-md": [
+                              "14px",
+                              {
+                                      "lineHeight": "20px",
+                                      "letterSpacing": "0.02em",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-md": [
+                              "16px",
+                              {
+                                      "lineHeight": "24px",
+                                      "fontWeight": "400"
+                              }
+                      ],
+                      "display-lg": [
+                              "48px",
+                              {
+                                      "lineHeight": "56px",
+                                      "letterSpacing": "-0.02em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "label-sm": [
+                              "12px",
+                              {
+                                      "lineHeight": "16px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "display-lg-mobile": [
+                              "36px",
+                              {
+                                      "lineHeight": "44px",
+                                      "letterSpacing": "-0.01em",
+                                      "fontWeight": "700"
+                              }
+                      ],
+                      "headline-sm": [
+                              "24px",
+                              {
+                                      "lineHeight": "32px",
+                                      "fontWeight": "600"
+                              }
+                      ],
+                      "body-lg": [
+                              "18px",
+                              {
+                                      "lineHeight": "28px",
+                                      "fontWeight": "400"
+                              }
+                      ]
+              }
+      },
+          },
+        }
+    </script>
+<style>
+        body {
+            background-color: theme('colors.background');
+            color: theme('colors.on-background');
+        }
+        .paper-texture {
+            background-color: theme('colors.surface-container-lowest');
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+            border: 1px solid rgba(26, 24, 22, 0.08);
+        }
+        .subtle-border {
+            border: 1px solid rgba(26, 24, 22, 0.08);
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col font-body-md text-body-md selection:bg-primary-container selection:text-on-primary-container">
+<!-- TopNavBar -->
+<header class="bg-background dark:bg-on-surface docked full-width top-0 sticky z-50 transition-all duration-300">
+<div class="bg-surface-container-low dark:bg-surface-container-lowest">
+<div class="flex justify-between items-center w-full px-margin-mobile md:px-margin-desktop py-4 max-w-container-max mx-auto flat no shadows">
+<div class="flex items-center gap-6">
+<a class="font-display-lg text-display-lg tracking-tighter text-primary dark:text-primary-container scale-95 active:scale-90 transition-transform" href="#">
+                        INKNOIR
+                    </a>
+</div>
+<nav class="hidden md:flex items-center gap-8 font-headline-sm text-headline-sm font-label-md text-label-md">
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors hover:text-primary-container dark:hover:text-primary-fixed-dim transition-all duration-300" href="#">Explore</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors hover:text-primary-container dark:hover:text-primary-fixed-dim transition-all duration-300" href="#">Artists</a>
+<a class="text-primary dark:text-primary-fixed font-bold border-b-2 border-primary pb-1 hover:text-primary-container dark:hover:text-primary-fixed-dim transition-all duration-300" href="#">Flash</a>
+<a class="text-secondary dark:text-secondary-fixed-dim hover:text-primary transition-colors hover:text-primary-container dark:hover:text-primary-fixed-dim transition-all duration-300" href="#">Studio</a>
+</nav>
+<div class="flex items-center gap-4">
+<button class="hidden md:flex items-center justify-center px-6 py-2 rounded-full bg-secondary text-on-secondary font-label-md text-label-md hover:bg-on-surface transition-colors scale-95 active:scale-90 transition-transform">
+                        Connect
+                    </button>
+<button class="md:hidden flex items-center justify-center p-2 text-primary">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">menu</span>
+</button>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="flex-grow w-full max-w-container-max mx-auto px-margin-mobile md:px-margin-desktop py-10 md:py-20 flex flex-col md:flex-row gap-gutter">
+<!-- Left Column: Artwork -->
+<div class="w-full md:w-7/12 lg:w-2/3 flex flex-col gap-8">
+<div class="paper-texture rounded-xl p-4 md:p-8 flex items-center justify-center min-h-[500px]">
+<img class="w-full h-auto object-contain max-h-[716px] mix-blend-multiply opacity-90 rounded-lg" data-alt="A striking digital installation art piece featuring glowing, generative geometric shapes suspended in a vast, minimalist gallery space. The room is illuminated by high-key, soft white lighting that creates a bright, modern light-mode aesthetic. The artwork relies on a sophisticated palette of deep blacks and pristine whites, punctuated by intense accents of vibrant red. The mood is serene yet technologically advanced." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDLNlnEoYnD2EUkDuuQ7UPT0t6dEDjhfIx8gkWQ794maRmIvnkhe4f4kOJdpAumaD3qHRTazcIuBo1eyhJ_6lgF8Kobirvx3yjpI3Hcy3LWzln0m0Pn9iVTgsGEepJO-sV9OTcKPp2NEPpn3cTU1r8eM_AwMAd0EG0lmIZCMxPIk_DJmVttONLX8TnTh_xCpcX7BLMoE9DjgWT9SOGuMMbUgnS9dZkFJyI0ITqUxzMVsNqe9mFvMOS_stR8BMV8A2wl8xZxyDlfMGA"/>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex gap-2">
+<span class="px-3 py-1 rounded-full bg-surface-dim text-tertiary font-label-sm text-label-sm subtle-border">Line Work</span>
+<span class="px-3 py-1 rounded-full bg-surface-dim text-tertiary font-label-sm text-label-sm subtle-border">Abstract</span>
+</div>
+<button class="p-2 rounded-full text-secondary hover:text-primary transition-colors">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 0;">favorite</span>
+</button>
+</div>
+</div>
+<!-- Right Column: Details & Booking -->
+<div class="w-full md:w-5/12 lg:w-1/3 flex flex-col gap-10">
+<!-- Header Info -->
+<div class="flex flex-col gap-4">
+<h1 class="font-headline-md text-headline-md md:font-display-lg md:text-display-lg text-on-surface">Crimson Echo</h1>
+<!-- Artist Bio Snippet -->
+<div class="flex items-center gap-4 py-4 border-b border-surface-container-highest">
+<div class="w-12 h-12 rounded-full overflow-hidden subtle-border">
+<img class="w-full h-full object-cover grayscale" data-alt="A black and white portrait of a modern artist in a brightly lit studio, sharp focus, wearing minimalist clothing, high contrast, editorial photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC-snTod0bsljS7DzHg6DIxamjyM7q1rkfcTIqd0Fwo6GR1HiB_R4CRw9vTBiHDNCOgT5M0zt959eydtXd1HbD-ulYxMkTNtI5uF0QbzRjuqaBLWZcU--7avUd3oan_Fp9xo-O1Ja6YdlupdH1rH7Bv8TWRJECmN4gljlsGMObWbeBm4ze8oX3BobXiJ_HDvaJKlb_Ll5XX7PagvZD7Asu7aP675EnxNgPzQLzutAsoW5UlCiuKocId7fnRICkyRMZLJmVhYQC01po"/>
+</div>
+<div class="flex flex-col">
+<span class="font-label-md text-label-md text-on-surface">By <a class="hover:text-primary transition-colors underline decoration-1 underline-offset-4" href="#">Elara Vance</a></span>
+<span class="font-label-sm text-label-sm text-secondary">Brooklyn Studio</span>
+</div>
+</div>
+</div>
+<!-- Technical Details -->
+<div class="flex flex-col gap-6">
+<h3 class="font-label-md text-label-md text-secondary tracking-widest uppercase">Specifications</h3>
+<div class="grid grid-cols-2 gap-y-6 gap-x-4">
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">straighten</span> Size</span>
+<span class="font-body-md text-body-md text-on-surface">15cm x 22cm</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">accessibility_new</span> Placement</span>
+<span class="font-body-md text-body-md text-on-surface">Forearm / Calf</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">schedule</span> Est. Time</span>
+<span class="font-body-md text-body-md text-on-surface">3.5 Hours</span>
+</div>
+<div class="flex flex-col gap-1">
+<span class="font-label-sm text-label-sm text-tertiary flex items-center gap-1"><span class="material-symbols-outlined text-[16px]">palette</span> Ink</span>
+<span class="font-body-md text-body-md text-on-surface">Black &amp; Blood Red</span>
+</div>
+</div>
+</div>
+<!-- Pricing & Action -->
+<div class="flex flex-col gap-6 p-6 rounded-xl bg-surface-container-low subtle-border mt-auto">
+<div class="flex justify-between items-end">
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-tertiary uppercase tracking-widest">Reserve Design</span>
+<span class="font-headline-md text-headline-md text-on-surface mt-1">$450 <span class="text-secondary font-body-md text-body-md">USD</span></span>
+</div>
+<div class="text-right flex flex-col">
+<span class="font-label-sm text-label-sm text-tertiary">Crypto Accepted</span>
+<span class="font-label-md text-label-md text-secondary mt-2">≈ 0.015 BTC</span>
+</div>
+</div>
+<button class="w-full py-4 rounded-full bg-primary-container text-on-primary-container font-label-md text-label-md hover:bg-primary transition-colors flex items-center justify-center gap-2 group">
+                    Purchase to Book
+                    <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" style="font-variation-settings: 'FILL' 1;">arrow_forward</span>
+</button>
+<p class="font-label-sm text-label-sm text-center text-tertiary">Secures this unique flash design and prompts scheduling.</p>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container dark:bg-surface-dim full-width bottom z-40">
+<div class="bg-surface-container dark:bg-surface-container-highest">
+<div class="flex flex-col md:flex-row justify-between items-center w-full px-margin-desktop py-12 max-w-container-max mx-auto mt-20 flat no shadows opacity-80 hover:opacity-100 transition-opacity">
+<div class="font-headline-md text-headline-md font-bold text-on-surface dark:text-surface-bright mb-6 md:mb-0">
+                    INKNOIR
+                </div>
+<nav class="flex flex-wrap justify-center gap-6 font-label-sm text-label-sm font-body-md text-body-md">
+<a class="text-tertiary dark:text-tertiary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Privacy</a>
+<a class="text-tertiary dark:text-tertiary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Terms</a>
+<a class="text-tertiary dark:text-tertiary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Artist Guidelines</a>
+<a class="text-tertiary dark:text-tertiary-fixed-dim hover:text-primary dark:hover:text-primary-fixed transition-colors" href="#">Support</a>
+</nav>
+<div class="text-tertiary dark:text-tertiary-fixed-dim font-label-sm text-label-sm mt-6 md:mt-0">
+                    © 2024 INKNOIR. All rights reserved.
+                </div>
+</div>
+</div>
+</footer>
+</body></html>

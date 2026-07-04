@@ -122,14 +122,14 @@ export default function NewDesignForm() {
 
   if (done) {
     return (
-      <div style={{ padding: "24px", textAlign: "center" }}>
-        <div style={{ fontSize: 32, marginBottom: 12 }}>✓</div>
-        <h3 className="display" style={{ fontSize: 22, marginBottom: 8 }}>Design submitted for review</h3>
-        <p className="dim" style={{ fontSize: 14 }}>
+      <div className="p-6 text-center">
+        <div className="text-3xl mb-3">✓</div>
+        <h3 className="font-playfair font-semibold text-[#1B1C18] text-xl mb-2">Design submitted for review</h3>
+        <p className="text-[#5A5B55] text-sm">
           Your design is now pending review by the INKNOIR team. You&apos;ll be able to see it in your portal with &ldquo;pending&rdquo; status.
         </p>
         <button
-          style={{ marginTop: 20, padding: "10px 24px", background: "var(--ink-800)", color: "#fff", border: "none", cursor: "pointer", fontSize: 13 }}
+          className="mt-5 inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-[#E60023] text-white hover:bg-[#C4001F]"
           onClick={() => { setDone(false); setForm({ title: "", style: STYLES[0], price_usdt: "", placement: "", medium: "", selling_mode: "one-time", royalty_pct: "10", image_key: "" }); setPreviewUrl(null); }}
         >
           Submit another design
@@ -139,43 +139,37 @@ export default function NewDesignForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: 18 }}>
+    <form onSubmit={handleSubmit} className="flex flex-col gap-[18px]">
       {/* Photo upload */}
-      <div className="field">
-        <label>Design photo *</label>
+      <div className="mb-5">
+        <label className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Design photo *</label>
         <div
-          style={{
-            border: "2px dashed var(--line)",
-            padding: "24px",
-            textAlign: "center",
-            cursor: "pointer",
-            position: "relative",
-          }}
+          className="border-2 border-dashed border-[#E8E3D8] p-6 text-center cursor-pointer rounded-lg hover:border-[#D4CFC4] transition-colors relative"
           onClick={() => fileInputRef.current?.click()}
         >
           {previewUrl ? (
-            <img src={previewUrl} alt="Design preview" style={{ maxHeight: 200, maxWidth: "100%", objectFit: "contain" }} />
+            <img src={previewUrl} alt="Design preview" className="max-h-[200px] max-w-full object-contain" />
           ) : uploading ? (
-            <p className="dim" style={{ fontSize: 13 }}>Uploading…</p>
+            <p className="text-[#5A5B55] text-[13px]">Uploading…</p>
           ) : (
-            <p className="dim" style={{ fontSize: 13 }}>Click to upload (JPEG, PNG, WebP · max 10MB)</p>
+            <p className="text-[#5A5B55] text-[13px]">Click to upload (JPEG, PNG, WebP · max 10MB)</p>
           )}
           <input
             ref={fileInputRef}
             type="file"
             accept="image/jpeg,image/png,image/webp"
-            style={{ display: "none" }}
+            className="hidden"
             onChange={handleFileChange}
           />
         </div>
-        {uploadError && <p style={{ color: "#ff4444", fontSize: 12, marginTop: 6 }}>{uploadError}</p>}
+        {uploadError && <p className="text-[#D32F2F] text-xs mt-1.5">{uploadError}</p>}
       </div>
 
       {/* Title */}
-      <div className="field">
-        <label>Title *</label>
+      <div className="mb-5">
+        <label className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Title *</label>
         <input
-          className="input"
+          className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors"
           type="text"
           value={form.title}
           onChange={(e) => set("title", e.target.value)}
@@ -185,18 +179,18 @@ export default function NewDesignForm() {
       </div>
 
       {/* Style */}
-      <div className="field">
-        <label>Style *</label>
-        <select className="input" value={form.style} onChange={(e) => set("style", e.target.value)}>
+      <div className="mb-5">
+        <label className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Style *</label>
+        <select className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors" value={form.style} onChange={(e) => set("style", e.target.value)}>
           {STYLES.map((s) => <option key={s} value={s}>{s}</option>)}
         </select>
       </div>
 
       {/* Price */}
-      <div className="field">
-        <label>Price (USDT) *</label>
+      <div className="mb-5">
+        <label className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Price (USDT) *</label>
         <input
-          className="input"
+          className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors"
           type="number"
           min="0.01"
           step="0.01"
@@ -207,10 +201,10 @@ export default function NewDesignForm() {
       </div>
 
       {/* Placement */}
-      <div className="field">
-        <label>Placement *</label>
+      <div className="mb-5">
+        <label className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Placement *</label>
         <input
-          className="input"
+          className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors"
           type="text"
           value={form.placement}
           onChange={(e) => set("placement", e.target.value)}
@@ -220,10 +214,10 @@ export default function NewDesignForm() {
       </div>
 
       {/* Medium */}
-      <div className="field">
-        <label>Medium *</label>
+      <div className="mb-5">
+        <label className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Medium *</label>
         <input
-          className="input"
+          className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors"
           type="text"
           value={form.medium}
           onChange={(e) => set("medium", e.target.value)}
@@ -233,49 +227,49 @@ export default function NewDesignForm() {
       </div>
 
       {/* Selling mode */}
-      <div className="field">
-        <label>Selling mode *</label>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 8 }}>
-          <label style={{ display: "flex", gap: 10, alignItems: "flex-start", cursor: "pointer" }}>
+      <div className="mb-5">
+        <label className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Selling mode *</label>
+        <div className="flex flex-col gap-2.5 mt-2">
+          <label className="flex gap-3 items-start cursor-pointer">
             <input
               type="radio"
               name="selling_mode"
               value="one-time"
               checked={form.selling_mode === "one-time"}
               onChange={() => set("selling_mode", "one-time")}
-              style={{ marginTop: 2 }}
+              className="mt-0.5"
             />
             <span>
               <strong>One-time (Soulbound)</strong>
               <br />
-              <span className="dim" style={{ fontSize: 12 }}>The NFT cannot be resold. The buyer owns it permanently.</span>
+              <span className="text-[#5A5B55] text-xs">The NFT cannot be resold. The buyer owns it permanently.</span>
             </span>
           </label>
-          <label style={{ display: "flex", gap: 10, alignItems: "flex-start", cursor: "pointer" }}>
+          <label className="flex gap-3 items-start cursor-pointer">
             <input
               type="radio"
               name="selling_mode"
               value="resellable"
               checked={form.selling_mode === "resellable"}
               onChange={() => set("selling_mode", "resellable")}
-              style={{ marginTop: 2 }}
+              className="mt-0.5"
             />
             <span>
               <strong>Resellable</strong>
               <br />
-              <span className="dim" style={{ fontSize: 12 }}>Buyers can resell the NFT. You earn royalties on each resale.</span>
+              <span className="text-[#5A5B55] text-xs">Buyers can resell the NFT. You earn royalties on each resale.</span>
             </span>
           </label>
         </div>
-        <p style={{ fontSize: 11, color: "var(--fg-dim)", marginTop: 10, padding: "8px 12px", border: "1px solid var(--line)", background: "rgba(201,169,110,0.05)" }}>
+        <p className="text-[11px] text-[#5A5B55] mt-2.5 p-2 border border-[#E8E3D8] bg-[#F5F0E8]">
           This cannot be changed after submission.
         </p>
       </div>
 
       {/* Royalty (only for resellable) */}
       {form.selling_mode === "resellable" && (
-        <div className="field">
-          <label>Royalty percentage: {form.royalty_pct}%</label>
+        <div className="mb-5">
+          <label className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Royalty percentage: {form.royalty_pct}%</label>
           <input
             type="range"
             min={5}
@@ -283,9 +277,9 @@ export default function NewDesignForm() {
             step={1}
             value={form.royalty_pct}
             onChange={(e) => set("royalty_pct", e.target.value)}
-            style={{ width: "100%", marginTop: 8 }}
+            className="w-full mt-2 accent-[#E60023]"
           />
-          <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11, color: "var(--fg-dim)", marginTop: 4 }}>
+          <div className="flex justify-between text-[11px] text-[#5A5B55] mt-1">
             <span>5% min</span><span>15% max</span>
           </div>
         </div>
@@ -293,16 +287,15 @@ export default function NewDesignForm() {
 
       {/* Error */}
       {error && (
-        <div style={{ padding: "10px 14px", background: "rgba(255,60,60,0.1)", border: "1px solid rgba(255,60,60,0.3)", fontSize: 13 }}>
+        <div className="p-3 bg-[#D32F2F]/10 border border-[#D32F2F]/30 text-sm font-sora rounded">
           {error}
         </div>
       )}
 
       <button
         type="submit"
-        className="btn btn--solid btn--block"
+        className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-[#E60023] text-white hover:bg-[#C4001F] disabled:opacity-40 w-full mt-1"
         disabled={submitting || uploading || !form.image_key}
-        style={{ marginTop: 4 }}
       >
         {submitting ? "Submitting…" : "Submit for review"}
       </button>

@@ -15,7 +15,7 @@ export default function PrivyNavButton() {
     return (
       <button className="nav__wallet" disabled>
         <span className="dot"></span>
-        Connect
+        Connect Wallet
       </button>
     );
   }

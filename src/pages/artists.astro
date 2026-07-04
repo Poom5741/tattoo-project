@@ -4,8 +4,6 @@ export const prerender = false;
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer.astro";
-import TweaksPanel from "../components/TweaksPanel";
-import TextureLayer from "../components/TextureLayer";
 import Toast from "../components/Toast";
 import Plate from "../components/Plate";
 
@@ -34,6 +32,7 @@ const [aRes, cRes] = await Promise.all([
 const availMap = Object.fromEntries(cRes.results.map((r) => [r.artist_id, r.available_count]));
 const artistDesignCounts = aRes.results.map((a) => ({
   ...a,
+  style: a.style ?? "Ink",
   availableCount: availMap[a.id] ?? 0,
 }));
 
@@ -44,77 +43,73 @@ const STYLE_KIND: Record<string, number> = {
 ---
 
 <Base title="Artists — INKNOIR">
-  <div class="app">
+  <div class="min-h-screen flex flex-col">
     <Nav currentPath="/artists" client:load />
-    <main style="flex: 1">
-      <div class="fade-in">
-        <section style="padding: 56px 0 0">
-          <div class="wrap">
-            <div class="kicker" style="margin-bottom: 16px">The roster</div>
-            <h1 class="display" style="font-size: clamp(38px,6vw,72px); margin-bottom: 16px">Resident artists</h1>
-            <p class="dim" style="font-size: 16px; max-width: 48ch; margin: 0 0 56px">
-              Four artists. Each releases a limited run of one-off plates, draws them once, and inks them personally.
-            </p>
-          </div>
-        </section>
+    <main class="flex-1">
+      <section class="pt-14">
+        <div class="max-w-[1280px] mx-auto px-5 md:px-16">
+          <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mb-4">The roster</div>
+          <h1 class="font-playfair font-semibold text-[#1B1C18] text-[clamp(38px,6vw,72px)] mb-4">Resident artists</h1>
+          <p class="text-[#5A5B55] text-base max-w-[48ch] mb-14">
+            Four artists. Each releases a limited run of one-off plates, draws them once, and inks them personally.
+          </p>
+        </div>
+      </section>
 
-        <section style="padding: 0 0 92px">
-          <div class="wrap">
-            <div class="grid" style="grid-template-columns: repeat(2, 1fr)">
-              {artistDesignCounts.map((a) => (
-                <a href={`/artist/${a.id}`} class="card" style="text-decoration: none; flex-direction: row; align-items: stretch">
-                  <div style="width: 200px; flex-shrink: 0; position: relative">
-                    <Plate seed={a.seed} label={a.style.split(" · ")[0].toUpperCase()} density={0.9} client:load />
-                  </div>
-                  <div class="card__body" style="flex: 1; padding: 28px 32px; display: flex; flex-direction: column; justify-content: center">
-                    <div class="kicker" style="margin-bottom: 12px">{a.style}</div>
-                    <h2 class="display" style="font-size: 32px; margin-bottom: 8px">{a.name}</h2>
-                    <div class="card__artist" style="margin-bottom: 16px">{a.city}</div>
-                    <p class="dim" style="font-size: 13px; margin: 0 0 20px; line-height: 1.6">{a.bio}</p>
-                    <div style="display: flex; gap: 24px; flex-wrap: wrap">
-                      <div>
-                        <div style="font-family: var(--font-display); font-size: 24px">{a.pieces}</div>
-                        <div class="kicker" style="margin-top: 4px">Plates</div>
-                      </div>
-                      <div>
-                        <div style="font-family: var(--font-display); font-size: 24px">{a.rating}</div>
-                        <div class="kicker" style="margin-top: 4px">Rating</div>
-                      </div>
-                      <div>
-                        <div style="font-family: var(--font-display); font-size: 24px">{a.availableCount}</div>
-                        <div class="kicker" style="margin-top: 4px">Available</div>
-                      </div>
+      <section class="pb-[92px]">
+        <div class="max-w-[1280px] mx-auto px-5 md:px-16">
+          <div class="grid grid-cols-2 gap-6">
+            {artistDesignCounts.map((a) => (
+              <a href={`/artist/${a.id}`} class="bg-[#F0EBE1] rounded-lg border border-[#E8E3D8]/30 overflow-hidden hover:shadow-md transition-all flex flex-row items-stretch no-underline">
+                <div class="w-[200px] shrink-0 relative">
+                  <Plate seed={a.seed} label={a.style.split(" · ")[0].toUpperCase()} density={0.9} client:load />
+                </div>
+                <div class="flex-1 p-7 md:p-8 flex flex-col justify-center">
+                  <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mb-3">{a.style}</div>
+                  <h2 class="font-playfair font-semibold text-[#1B1C18] text-[32px] mb-2">{a.name}</h2>
+                  <div class="font-sora text-sm text-[#5A5B55] mb-4">{a.city}</div>
+                  <p class="text-[#5A5B55] text-[13px] mb-5 leading-relaxed">{a.bio}</p>
+                  <div class="flex gap-6 flex-wrap">
+                    <div>
+                      <div class="font-playfair text-2xl">{a.pieces}</div>
+                      <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mt-1">Plates</div>
                     </div>
-                    <div style="margin-top: 24px">
-                      <span class="tag">
-                        <span class="dot" style="background: var(--ok)"></span>
-                        {a.booked}
-                      </span>
+                    <div>
+                      <div class="font-playfair text-2xl">{a.rating}</div>
+                      <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mt-1">Rating</div>
+                    </div>
+                    <div>
+                      <div class="font-playfair text-2xl">{a.availableCount}</div>
+                      <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mt-1">Available</div>
                     </div>
                   </div>
-                </a>
-              ))}
-            </div>
+                  <div class="mt-6">
+                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border bg-[#2E7D32]/15 text-[#2E7D32] border-[#2E7D32]/40">
+                      <span class="w-2 h-2 rounded-full bg-current"></span>
+                      {a.booked}
+                    </span>
+                  </div>
+                </div>
+              </a>
+            ))}
           </div>
-        </section>
+        </div>
+      </section>
 
-        <hr class="rule" />
+      <hr class="border-t border-[#E8E3D8]/30" />
 
-        <section class="section--tight" style="border-top: none; background: var(--ink-850)">
-          <div class="wrap" style="display: flex; justify-content: space-between; align-items: center; gap: 30px; flex-wrap: wrap">
-            <div>
-              <div class="kicker" style="margin-bottom: 12px">Join the house</div>
-              <h2 class="display" style="font-size: clamp(24px, 3vw, 36px); max-width: 22ch">Are you a tattoo artist? Apply to release your plates on INKNOIR.</h2>
-            </div>
-            <a href="/artists" class="btn btn--ghost btn--lg">Apply to sell</a>
+      <section class="py-12">
+        <div class="max-w-[1280px] mx-auto px-5 md:px-16 flex justify-between items-center gap-[30px] flex-wrap">
+          <div>
+            <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mb-3">Join the house</div>
+            <h2 class="font-playfair font-semibold text-[#1B1C18] text-[clamp(24px,3vw,36px)] max-w-[22ch]">Are you a tattoo artist? Apply to release your plates on INKNOIR.</h2>
           </div>
-        </section>
-      </div>
+          <a href="/artists" class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sora font-semibold text-base transition-all bg-transparent text-[#1B1C18] border border-[#E8E3D8] hover:border-[#D4CFC4]">Apply to sell</a>
+        </div>
+      </section>
     </main>
     <Footer />
   </div>
 
   <Toast client:load />
-  <TweaksPanel client:load />
-  <TextureLayer client:idle />
 </Base>

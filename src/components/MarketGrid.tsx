@@ -46,21 +46,21 @@ const ALL_STYLES = ["Fine Line", "Blackwork", "Neo-Traditional", "Geometric", "R
 function StatusTag({ status, isResale }: { status: string; isResale?: boolean }) {
   if (isResale) {
     return (
-      <span className="tag" style={{ background: "rgba(99,102,241,0.15)", borderColor: "rgba(99,102,241,0.4)", color: "#818cf8" }}>
-        <span className="dot" style={{ background: "#818cf8" }}></span>
+      <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#818cf8]/15 text-[#818cf8] border border-[#818cf8]/40">
+        <span className="w-1.5 h-1.5 rounded-full bg-[#818cf8]"></span>
         Resale
       </span>
     );
   }
   const map: Record<string, { label: string; cls: string }> = {
-    available: { label: "Available", cls: "tag--avail" },
-    reserved: { label: "Reserved", cls: "tag--reserved" },
-    sold: { label: "Claimed", cls: "tag--sold" },
+    available: { label: "Available", cls: "bg-[#2E7D32]/15 text-[#2E7D32] border border-[#2E7D32]/40" },
+    reserved: { label: "Reserved", cls: "bg-[#F9A825]/15 text-[#F9A825] border border-[#F9A825]/40" },
+    sold: { label: "Claimed", cls: "bg-[#5A5B55]/15 text-[#5A5B55] border border-[#5A5B55]/40" },
   };
   const { label, cls } = map[status] ?? { label: status, cls: "" };
   return (
-    <span className={`tag ${cls}`}>
-      <span className="dot"></span>
+    <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${cls}`}>
+      <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
       {label}
     </span>
   );
@@ -70,13 +70,13 @@ function SellingModeBadge({ mode, royaltyPct }: { mode?: string; royaltyPct?: nu
   if (!mode) return null;
   if (mode === "one-time") {
     return (
-      <span className="mono" style={{ fontSize: 9, letterSpacing: ".1em", color: "var(--fg-faint)", background: "rgba(201,169,110,0.08)", border: "1px solid var(--line)", padding: "1px 6px" }}>
+      <span className="font-sora text-[10px] tracking-[0.1em] text-[#5A5B55]/60 bg-[#C9A96E]/10 border border-[#E8E3D8] px-1.5 py-px rounded">
         SOULBOUND
       </span>
     );
   }
   return (
-    <span className="mono" style={{ fontSize: 9, letterSpacing: ".1em", color: "var(--fg-faint)", background: "rgba(100,200,100,0.08)", border: "1px solid var(--line)", padding: "1px 6px" }}>
+    <span className="font-sora text-[10px] tracking-[0.1em] text-[#5A5B55]/60 bg-[#64C864]/10 border border-[#E8E3D8] px-1.5 py-px rounded">
       RESELLABLE {royaltyPct ? `${royaltyPct}%` : ""}
     </span>
   );
@@ -84,37 +84,37 @@ function SellingModeBadge({ mode, royaltyPct }: { mode?: string; royaltyPct?: nu
 
 function DesignCard({ d }: { d: DesignData }) {
   return (
-    <a href={`/design/${d.id}`} style={{ display: "block", textDecoration: "none", color: "inherit" }}>
-      <div className="card" style={{ cursor: "pointer" }}>
-        <div className="card__img" style={{ position: "relative" }}>
+    <a href={`/design/${d.id}`} className="block no-underline text-inherit">
+      <div className="bg-[#F0EBE1] rounded-lg border border-[#E8E3D8]/30 overflow-hidden hover:shadow-md transition-all cursor-pointer">
+        <div className="aspect-[3/4] overflow-hidden bg-[#F5F0E8] relative">
           {d.image_url ? (
             <img
               src={d.image_url}
               alt={d.title}
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              className="w-full h-full object-cover block"
             />
           ) : (
             <Plate seed={d.seed ?? 0} density={1} />
           )}
         </div>
-        <div className="card__body">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+        <div className="p-5">
+          <div className="flex justify-between items-start mb-2">
             <StatusTag status={d.status} />
-            <span className="mono faint" style={{ fontSize: 10, letterSpacing: ".1em" }}>№ {d.n}/001</span>
+            <span className="font-sora text-[#5A5B55]/60 text-[10px] tracking-[0.1em]">№ {d.n}/001</span>
           </div>
-          <h3 className="display" style={{ fontSize: 20, marginBottom: 6 }}>{d.title}</h3>
-          <div className="mono dim" style={{ fontSize: 11, marginBottom: 8 }}>{d.style} · {d.placement}</div>
+          <h3 className="font-playfair font-semibold text-[#1B1C18] text-[20px] mb-1.5">{d.title}</h3>
+          <div className="font-sora text-[#5A5B55] text-[11px] mb-2">{d.style} · {d.placement}</div>
           {d.selling_mode && (
-            <div style={{ marginBottom: 10 }}>
+            <div className="mb-2.5">
               <SellingModeBadge mode={d.selling_mode} royaltyPct={d.royalty_pct} />
             </div>
           )}
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <span className="display" style={{ fontSize: 22 }}>
+          <div className="flex justify-between items-baseline">
+            <span className="font-playfair font-semibold text-[#1B1C18] text-[22px]">
               {d.price != null ? d.price.toFixed(2) + " USDT" : "—"}
             </span>
             {d.drawn != null && (
-              <span className="mono faint" style={{ fontSize: 10, letterSpacing: ".06em" }}>{d.drawn} watching</span>
+              <span className="font-sora text-[#5A5B55]/60 text-[10px] tracking-[0.06em]">{d.drawn} watching</span>
             )}
           </div>
         </div>
@@ -125,34 +125,34 @@ function DesignCard({ d }: { d: DesignData }) {
 
 function ResaleCard({ r }: { r: ResaleListing }) {
   return (
-    <a href={`/design/${r.design_id}`} style={{ display: "block", textDecoration: "none", color: "inherit" }}>
-      <div className="card" style={{ cursor: "pointer" }}>
-        <div className="card__img" style={{ position: "relative" }}>
+    <a href={`/design/${r.design_id}`} className="block no-underline text-inherit">
+      <div className="bg-[#F0EBE1] rounded-lg border border-[#E8E3D8]/30 overflow-hidden hover:shadow-md transition-all cursor-pointer">
+        <div className="aspect-[3/4] overflow-hidden bg-[#F5F0E8] relative">
           {r.image_url ? (
             <img
               src={r.image_url}
               alt={r.title}
-              style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }}
+              className="w-full h-full object-cover block"
             />
           ) : (
             <Plate seed={0} density={1} />
           )}
         </div>
-        <div className="card__body">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+        <div className="p-5">
+          <div className="flex justify-between items-start mb-2">
             <StatusTag status="resale" isResale />
-            <span className="mono faint" style={{ fontSize: 10, letterSpacing: ".1em" }}>Resale</span>
+            <span className="font-sora text-[#5A5B55]/60 text-[10px] tracking-[0.1em]">Resale</span>
           </div>
-          <h3 className="display" style={{ fontSize: 20, marginBottom: 6 }}>{r.title}</h3>
-          <div className="mono dim" style={{ fontSize: 11, marginBottom: 8 }}>{r.style} · {r.placement}</div>
-          <div style={{ marginBottom: 10 }}>
+          <h3 className="font-playfair font-semibold text-[#1B1C18] text-[20px] mb-1.5">{r.title}</h3>
+          <div className="font-sora text-[#5A5B55] text-[11px] mb-2">{r.style} · {r.placement}</div>
+          <div className="mb-2.5">
             <SellingModeBadge mode={r.selling_mode} royaltyPct={r.royalty_pct} />
           </div>
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-            <span className="display" style={{ fontSize: 22 }}>
+          <div className="flex justify-between items-baseline">
+            <span className="font-playfair font-semibold text-[#1B1C18] text-[22px]">
               {r.asking_price.toFixed(2)} USDT
             </span>
-            <span className="mono faint" style={{ fontSize: 10 }}>by {r.artist_name}</span>
+            <span className="font-sora text-[#5A5B55]/60 text-[10px]">by {r.artist_name}</span>
           </div>
         </div>
       </div>
@@ -180,13 +180,13 @@ export default function MarketGrid({ designs, resaleListings = [] }: MarketGridP
 
   return (
     <div>
-      <div style={{ display: "flex", gap: 12, flexWrap: "wrap", marginBottom: 32 }}>
+      <div className="flex gap-3 flex-wrap mb-8">
         {/* Primary/Resale toggle */}
-        <div className="opt-row">
+        <div className="flex flex-wrap gap-2">
           {(["all", "primary", "resale"] as const).map((f) => (
             <button
               key={f}
-              className={"opt" + (listingFilter === f ? " is-on" : "")}
+              className={`px-4 py-2 rounded-full text-sm font-sora font-medium border border-[#E8E3D8] hover:border-[#D4CFC4] transition-colors ${listingFilter === f ? "bg-[#E60023] text-white border-[#E60023]" : ""}`}
               onClick={() => setListingFilter(f)}
             >
               {f === "all" ? "All listings" : f === "primary" ? "Primary" : "Resale"}
@@ -195,11 +195,11 @@ export default function MarketGrid({ designs, resaleListings = [] }: MarketGridP
         </div>
         {/* Status filter (only relevant for primary) */}
         {listingFilter !== "resale" && (
-          <div className="opt-row">
+          <div className="flex flex-wrap gap-2">
             {["all", "available", "reserved", "sold"].map((s) => (
               <button
                 key={s}
-                className={"opt" + (statusFilter === s ? " is-on" : "")}
+                className={`px-4 py-2 rounded-full text-sm font-sora font-medium border border-[#E8E3D8] hover:border-[#D4CFC4] transition-colors ${statusFilter === s ? "bg-[#E60023] text-white border-[#E60023]" : ""}`}
                 onClick={() => setStatusFilter(s)}
               >
                 {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
@@ -208,9 +208,9 @@ export default function MarketGrid({ designs, resaleListings = [] }: MarketGridP
           </div>
         )}
         {/* Style filter */}
-        <div className="opt-row">
+        <div className="flex flex-wrap gap-2">
           <button
-            className={"opt" + (styleFilter === "all" ? " is-on" : "")}
+            className={`px-4 py-2 rounded-full text-sm font-sora font-medium border border-[#E8E3D8] hover:border-[#D4CFC4] transition-colors ${styleFilter === "all" ? "bg-[#E60023] text-white border-[#E60023]" : ""}`}
             onClick={() => setStyleFilter("all")}
           >
             All styles
@@ -218,7 +218,7 @@ export default function MarketGrid({ designs, resaleListings = [] }: MarketGridP
           {ALL_STYLES.map((s) => (
             <button
               key={s}
-              className={"opt" + (styleFilter === s ? " is-on" : "")}
+              className={`px-4 py-2 rounded-full text-sm font-sora font-medium border border-[#E8E3D8] hover:border-[#D4CFC4] transition-colors ${styleFilter === s ? "bg-[#E60023] text-white border-[#E60023]" : ""}`}
               onClick={() => setStyleFilter(s)}
             >
               {s}
@@ -228,11 +228,11 @@ export default function MarketGrid({ designs, resaleListings = [] }: MarketGridP
       </div>
 
       {totalCount === 0 ? (
-        <div style={{ textAlign: "center", padding: "60px 0" }}>
-          <p className="mono dim" style={{ fontSize: 13 }}>No plates match your filters.</p>
+        <div className="text-center py-[60px]">
+          <p className="font-sora text-[#5A5B55] text-[13px]">No plates match your filters.</p>
         </div>
       ) : (
-        <div className="grid market-grid">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredDesigns.map((d) => (
             <DesignCard key={d.id} d={d} />
           ))}

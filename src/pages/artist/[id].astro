@@ -4,8 +4,6 @@ export const prerender = false;
 import Base from "../../layouts/Base.astro";
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer.astro";
-import TweaksPanel from "../../components/TweaksPanel";
-import TextureLayer from "../../components/TextureLayer";
 import Toast from "../../components/Toast";
 import Plate from "../../components/Plate";
 
@@ -77,56 +75,54 @@ function fmtEth(v: number | null) {
   description={artist.bio ?? `${artist.name} — ${artist.style}`}
 >
   <Nav client:load currentPath="/artists" />
-  <TextureLayer client:idle />
-  <TweaksPanel client:load />
   <Toast client:load />
 
-  <section style="padding: 32px 0 80px;">
-    <div class="wrap">
-      <a href="/artists" class="back-link">← All artists</a>
+  <section class="py-8 pb-20">
+    <div class="max-w-[1280px] mx-auto px-5 md:px-16">
+      <a href="/artists" class="inline-flex items-center gap-2 text-[#5A5B55] hover:text-[#1B1C18] mb-8 font-sora text-sm">← All artists</a>
 
-      <div class="artist-hero">
-        <div class="artist-hero__img">
+      <div class="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-8 lg:gap-12 items-start">
+        <div class="aspect-[3/4] rounded-lg overflow-hidden">
           <Plate seed={artist.seed ?? 0} label={artist.style?.split(" · ")[0]?.toUpperCase()} density={1.1} client:load />
         </div>
-        <div class="artist-hero__body">
-          <div class="mono dim" style="font-size: 12px; letter-spacing: .1em; display: flex; gap: 8px; align-items: center;">
+        <div>
+          <div class="font-sora text-[#5A5B55] text-xs tracking-[0.1em] flex gap-2 items-center">
             📍 {artist.city} · {artist.handle}
           </div>
-          <h1 class="display" style="font-size: clamp(40px,5vw,60px); margin: 16px 0 0;">{artist.name}</h1>
-          <div class="mono dim" style="font-size: 13px; margin-top: 12px; letter-spacing: .04em;">{artist.style}</div>
-          <p class="dim" style="font-size: 15px; margin: 24px 0; max-width: 48ch;">{artist.bio}</p>
-          <div style="display: flex; gap: 36px; margin: 8px 0 30px;">
+          <h1 class="font-playfair font-semibold text-[#1B1C18] text-[clamp(40px,5vw,60px)] mt-4">{artist.name}</h1>
+          <div class="font-sora text-[#5A5B55] text-[13px] mt-3 tracking-[0.04em]">{artist.style}</div>
+          <p class="text-[#5A5B55] text-[15px] my-6 max-w-[48ch]">{artist.bio}</p>
+          <div class="flex gap-9 my-2 mb-[30px]">
             {artist.years != null && (
               <div>
-                <div class="display" style="font-size: 26px;">{artist.years} yrs</div>
-                <div class="mono faint" style="font-size: 10px; letter-spacing: .12em; text-transform: uppercase; margin-top: 4px;">Experience</div>
+                <div class="font-playfair font-semibold text-[#1B1C18] text-[26px]">{artist.years} yrs</div>
+                <div class="font-sora text-[#5A5B55]/60 text-[10px] tracking-[0.12em] uppercase mt-1">Experience</div>
               </div>
             )}
             {artist.pieces != null && (
               <div>
-                <div class="display" style="font-size: 26px;">{artist.pieces}</div>
-                <div class="mono faint" style="font-size: 10px; letter-spacing: .12em; text-transform: uppercase; margin-top: 4px;">Plates released</div>
+                <div class="font-playfair font-semibold text-[#1B1C18] text-[26px]">{artist.pieces}</div>
+                <div class="font-sora text-[#5A5B55]/60 text-[10px] tracking-[0.12em] uppercase mt-1">Plates released</div>
               </div>
             )}
             {artist.rating != null && (
               <div>
-                <div class="display" style="font-size: 26px;">{artist.rating} ★</div>
-                <div class="mono faint" style="font-size: 10px; letter-spacing: .12em; text-transform: uppercase; margin-top: 4px;">Rating</div>
+                <div class="font-playfair font-semibold text-[#1B1C18] text-[26px]">{artist.rating} ★</div>
+                <div class="font-sora text-[#5A5B55]/60 text-[10px] tracking-[0.12em] uppercase mt-1">Rating</div>
               </div>
             )}
             {artist.rate != null && (
               <div>
-                <div class="display" style="font-size: 26px;">€{artist.rate}/hr</div>
-                <div class="mono faint" style="font-size: 10px; letter-spacing: .12em; text-transform: uppercase; margin-top: 4px;">Session rate</div>
+                <div class="font-playfair font-semibold text-[#1B1C18] text-[26px]">€{artist.rate}/hr</div>
+                <div class="font-sora text-[#5A5B55]/60 text-[10px] tracking-[0.12em] uppercase mt-1">Session rate</div>
               </div>
             )}
           </div>
-          <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-            <a href={`/booking?artistId=${artist.id}`} class="btn btn--solid btn--lg">Book a session</a>
+          <div class="flex gap-3 flex-wrap">
+            <a href={`/booking?artistId=${artist.id}`} class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sora font-semibold text-base transition-all bg-[#E60023] text-white hover:bg-[#C4001F]">Book a session</a>
             {artist.booked && (
-              <span class="tag tag--avail" style="align-self: center;">
-                <span class="dot"></span>{artist.booked}
+              <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border bg-[#2E7D32]/15 text-[#2E7D32] border-[#2E7D32]/40 self-center">
+                <span class="w-2 h-2 rounded-full bg-current"></span>{artist.booked}
               </span>
             )}
           </div>
@@ -134,29 +130,29 @@ function fmtEth(v: number | null) {
       </div>
 
       {plates.length > 0 && (
-        <div style="margin-top: 64px;">
-          <div class="sec-head">
-            <h2 class="display" style="font-size: 34px;">Available plates</h2>
-            <span class="mono faint" style="font-size: 11px; letter-spacing: .1em;">{avail} OF {plates.length} OPEN</span>
+        <div class="mt-16">
+          <div class="flex justify-between items-end mb-8 flex-wrap gap-4">
+            <h2 class="font-playfair font-semibold text-[#1B1C18] text-[34px]">Available plates</h2>
+            <span class="font-sora text-[#5A5B55]/60 text-[11px] tracking-[0.1em]">{avail} OF {plates.length} OPEN</span>
           </div>
-          <div class="grid market-grid">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {plates.map((d) => (
-              <a href={`/design/${d.id}`} style="display: block; text-decoration: none; color: inherit;">
-                <div class="card">
-                  <div class="card__img">
+              <a href={`/design/${d.id}`} class="block no-underline text-inherit">
+                <div class="bg-[#F0EBE1] rounded-lg border border-[#E8E3D8]/30 overflow-hidden hover:shadow-md transition-all">
+                  <div class="relative aspect-[3/4] bg-[#F0EBE1] overflow-hidden">
                     <Plate seed={d.seed ?? 0} density={1} client:load />
                   </div>
-                  <div class="card__body">
-                    <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-                      <span class={`tag ${d.status === "available" ? "tag--avail" : d.status === "reserved" ? "tag--reserved" : "tag--sold"}`}>
-                        <span class="dot"></span>
+                  <div class="flex-1 p-7 md:p-8">
+                    <div class="flex justify-between items-start mb-2.5">
+                      <span class={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border ${d.status === "available" ? "bg-[#2E7D32]/15 text-[#2E7D32] border-[#2E7D32]/40" : d.status === "reserved" ? "bg-yellow-500/15 text-yellow-700 border-yellow-500/40" : "bg-gray-500/15 text-gray-600 border-gray-500/40"}`}>
+                        <span class="w-2 h-2 rounded-full bg-current"></span>
                         {d.status === "available" ? "Available" : d.status === "reserved" ? "Reserved" : "Claimed"}
                       </span>
-                      <span class="mono faint" style="font-size: 10px;">№ {d.n}/001</span>
+                      <span class="font-sora text-[#5A5B55]/60 text-[10px]">№ {d.n}/001</span>
                     </div>
-                    <h3 class="display" style="font-size: 20px; margin-bottom: 8px;">{d.title}</h3>
-                    <div class="mono dim" style="font-size: 11px; margin-bottom: 12px;">{d.style} · {d.placement}</div>
-                    <div class="display" style="font-size: 22px;">{fmtEth(d.price)}</div>
+                    <h3 class="font-playfair font-semibold text-[#1B1C18] text-xl mb-2">{d.title}</h3>
+                    <div class="font-sora text-[#5A5B55] text-[11px] mb-3">{d.style} · {d.placement}</div>
+                    <div class="font-playfair font-semibold text-[#1B1C18] text-[22px]">{fmtEth(d.price)}</div>
                   </div>
                 </div>
               </a>

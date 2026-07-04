@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PrivyNavButton from "./PrivyNavButton";
 
 interface NavProps {
@@ -16,38 +16,142 @@ const links: [string, string][] = [
 
 export default function Nav({ currentPath = "/" }: NavProps) {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    document.body.style.overflow = open ? "hidden" : "";
+    return () => { document.body.style.overflow = ""; };
+  }, [open]);
 
   return (
     <>
-      <nav className="nav">
-        <div className="wrap nav__inner">
-          <a className="brand" href="/">
-            <span className="brand__mark">INKNOIR</span>
-            <span className="brand__tag">1 / 1 · House of Ink</span>
+      <header
+        className={
+          "w-full sticky top-0 z-50 transition-all duration-300 " +
+          (scrolled
+            ? "bg-surface-container-low/95 backdrop-blur-md shadow-[0_1px_0_0_rgba(147,110,107,0.12)]"
+            : "bg-surface-container-low")
+        }
+      >
+        <nav className="flex justify-between items-center w-full px-5 md:px-16 py-4 max-w-container-max mx-auto">
+          {/* Brand */}
+          <a
+            href="/"
+            className="font-display text-2xl md:text-3xl font-bold tracking-tight text-on-surface"
+          >
+            INKNOIR
           </a>
-          <div className="nav__links">
-            {links.map(([href, label]) => (
+
+          {/* Desktop links */}
+          <div className="hidden md:flex gap-8 items-center">
+            {links.map(([href, label]) => {
+              const isActive = currentPath === href;
+              return (
+                <a
+                  key={href}
+                  href={href}
+                  className={
+                    "font-body text-label-md font-semibold transition-colors duration-200 relative py-1 " +
+                    (isActive
+                      ? "text-on-surface"
+                      : "text-on-surface-variant hover:text-on-surface")
+                  }
+                >
+                  {label}
+                  <span
+                    className={
+                      "absolute left-0 right-0 bottom-0 h-[2px] bg-primary-container transition-transform duration-200 origin-left " +
+                      (isActive ? "scale-x-100" : "scale-x-0")
+                    }
+                    aria-hidden="true"
+                  />
+                </a>
+              );
+            })}
+          </div>
+
+          {/* Right side — connect + burger */}
+          <div className="flex items-center gap-4">
+            <div className="hidden md:block">
+              <PrivyNavButton />
+            </div>
+            <button
+              className="md:hidden flex items-center justify-center w-10 h-10 text-on-surface"
+              onClick={() => setOpen(!open)}
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
+            >
+              <span className="relative w-5 h-5">
+                <span
+                  className={
+                    "absolute left-0 h-[1.5px] w-5 bg-on-surface transition-all duration-300 origin-center " +
+                    (open ? "top-[9px] rotate-45" : "top-[3px] rotate-0")
+                  }
+                />
+                <span
+                  className={
+                    "absolute left-0 top-[9px] h-[1.5px] w-5 bg-on-surface transition-all duration-300 " +
+                    (open ? "opacity-0 scale-x-0" : "opacity-100 scale-x-100")
+                  }
+                />
+                <span
+                  className={
+                    "absolute left-0 h-[1.5px] w-5 bg-on-surface transition-all duration-300 origin-center " +
+                    (open ? "top-[9px] -rotate-45" : "top-[15px] rotate-0")
+                  }
+                />
+              </span>
+            </button>
+          </div>
+        </nav>
+      </header>
+
+      <div
+        className={
+          "fixed inset-0 z-40 bg-black/20 backdrop-blur-sm transition-opacity duration-300 md:hidden " +
+          (open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none")
+        }
+        onClick={() => setOpen(false)}
+        aria-hidden="true"
+      />
+
+      <div
+        className={
+          "fixed top-0 right-0 z-40 h-full w-[300px] max-w-[85vw] bg-surface-container-low shadow-2xl " +
+          "flex flex-col pt-20 px-6 pb-8 " +
+          "transition-transform duration-300 ease-out md:hidden " +
+          (open ? "translate-x-0" : "translate-x-full")
+        }
+      >
+        <nav className="flex flex-col gap-1">
+          {links.map(([href, label]) => {
+            const isActive = currentPath === href;
+            return (
               <a
                 key={href}
                 href={href}
-                className={"nav__link" + (currentPath === href ? " is-active" : "")}
+                onClick={() => setOpen(false)}
+                className={
+                  "font-body text-body-lg py-3 px-3 rounded-lg transition-colors duration-200 " +
+                  (isActive
+                    ? "text-on-surface bg-surface-container-high font-semibold"
+                    : "text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high/60")
+                }
               >
                 {label}
               </a>
-            ))}
-            <PrivyNavButton />
-          </div>
-          <button className="nav__burger" onClick={() => setOpen(!open)} aria-label="Menu">
-            {open ? "✕" : "≡"}
-          </button>
+            );
+          })}
+        </nav>
+        <div className="mt-6 px-3">
+          <PrivyNavButton />
         </div>
-      </nav>
-      <div className={"mmenu" + (open ? " is-on" : "")}>
-        {links.map(([href, label]) => (
-          <a key={href} href={href} onClick={() => setOpen(false)}>
-            {label}
-          </a>
-        ))}
       </div>
     </>
   );

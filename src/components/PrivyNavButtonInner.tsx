@@ -12,7 +12,7 @@ function Button() {
     return (
       <button className="nav__wallet" disabled>
         <span className="dot"></span>
-        Connect
+        Connect Wallet
       </button>
     );
   }
@@ -20,7 +20,7 @@ function Button() {
   if (authenticated && address) {
     return (
       <button className="nav__wallet" onClick={logout} title="Sign out">
-        <span className="dot" style={{ background: "var(--ok)" }}></span>
+        <span className="dot" style={{ background: "#2E7D32" }}></span>
         {address.slice(0, 6)}…{address.slice(-4)}
       </button>
     );
@@ -29,7 +29,7 @@ function Button() {
   return (
     <button className="nav__wallet" onClick={login}>
       <span className="dot"></span>
-      Connect
+      Connect Wallet
     </button>
   );
 }
@@ -43,7 +43,7 @@ export default function PrivyNavButton() {
         embeddedWallets: { createOnLogin: "all-users", requireUserPasswordOnCreate: false },
         defaultChain: baseSepolia,
         supportedChains: [baseSepolia],
-        appearance: { theme: "dark", accentColor: "#c9a96e" },
+        appearance: { theme: "light", accentColor: "#E60023" },
       }}
     >
       <Button />

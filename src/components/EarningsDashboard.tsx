@@ -52,42 +52,42 @@ export default function EarningsDashboard() {
   }, []);
 
   if (loading) {
-    return <p className="dim" style={{ fontSize: 13 }}>Loading earnings…</p>;
+    return <p className="text-[#5A5B55] text-[13px]">Loading earnings…</p>;
   }
 
   if (error) {
-    return <p style={{ color: "#ff4444", fontSize: 13 }}>{error}</p>;
+    return <p className="text-[#D32F2F] text-[13px]">{error}</p>;
   }
 
   if (!data || data.recentTransactions.length === 0) {
-    return <p className="dim" style={{ fontSize: 13 }}>No earnings yet. Earnings appear here once your designs are sold.</p>;
+    return <p className="text-[#5A5B55] text-[13px]">No earnings yet. Earnings appear here once your designs are sold.</p>;
   }
 
   return (
     <div>
       {/* Summary cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 1, background: "var(--line)", border: "1px solid var(--line)", marginBottom: 32 }}>
-        <div style={{ background: "var(--ink-800)", padding: "20px 22px" }}>
-          <div className="display" style={{ fontSize: 28, lineHeight: 1 }}>{fmtUsdt(data.totalPrimary)}</div>
-          <div className="mono" style={{ fontSize: 9, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--fg-faint)", marginTop: 6 }}>Primary Sales</div>
+      <div className="grid grid-cols-3 gap-px bg-[#E8E3D8] border border-[#E8E3D8] rounded-lg overflow-hidden mb-8">
+        <div className="bg-[#F0EBE1] p-5 md:p-6">
+          <div className="font-playfair font-semibold text-[#1B1C18] text-2xl md:text-[28px] leading-none">{fmtUsdt(data.totalPrimary)}</div>
+          <div className="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-1.5">Primary Sales</div>
         </div>
-        <div style={{ background: "var(--ink-800)", padding: "20px 22px" }}>
-          <div className="display" style={{ fontSize: 28, lineHeight: 1, color: "var(--ok)" }}>{fmtUsdt(data.totalRoyalties)}</div>
-          <div className="mono" style={{ fontSize: 9, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--fg-faint)", marginTop: 6 }}>Royalties</div>
+        <div className="bg-[#F0EBE1] p-5 md:p-6">
+          <div className="font-playfair font-semibold text-[#1B1C18] text-2xl md:text-[28px] leading-none text-[#2E7D32]">{fmtUsdt(data.totalRoyalties)}</div>
+          <div className="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-1.5">Royalties</div>
         </div>
-        <div style={{ background: "var(--ink-800)", padding: "20px 22px" }}>
-          <div className="display" style={{ fontSize: 28, lineHeight: 1 }}>{fmtUsdt(data.totalEarnings)}</div>
-          <div className="mono" style={{ fontSize: 9, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--fg-faint)", marginTop: 6 }}>Total Earned</div>
+        <div className="bg-[#F0EBE1] p-5 md:p-6">
+          <div className="font-playfair font-semibold text-[#1B1C18] text-2xl md:text-[28px] leading-none">{fmtUsdt(data.totalEarnings)}</div>
+          <div className="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-1.5">Total Earned</div>
         </div>
       </div>
 
       {/* Recent transactions table */}
-      <div style={{ overflowX: "auto" }}>
-        <table style={{ width: "100%", borderCollapse: "collapse", border: "1px solid var(--line)" }}>
+      <div className="overflow-x-auto">
+        <table className="w-full border border-[#E8E3D8] border-collapse">
           <thead>
             <tr>
               {["Date", "Design", "Type", "Amount", "Platform Fee", "Payment", "Tx"].map((h) => (
-                <th key={h} style={{ textAlign: "left", padding: "10px 14px", fontSize: 10, fontFamily: "var(--font-mono)", letterSpacing: ".14em", textTransform: "uppercase", color: "var(--fg-faint)", borderBottom: "1px solid var(--line)", background: "var(--ink-850)", whiteSpace: "nowrap" }}>
+                <th key={h} className="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">
                   {h}
                 </th>
               ))}
@@ -95,45 +95,36 @@ export default function EarningsDashboard() {
           </thead>
           <tbody>
             {data.recentTransactions.map((e) => (
-              <tr key={e.id} style={{ borderTop: "1px solid var(--line)" }}>
-                <td style={{ padding: "10px 14px", fontSize: 12, fontFamily: "var(--font-mono)", color: "var(--fg-dim)", whiteSpace: "nowrap" }}>
+              <tr key={e.id} className="hover:bg-[#F5F0E8]">
+                <td className="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora text-[#5A5B55] whitespace-nowrap">
                   {fmtDate(e.created_at)}
                 </td>
-                <td style={{ padding: "10px 14px", fontSize: 13 }}>
+                <td className="px-4 py-3 border-b border-[#E8E3D8] text-sm">
                   {e.design_title ? (
-                    <a href={`/design/${e.design_id}`} style={{ textDecoration: "underline", textUnderlineOffset: 3 }}>{e.design_title}</a>
+                    <a href={`/design/${e.design_id}`} className="underline underline-offset-[3px]">{e.design_title}</a>
                   ) : "—"}
                 </td>
-                <td style={{ padding: "10px 14px" }}>
-                  <span style={{
-                    fontSize: 10,
-                    fontFamily: "var(--font-mono)",
-                    letterSpacing: ".1em",
-                    textTransform: "uppercase",
-                    padding: "2px 8px",
-                    background: e.type === "royalty" ? "rgba(34,197,94,0.15)" : "rgba(201,169,110,0.15)",
-                    border: "1px solid var(--line)",
-                    color: e.type === "royalty" ? "#22c55e" : "var(--gold)",
-                  }}>
+                <td className="px-4 py-3 border-b border-[#E8E3D8]">
+                  <span className={`inline-flex items-center gap-2 px-2 py-0.5 rounded text-[10px] font-sora font-semibold tracking-[0.1em] uppercase border ${e.type === "royalty" ? "bg-[#2E7D32]/15 text-[#2E7D32] border-[#2E7D32]/40" : "bg-[#8B7355]/15 text-[#8B7355] border-[#8B7355]/40"}`}>
                     {e.type === "primary_sale" ? "Sale" : "Royalty"}
                   </span>
                 </td>
-                <td style={{ padding: "10px 14px", fontSize: 14, fontFamily: "var(--font-display)", color: "var(--ok)" }}>
+                <td className="px-4 py-3 border-b border-[#E8E3D8] text-sm font-playfair text-[#2E7D32]">
                   +{fmtUsdt(e.amount)}
                 </td>
-                <td style={{ padding: "10px 14px", fontSize: 12, fontFamily: "var(--font-mono)", color: "var(--fg-faint)" }}>
+                <td className="px-4 py-3 border-b border-[#E8E3D8] text-xs font-sora text-[#5A5B55]/60">
                   {fmtUsdt(e.platform_fee)}
                 </td>
-                <td style={{ padding: "10px 14px", fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--fg-dim)" }}>
+                <td className="px-4 py-3 border-b border-[#E8E3D8] text-[11px] font-sora text-[#5A5B55]">
                   {e.payment_method === "on_chain" ? "On-chain" : "PaySolution"}
                 </td>
-                <td style={{ padding: "10px 14px", fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--fg-faint)" }}>
+                <td className="px-4 py-3 border-b border-[#E8E3D8] text-[11px] font-sora text-[#5A5B55]/60">
                   {e.tx_hash && e.tx_hash.startsWith("0x") ? (
                     <a
                       href={`https://testnet.bscscan.com/tx/${e.tx_hash}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      style={{ textDecoration: "underline", textUnderlineOffset: 2 }}
+                      className="underline underline-offset-2"
                     >
                       {shortHash(e.tx_hash)}
                     </a>

@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>INKNOIR Artist Dashboard</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600;700&amp;family=Sora:wght@400;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "error": "#ba1a1a",
+                        "secondary-fixed": "#e7e1de",
+                        "secondary-container": "#e5dedb",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#1b1c18",
+                        "background": "#fbf9f3",
+                        "on-tertiary-container": "#fff8f1",
+                        "on-secondary-container": "#65625f",
+                        "surface-tint": "#c0001b",
+                        "primary-fixed": "#ffdad7",
+                        "on-primary-fixed": "#410004",
+                        "secondary-fixed-dim": "#cbc5c2",
+                        "on-error": "#ffffff",
+                        "tertiary-fixed-dim": "#ccc5bc",
+                        "primary-container": "#e60023",
+                        "surface-bright": "#fbf9f3",
+                        "on-secondary-fixed-variant": "#494644",
+                        "secondary": "#615e5b",
+                        "on-primary-container": "#fff7f6",
+                        "error-container": "#ffdad6",
+                        "primary": "#b7001a",
+                        "on-background": "#1b1c18",
+                        "surface-container-highest": "#e4e2dd",
+                        "primary-fixed-dim": "#ffb3ad",
+                        "surface-variant": "#e4e2dd",
+                        "on-tertiary": "#ffffff",
+                        "on-secondary": "#ffffff",
+                        "on-surface-variant": "#5e3f3c",
+                        "inverse-surface": "#30312d",
+                        "on-primary-fixed-variant": "#930012",
+                        "on-tertiary-fixed": "#1e1b15",
+                        "tertiary": "#5e5a52",
+                        "surface-container": "#f0eee8",
+                        "surface": "#fbf9f3",
+                        "inverse-on-surface": "#f3f1eb",
+                        "tertiary-container": "#77726a",
+                        "on-error-container": "#93000a",
+                        "outline-variant": "#e8bcb8",
+                        "outline": "#936e6b",
+                        "surface-container-low": "#f5f3ed",
+                        "tertiary-fixed": "#e9e1d8",
+                        "surface-container-high": "#eae8e2",
+                        "on-tertiary-fixed-variant": "#4a463f",
+                        "on-secondary-fixed": "#1d1b19",
+                        "on-primary": "#ffffff",
+                        "inverse-primary": "#ffb3ad",
+                        "surface-dim": "#dcdad4"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px",
+                        "2xl": "1rem",
+                        "3xl": "1.5rem"
+                    },
+                    "spacing": {
+                        "container-max": "1280px",
+                        "margin-mobile": "20px",
+                        "unit": "4px",
+                        "margin-desktop": "64px",
+                        "gutter": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Playfair Display"],
+                        "label-md": ["Sora"],
+                        "body-md": ["Sora"],
+                        "display-lg": ["Playfair Display"],
+                        "label-sm": ["Sora"],
+                        "display-lg-mobile": ["Playfair Display"],
+                        "headline-sm": ["Playfair Display"],
+                        "body-lg": ["Sora"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["32px", { "lineHeight": "40px", "fontWeight": "600" }],
+                        "label-md": ["14px", { "lineHeight": "20px", "letterSpacing": "0.02em", "fontWeight": "600" }],
+                        "body-md": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "display-lg": ["48px", { "lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "600" }],
+                        "display-lg-mobile": ["36px", { "lineHeight": "44px", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "headline-sm": ["24px", { "lineHeight": "32px", "fontWeight": "600" }],
+                        "body-lg": ["18px", { "lineHeight": "28px", "fontWeight": "400" }]
+                    },
+                    "boxShadow": {
+                        'clay': 'inset -5px -5px 10px rgba(255, 255, 255, 0.5), inset 5px 5px 10px rgba(0, 0, 0, 0.05), 5px 5px 15px rgba(0,0,0,0.05)',
+                        'clay-active': 'inset 2px 2px 5px rgba(0, 0, 0, 0.1), inset -2px -2px 5px rgba(255, 255, 255, 0.5)'
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        body {
+            background-color: #f8f6f0; /* overriding with specific prompt request */
+            color: #1b1c18;
+        }
+        .clay-card {
+            background: #EDE9DF;
+            border-radius: 1rem;
+            box-shadow: inset -5px -5px 10px rgba(255, 255, 255, 0.7), inset 5px 5px 10px rgba(26, 24, 22, 0.05), 5px 5px 15px rgba(26, 24, 22, 0.03);
+            border: 1px solid rgba(26, 24, 22, 0.04);
+            transition: all 0.3s ease;
+        }
+        .clay-card:hover {
+            box-shadow: inset -3px -3px 8px rgba(255, 255, 255, 0.8), inset 3px 3px 8px rgba(26, 24, 22, 0.03), 8px 8px 20px rgba(26, 24, 22, 0.05);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body class="font-body-md text-body-md antialiased min-h-screen flex selection:bg-primary-container selection:text-on-primary-container">
+<!-- Sidebar Navigation -->
+<aside class="w-64 h-screen sticky top-0 bg-surface-container-low border-r border-surface-dim flex flex-col pt-8 pb-8 z-20 hidden md:flex">
+<div class="px-8 mb-12">
+<h1 class="font-headline-md text-headline-md text-on-surface tracking-tighter">INKNOIR</h1>
+<p class="font-label-sm text-label-sm text-secondary mt-1">Artist Dashboard</p>
+</div>
+<nav class="flex-1 px-4 space-y-2">
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg bg-surface text-primary-container font-label-md text-label-md transition-all clay-card shadow-clay-active" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+                Dashboard
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:text-on-surface hover:bg-surface transition-all font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface transition-colors">calendar_month</span>
+                Bookings
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:text-on-surface hover:bg-surface transition-all font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface transition-colors">palette</span>
+                My Flash
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:text-on-surface hover:bg-surface transition-all font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface transition-colors">bar_chart</span>
+                Analytics
+            </a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-lg text-secondary hover:text-on-surface hover:bg-surface transition-all font-label-md text-label-md group" href="#">
+<span class="material-symbols-outlined text-[20px] group-hover:text-on-surface transition-colors">settings</span>
+                Settings
+            </a>
+</nav>
+<div class="px-6 mt-auto">
+<div class="flex items-center gap-3 p-3 rounded-xl bg-surface-container border border-surface-dim">
+<img class="w-10 h-10 rounded-full object-cover" data-alt="A close up, highly detailed portrait of a tattoo artist in a brightly lit studio. The artist is looking forward with a serious, professional expression. The aesthetic is modern, light, with high contrast. Shot on 35mm film, editorial style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJEk4kLYvbYlj_qd1RUxM-6POWoGQectCEF-b2ZI6-M0WvPrwRBp3WY3yoeNbQudQoVmBMPu-vufFx6-VGAkoQAdjWQQCkA2KyEFhkAcuq4i8LlNodffRYwLh7XRhap0G4suj_ZfXNdzli_dGBT_Pg-flkCoSHrRzbhpIebCUq6i3kg8Kd8QJEkpKTTqxz7XH4bXBorAD6kqPcRrJ47Pk0ouw_mr0-8bs1PFa0XjemM6DoF-4ou9mPsj2I0TQS9TzxgcOR-_Q_w90"/>
+<div>
+<p class="font-label-sm text-label-sm text-on-surface">Elena Rostova</p>
+<p class="text-[10px] text-secondary mt-0.5">Studio Resident</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content -->
+<main class="flex-1 flex flex-col h-screen overflow-y-auto">
+<!-- Mobile Header (Visible only on md-) -->
+<header class="md:hidden flex items-center justify-between p-margin-mobile bg-surface-container-low border-b border-surface-dim sticky top-0 z-30">
+<h1 class="font-headline-sm text-headline-sm text-on-surface tracking-tighter">INKNOIR</h1>
+<button class="text-on-surface">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</header>
+<div class="p-margin-mobile md:p-margin-desktop max-w-container-max mx-auto w-full">
+<!-- Top Actions -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-12">
+<div>
+<h2 class="font-display-lg-mobile md:font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">Welcome back, Elena.</h2>
+<p class="font-body-md text-body-md text-secondary mt-2">Here's what's happening with your studio today.</p>
+</div>
+<button class="bg-primary-container text-on-primary-container font-label-md text-label-md px-6 py-3 rounded-full hover:bg-primary transition-colors flex items-center gap-2 shrink-0 shadow-sm">
+<span class="material-symbols-outlined text-[18px]">add</span>
+                    Mint New Flash
+                </button>
+</div>
+<!-- Bento Grid Layout -->
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6 mb-12">
+<!-- Claymorphism Stats Cards -->
+<div class="md:col-span-4 clay-card p-6 flex flex-col justify-between min-h-[160px]">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-secondary">account_balance_wallet</span>
+<span class="bg-surface-container text-secondary font-label-sm text-label-sm px-2 py-1 rounded-full">+12%</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-secondary mb-1">Total Revenue</p>
+<p class="font-headline-md text-headline-md text-on-surface">$14,250</p>
+</div>
+</div>
+<div class="md:col-span-4 clay-card p-6 flex flex-col justify-between min-h-[160px]">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-primary-container">calendar_today</span>
+<span class="bg-surface-container text-secondary font-label-sm text-label-sm px-2 py-1 rounded-full">Next: 2PM</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-secondary mb-1">Upcoming Bookings</p>
+<p class="font-headline-md text-headline-md text-on-surface">8</p>
+</div>
+</div>
+<div class="md:col-span-4 clay-card p-6 flex flex-col justify-between min-h-[160px]">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-secondary">visibility</span>
+<span class="bg-surface-container text-secondary font-label-sm text-label-sm px-2 py-1 rounded-full">+45%</span>
+</div>
+<div>
+<p class="font-label-sm text-label-sm text-secondary mb-1">Profile Views</p>
+<p class="font-headline-md text-headline-md text-on-surface">3,402</p>
+</div>
+</div>
+<!-- Recent Activity List (Bento Span) -->
+<div class="md:col-span-8 clay-card p-8">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-headline-sm text-headline-sm text-on-surface">Recent Activity</h3>
+<a class="font-label-sm text-label-sm text-primary-container hover:underline" href="#">View All</a>
+</div>
+<div class="space-y-4">
+<!-- Activity Item 1 -->
+<div class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors border border-transparent hover:border-surface-dim">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[18px]">check_circle</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Booking Confirmed</p>
+<p class="font-label-sm text-label-sm text-secondary">Client: Alex Mercer • Oct 24, 2:00 PM</p>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary">2h ago</span>
+</div>
+<!-- Activity Item 2 -->
+<div class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors border border-transparent hover:border-surface-dim">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
+<span class="material-symbols-outlined text-[18px]">chat_bubble</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">New Inquiry: Geometric Sleeve</p>
+<p class="font-label-sm text-label-sm text-secondary">Client: Sam Riley • Awaiting Response</p>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary">5h ago</span>
+</div>
+<!-- Activity Item 3 -->
+<div class="flex items-center justify-between p-4 rounded-xl hover:bg-surface-container-low transition-colors border border-transparent hover:border-surface-dim">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center text-on-surface">
+<span class="material-symbols-outlined text-[18px]">payments</span>
+</div>
+<div>
+<p class="font-label-md text-label-md text-on-surface">Deposit Received</p>
+<p class="font-label-sm text-label-sm text-secondary">$150 for 'Serpent &amp; Rose' Flash</p>
+</div>
+</div>
+<span class="font-label-sm text-label-sm text-tertiary">1d ago</span>
+</div>
+</div>
+</div>
+<!-- Highlighted Flash / Featured Area -->
+<div class="md:col-span-4 clay-card p-6 flex flex-col relative overflow-hidden group">
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container-highest to-transparent opacity-50 z-0"></div>
+<div class="relative z-10 flex flex-col h-full">
+<div class="flex justify-between items-start mb-auto">
+<span class="bg-primary-container text-on-primary-container font-label-sm text-label-sm px-3 py-1 rounded-full shadow-sm">Trending</span>
+<button class="w-8 h-8 rounded-full bg-surface-container-lowest flex items-center justify-center text-on-surface shadow-sm hover:scale-105 transition-transform">
+<span class="material-symbols-outlined text-[16px]">more_horiz</span>
+</button>
+</div>
+<div class="mt-12">
+<h3 class="font-headline-sm text-headline-sm text-on-surface mb-2">Botanical Skull Series</h3>
+<p class="font-body-md text-body-md text-secondary mb-4">Your most viewed collection this week.</p>
+<button class="text-primary-container font-label-md text-label-md flex items-center gap-1 group-hover:gap-2 transition-all">
+                                View Analytics
+                                <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+</body></html>

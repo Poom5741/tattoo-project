@@ -140,36 +140,36 @@ export default function BookingCalendar({ bookings: initialBookings }: BookingCa
   return (
     <div>
       {/* Header */}
-      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
+      <div className="flex justify-between items-center mb-4">
         <button
           onClick={prevMonth}
-          style={{ background: "none", border: "1px solid var(--line)", padding: "6px 12px", cursor: "pointer", color: "var(--fg-dim)", fontSize: 13 }}
+          className="bg-transparent border border-[#E8E3D8] px-3 py-1.5 cursor-pointer text-[#5A5B55] text-[13px] font-sora"
         >
           ←
         </button>
-        <div className="display" style={{ fontSize: 18 }}>{MONTH_NAMES[month]} {year}</div>
+        <div className="font-playfair font-semibold text-[#1B1C18] text-[18px]">{MONTH_NAMES[month]} {year}</div>
         <button
           onClick={nextMonth}
-          style={{ background: "none", border: "1px solid var(--line)", padding: "6px 12px", cursor: "pointer", color: "var(--fg-dim)", fontSize: 13 }}
+          className="bg-transparent border border-[#E8E3D8] px-3 py-1.5 cursor-pointer text-[#5A5B55] text-[13px] font-sora"
         >
           →
         </button>
       </div>
 
       {/* Day labels */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 1, marginBottom: 1 }}>
+      <div className="grid grid-cols-7 gap-px mb-px">
         {DAY_NAMES.map(d => (
-          <div key={d} style={{ textAlign: "center", fontSize: 10, fontFamily: "var(--font-mono)", letterSpacing: ".1em", color: "var(--fg-faint)", padding: "6px 0" }}>
+          <div key={d} className="font-sora text-[10px] tracking-[0.1em] text-[#5A5B55]/60 text-center py-2">
             {d}
           </div>
         ))}
       </div>
 
       {/* Calendar grid */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 1, background: "var(--line)", border: "1px solid var(--line)", marginBottom: 24 }}>
+      <div className="grid grid-cols-7 gap-px bg-[#E8E3D8] border border-[#E8E3D8] mb-6">
         {cells.map((day, i) => {
           if (day === null) {
-            return <div key={`e${i}`} style={{ background: "var(--ink-850)", minHeight: 52 }} />;
+            return <div key={`e${i}`} className="bg-[#FAF7F2] min-h-[52px]" />;
           }
           const k = dayKey(year, month, day);
           const dayBookings = dayMap[k] ?? [];
@@ -184,24 +184,21 @@ export default function BookingCalendar({ bookings: initialBookings }: BookingCa
             <div
               key={k}
               onClick={() => setSelectedDay(isSelected ? null : k)}
-              style={{
-                background: isSelected ? "var(--ink-700)" : "var(--ink-800)",
-                minHeight: 52,
-                padding: "6px 8px",
-                cursor: dayBookings.length > 0 ? "pointer" : "default",
-                borderBottom: isSelected ? "2px solid var(--gold)" : "none",
-                position: "relative",
-              }}
+              className={`min-h-[52px] p-1.5 px-2 relative transition-colors ${
+                isSelected
+                  ? "bg-[#E8E0D0] border-b-2 border-[#E60023]"
+                  : "bg-[#F0EBE1]"
+              } ${dayBookings.length > 0 ? "cursor-pointer" : "cursor-default"}`}
             >
-              <div style={{ fontSize: 12, fontFamily: "var(--font-mono)", color: isToday ? "var(--gold)" : "var(--fg-dim)", fontWeight: isToday ? 700 : 400 }}>
+              <div className={`font-sora text-xs ${isToday ? "text-[#E60023] font-bold" : "text-[#5A5B55] font-normal"}`}>
                 {day}
               </div>
               {/* Dot indicators */}
               {dayBookings.length > 0 && (
-                <div style={{ display: "flex", gap: 3, marginTop: 4, flexWrap: "wrap" }}>
-                  {hasPending && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#3b82f6", display: "inline-block" }} title="Pending inquiry" />}
-                  {hasAccepted && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#22c55e", display: "inline-block" }} title="Accepted" />}
-                  {hasDeclined && <span style={{ width: 6, height: 6, borderRadius: "50%", background: "#ef4444", display: "inline-block" }} title="Declined" />}
+                <div className="flex gap-0.5 mt-1 flex-wrap">
+                  {hasPending && <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" title="Pending inquiry" />}
+                  {hasAccepted && <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" title="Accepted" />}
+                  {hasDeclined && <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" title="Declined" />}
                 </div>
               )}
             </div>
@@ -211,59 +208,53 @@ export default function BookingCalendar({ bookings: initialBookings }: BookingCa
 
       {/* Detail panel */}
       {selectedDay && (
-        <div style={{ border: "1px solid var(--line)", padding: 20, background: "var(--ink-850)", marginBottom: 24 }}>
-          <div className="mono" style={{ fontSize: 10, letterSpacing: ".2em", textTransform: "uppercase", color: "var(--fg-faint)", marginBottom: 16 }}>
+        <div className="border border-[#E8E3D8] p-5 bg-[#F5F0E8] mb-6">
+          <div className="font-sora text-[10px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mb-4">
             {selectedDay}
           </div>
           {selectedBookings.length === 0 ? (
-            <p className="dim" style={{ fontSize: 13 }}>No bookings on this date.</p>
+            <p className="text-[#5A5B55] text-[13px]">No bookings on this date.</p>
           ) : (
-            <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <div className="flex flex-col gap-4">
               {selectedBookings.map((b) => {
                 const status = b.status ?? "pending";
                 return (
-                  <div key={b.id} style={{ borderLeft: "2px solid var(--line)", paddingLeft: 16 }}>
-                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 8 }}>
+                  <div key={b.id} className="border-l-2 border-[#E8E3D8] pl-4">
+                    <div className="flex justify-between items-start mb-2">
                       <div>
-                        <div style={{ fontWeight: 500, fontSize: 14 }}>{b.name}</div>
-                        <div className="mono" style={{ fontSize: 11, color: "var(--fg-dim)" }}>{b.contact}</div>
+                        <div className="font-medium text-sm">{b.name}</div>
+                        <div className="font-sora text-[11px] text-[#5A5B55]">{b.contact}</div>
                       </div>
-                      <span style={{
-                        fontSize: 9,
-                        fontFamily: "var(--font-mono)",
-                        letterSpacing: ".1em",
-                        textTransform: "uppercase",
-                        padding: "2px 8px",
-                        background: status === "accepted" ? "rgba(34,197,94,0.15)" : status === "declined" ? "rgba(239,68,68,0.15)" : "rgba(59,130,246,0.15)",
-                        color: status === "accepted" ? "#22c55e" : status === "declined" ? "#ef4444" : "#3b82f6",
-                        border: "1px solid var(--line)",
-                      }}>
+                      <span className={`font-sora text-[9px] tracking-[0.1em] uppercase px-2 py-0.5 border border-[#E8E3D8] ${
+                        status === "accepted" ? "bg-green-500/15 text-green-500" :
+                        status === "declined" ? "bg-red-500/15 text-red-500" :
+                        "bg-blue-500/15 text-blue-500"
+                      }`}>
                         {status}
                       </span>
                     </div>
-                    {b.message && <div style={{ fontSize: 12, color: "var(--fg-dim)", marginBottom: 8 }}>{b.message}</div>}
-                    {b.design_id && <div className="mono" style={{ fontSize: 11, color: "var(--fg-faint)", marginBottom: 8 }}>Plate: {b.design_id}</div>}
+                    {b.message && <div className="text-xs text-[#5A5B55] mb-2">{b.message}</div>}
+                    {b.design_id && <div className="font-sora text-[11px] text-[#5A5B55]/60 mb-2">Plate: {b.design_id}</div>}
 
                     {status === "pending" && (
-                      <div style={{ display: "flex", gap: 8, alignItems: "center", flexWrap: "wrap", marginTop: 10 }}>
+                      <div className="flex gap-2 items-center flex-wrap mt-2.5">
                         <input
                           type="date"
-                          className="input"
-                          style={{ fontSize: 11, padding: "5px 8px", width: "auto" }}
+                          className="w-auto bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-[11px] px-2 py-1.5 rounded-lg outline-none focus:border-[#E60023] transition-colors"
                           value={appointmentInputs[b.id] ?? ""}
                           onChange={(e) => setAppointmentInputs(prev => ({ ...prev, [b.id]: e.target.value }))}
                         />
                         <button
                           onClick={() => handleAccept(b.id)}
                           disabled={actionPending.has(b.id)}
-                          style={{ padding: "5px 14px", background: "#22c55e", color: "#fff", border: "none", cursor: "pointer", fontSize: 12, opacity: actionPending.has(b.id) ? 0.6 : 1 }}
+                          className="px-3.5 py-1.5 bg-green-500 text-white border-none cursor-pointer text-xs disabled:opacity-60"
                         >
                           Accept
                         </button>
                         <button
                           onClick={() => handleDecline(b.id)}
                           disabled={actionPending.has(b.id)}
-                          style={{ padding: "5px 14px", background: "#ef4444", color: "#fff", border: "none", cursor: "pointer", fontSize: 12, opacity: actionPending.has(b.id) ? 0.6 : 1 }}
+                          className="px-3.5 py-1.5 bg-red-500 text-white border-none cursor-pointer text-xs disabled:opacity-60"
                         >
                           Decline
                         </button>
@@ -278,10 +269,10 @@ export default function BookingCalendar({ bookings: initialBookings }: BookingCa
       )}
 
       {/* Legend */}
-      <div style={{ display: "flex", gap: 16, fontSize: 11, fontFamily: "var(--font-mono)", color: "var(--fg-faint)" }}>
-        <span><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "#3b82f6", marginRight: 4, verticalAlign: "middle" }} />Pending</span>
-        <span><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "#22c55e", marginRight: 4, verticalAlign: "middle" }} />Accepted</span>
-        <span><span style={{ display: "inline-block", width: 8, height: 8, borderRadius: "50%", background: "#ef4444", marginRight: 4, verticalAlign: "middle" }} />Declined</span>
+      <div className="flex gap-4 font-sora text-[11px] text-[#5A5B55]/60">
+        <span><span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1 align-middle" />Pending</span>
+        <span><span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1 align-middle" />Accepted</span>
+        <span><span className="inline-block w-2 h-2 rounded-full bg-red-500 mr-1 align-middle" />Declined</span>
       </div>
     </div>
   );

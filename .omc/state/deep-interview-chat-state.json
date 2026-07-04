@@ -1,0 +1,34 @@
+{
+  "active": false,
+  "current_phase": "pending_approval",
+  "spec_path": ".omc/specs/deep-interview-live-chat-widget.md",
+  "plan_path": ".omc/plans/live-chat-widget-tawkto.md",
+  "consensus": "approved-iter2",
+  "state": {
+    "interview_id": "chat-admin-2026-06-09",
+    "type": "brownfield",
+    "initial_idea": "Live chat with admin: a chat portal/widget on every client-side page, plus a full chat console on the admin dashboard to handle conversations with multiple accounts. Research the lowest-cost way to host chat on the page.",
+    "initial_context_summary": null,
+    "rounds": [],
+    "current_ambiguity": 1.0,
+    "threshold": 0.2,
+    "threshold_source": "default",
+    "codebase_context": "Astro5 SSR on Cloudflare Pages/Workers. Bindings: D1 (inknoir-catalog), KV (SESSION), R2 (MEDIA). No realtime yet. Base.astro global layout. Admin=password->KV token cookie. Artists=Privy JWT->KV session, D1 artists table. Visitors anonymous; booking form captures name+contact.",
+    "topology": {
+      "status": "confirmed",
+      "confirmed_at": "2026-06-09",
+      "components": [
+        {"id": "visitor-widget", "name": "Visitor chat widget", "description": "Launcher bubble + chat panel on every client page via Base.astro", "status": "active", "evidence": ["initial idea: portal on every page client side", "src/layouts/Base.astro"], "clarity_scores": {"goal": null, "constraints": null, "criteria": null, "context": null}, "weakest_dimension": null},
+        {"id": "admin-console", "name": "Admin chat console", "description": "Full inbox in admin dashboard; one admin handles many customer conversations", "status": "active", "evidence": ["initial idea: full chat on admin dashboard, multiple accounts=customers", "src/pages/admin/index.astro"], "clarity_scores": {"goal": null, "constraints": null, "criteria": null, "context": null}, "weakest_dimension": null},
+        {"id": "realtime-backend", "name": "Real-time + storage backend", "description": "Message transport (cost-optimized) + D1 persistence", "status": "active", "evidence": ["initial idea: research lowest cost chat on page", "no realtime exists yet"], "clarity_scores": {"goal": null, "constraints": null, "criteria": null, "context": null}, "weakest_dimension": null}
+      ],
+      "deferrals": [
+        {"component_id": "realtime-backend", "reason": "User chose free third-party widget; provider supplies transport+storage. No custom Cloudflare DO/D1 chat backend.", "confirmed_at": "2026-06-09"},
+        {"component_id": "admin-console", "reason": "User chose third-party; admin uses provider's hosted web dashboard + mobile app instead of a custom console in /admin. Pending confirmation in Round 5.", "confirmed_at": "2026-06-09"}
+      ],
+      "last_targeted_component_id": "admin-console"
+    },
+    "challenge_modes_used": [],
+    "ontology_snapshots": []
+  }
+}

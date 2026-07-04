@@ -79,12 +79,12 @@ const stats = {
 
 function statusClass(status: string): string {
   switch (status) {
-    case "available": return "tag--avail";
-    case "reserved": return "tag--reserved";
-    case "sold": return "tag--sold";
-    case "pending": return "tag--pending";
-    case "rejected": return "tag--rejected";
-    case "delisted": return "tag--delisted";
+    case "available": return "bg-[#2E7D32]/15 text-[#2E7D32] border-[#2E7D32]/40";
+    case "reserved": return "bg-[#F9A825]/15 text-[#F9A825] border-[#F9A825]/40";
+    case "sold": return "bg-[#5A5B55]/15 text-[#5A5B55] border-[#5A5B55]/40";
+    case "pending": return "bg-[#F9A825]/15 text-[#F9A825] border-[#F9A825]/40";
+    case "rejected": return "bg-[#D32F2F]/15 text-[#D32F2F] border-[#D32F2F]/40";
+    case "delisted": return "bg-[#5A5B55]/15 text-[#5A5B55] border-[#5A5B55]/40";
     default: return "";
   }
 }
@@ -100,117 +100,88 @@ const PRIVY_APP_ID = env.PRIVY_APP_ID;
 ---
 
 <Base title="Artist Portal — INKNOIR">
-  <style>
-    .portal { max-width: 1000px; margin: 0 auto; padding: 40px 28px 80px; }
-    .portal-hd { display: flex; justify-content: space-between; align-items: center;
-      padding-bottom: 24px; border-bottom: 1px solid var(--line); margin-bottom: 40px; }
-    .stats { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1px;
-      background: var(--line); border: 1px solid var(--line); margin-bottom: 48px; }
-    .stat { background: var(--ink-800); padding: 20px 22px; }
-    .stat .n { font-family: var(--font-display); font-size: 36px; line-height: 1; }
-    .stat .l { font-family: var(--font-mono); font-size: 9px; letter-spacing: .2em;
-      text-transform: uppercase; color: var(--fg-faint); margin-top: 6px; }
-    .sec { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: .2em;
-      text-transform: uppercase; color: var(--fg-dim); margin-bottom: 14px; }
-    .tbl { width: 100%; border: 1px solid var(--line); border-collapse: collapse; margin-bottom: 52px; }
-    .tbl th { font-family: var(--font-mono); font-size: 10px; letter-spacing: .14em;
-      text-transform: uppercase; color: var(--fg-faint); padding: 11px 16px; text-align: left;
-      border-bottom: 1px solid var(--line); background: var(--ink-850); white-space: nowrap; }
-    .tbl td { padding: 12px 16px; border-bottom: 1px solid var(--line); font-size: 13px; vertical-align: top; }
-    .tbl tr:last-child td { border-bottom: none; }
-    .tbl tr:hover td { background: var(--ink-750); }
-    .wallet-chip { font-family: var(--font-mono); font-size: 10px; background: var(--ink-750);
-      border: 1px solid var(--line); padding: 2px 7px; border-radius: 2px;
-      color: var(--fg-dim); overflow: hidden; max-width: 140px; white-space: nowrap;
-      text-overflow: ellipsis; display: inline-block; vertical-align: middle; }
-    .tag--pending { background: rgba(234,179,8,0.15); border-color: rgba(234,179,8,0.4); color: #eab308; }
-    .tag--rejected { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.4); color: #ef4444; }
-    .tag--delisted { background: rgba(107,114,128,0.15); border-color: rgba(107,114,128,0.4); color: #6b7280; }
-    .new-form-wrap { border: 1px solid var(--line); padding: 28px; margin-bottom: 40px; background: var(--ink-850); }
-    .thumb { width: 44px; height: 44px; object-fit: cover; border: 1px solid var(--line); }
-    @media (max-width: 640px) { .stats { grid-template-columns: repeat(2, 1fr); } }
-  </style>
+  
 
   {!session ? (
     <PrivyArtistGate client:only="react" appId={PRIVY_APP_ID} />
   ) : (
-    <div class="portal">
-      <div class="portal-hd">
+    <div class="max-w-[1000px] mx-auto px-7 py-10 pb-20">
+      <div class="flex justify-between items-center pb-6 border-b border-[#E8E3D8] mb-10">
         <div>
-          <div class="kicker" style="margin-bottom: 8px;">INKNOIR / Artist Portal</div>
-          <h1 class="display" style="font-size: 32px;">{artistName}</h1>
-          <div class="wallet-chip" style="margin-top: 8px;" title={session.walletAddress}>
+          <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023]" style="margin-bottom: 8px;">INKNOIR / Artist Portal</div>
+          <h1 class="font-playfair font-semibold text-[#1B1C18]" style="font-size: 32px;">{artistName}</h1>
+          <div class="font-sora text-[10px] bg-[#E8E0D0] border border-[#E8E3D8] px-2 py-0.5 rounded text-[#5A5B55] max-w-[140px] truncate inline-block" style="margin-top: 8px;" title={session.walletAddress}>
             {session.walletAddress.slice(0, 6)}…{session.walletAddress.slice(-4)}
           </div>
         </div>
         <div style="display:flex;gap:12px;align-items:center">
-          <a href="/artist/portal?new=1" class="btn btn--solid">+ List new design</a>
+          <a href="/artist/portal?new=1" class="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-[#E60023] text-white hover:bg-[#C4001F] disabled:opacity-40">+ List new design</a>
           <form method="POST" action="/api/auth/artist-logout">
-            <button type="submit" class="btn btn--ghost">Sign out</button>
+            <button type="submit" class="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-transparent text-[#1B1C18] border border-[#E8E3D8] hover:border-[#D4CFC4]">Sign out</button>
           </form>
         </div>
       </div>
 
-      <div class="stats">
-        <div class="stat"><div class="n">{stats.total}</div><div class="l">Plates</div></div>
-        <div class="stat"><div class="n" style="color:var(--ok)">{stats.available}</div><div class="l">Available</div></div>
-        <div class="stat"><div class="n" style="color:#eab308">{stats.pending}</div><div class="l">Pending</div></div>
-        <div class="stat"><div class="n">{stats.sold}</div><div class="l">Sold</div></div>
-        <div class="stat"><div class="n">{stats.inquiries}</div><div class="l">Inquiries</div></div>
+      <div class="grid grid-cols-2 md:grid-cols-5 gap-px bg-[#E8E3D8] border border-[#E8E3D8] mb-12 rounded-lg overflow-hidden">
+        <div class="bg-[#F0EBE1] p-6 md:p-7"><div class="font-playfair text-4xl md:text-5xl leading-none">{stats.total}</div><div class="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-2">Plates</div></div>
+        <div class="bg-[#F0EBE1] p-6 md:p-7"><div class="font-playfair text-4xl md:text-5xl leading-none text-[#2E7D32]">{stats.available}</div><div class="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-2">Available</div></div>
+        <div class="bg-[#F0EBE1] p-6 md:p-7"><div class="font-playfair text-4xl md:text-5xl leading-none text-[#F9A825]">{stats.pending}</div><div class="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-2">Pending</div></div>
+        <div class="bg-[#F0EBE1] p-6 md:p-7"><div class="font-playfair text-4xl md:text-5xl leading-none">{stats.sold}</div><div class="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-2">Sold</div></div>
+        <div class="bg-[#F0EBE1] p-6 md:p-7"><div class="font-playfair text-4xl md:text-5xl leading-none">{stats.inquiries}</div><div class="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-2">Inquiries</div></div>
       </div>
 
       {showNewForm && (
         <div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-            <div class="sec" style="margin-bottom:0">List new design</div>
-            <a href="/artist/portal" class="mono faint" style="font-size:12px">Cancel</a>
+            <div class="font-sora text-[10.5px] tracking-[0.2em] uppercase text-[#5A5B55] mb-4" style="margin-bottom:0">List new design</div>
+            <a href="/artist/portal" class="font-sora text-[#5A5B55]/60" style="font-size:12px">Cancel</a>
           </div>
-          <div class="new-form-wrap">
+          <div class="border border-[#E8E3D8] p-7 mb-10 bg-[#F5F0E8] rounded-lg">
             <NewDesignForm client:visible />
           </div>
         </div>
       )}
 
-      <div class="sec">Your plates</div>
+      <div class="font-sora text-[10.5px] tracking-[0.2em] uppercase text-[#5A5B55] mb-4">Your plates</div>
       {plates.length === 0 ? (
-        <p class="mono faint" style="font-size:13px; margin-bottom:48px;">No plates yet. <a href="/artist/portal?new=1">List your first design →</a></p>
+        <p class="font-sora text-[#5A5B55]/60" style="font-size:13px; margin-bottom:48px;">No plates yet. <a href="/artist/portal?new=1">List your first design →</a></p>
       ) : (
-        <table class="tbl">
+        <table class="w-full border border-[#E8E3D8] border-collapse mb-[52px]">
           <thead>
             <tr>
-              <th>Photo</th><th>№</th><th>Title</th><th>Style</th><th>Mode</th><th>Price (USDT)</th><th>Status</th><th>Actions</th>
+              <th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Photo</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">№</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Title</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Style</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Mode</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Price (USDT)</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Status</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>
             {plates.map((p) => (
               <tr>
-                <td>
+                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm">
                   {p.image_url ? (
-                    <img class="thumb" src={p.image_url} alt={p.title} />
+                    <img class="w-11 h-11 rounded object-cover border border-[#E8E3D8]" src={p.image_url} alt={p.title} />
                   ) : (
-                    <div class="thumb" style="background:var(--line);display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--fg-faint)">No img</div>
+                    <div class="w-11 h-11 rounded border border-[#E8E3D8] bg-[#E8E3D8] flex items-center justify-center text-[9px] text-[#5A5B55]/60">No img</div>
                   )}
                 </td>
-                <td class="mono faint" style="font-size:11px">{p.n}</td>
-                <td><a href={`/design/${p.id}`} style="text-decoration:underline;text-underline-offset:3px">{p.title}</a></td>
-                <td class="mono faint" style="font-size:11px">{p.style ?? "—"}</td>
-                <td class="mono faint" style="font-size:11px">
+                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora text-[#5A5B55]/60" style="font-size:11px">{p.n}</td>
+                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm"><a href={`/design/${p.id}`} style="text-decoration:underline;text-underline-offset:3px">{p.title}</a></td>
+                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora text-[#5A5B55]/60" style="font-size:11px">{p.style ?? "—"}</td>
+                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora text-[#5A5B55]/60" style="font-size:11px">
                   {p.selling_mode === "resellable" ? `Resellable (${p.royalty_pct}%)` : "Soulbound"}
                 </td>
-                <td class="mono" style="font-size:12px">{p.price != null ? p.price.toFixed(2) + " USDT" : "—"}</td>
-                <td>
-                  <span class={`tag ${statusClass(p.status)}`}>
-                    <span class="dot"></span>{p.status}
+                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora" style="font-size:12px">{p.price != null ? p.price.toFixed(2) + " USDT" : "—"}</td>
+                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm">
+                  <span class={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border ${statusClass(p.status)}`}>
+                    <span class="w-2 h-2 rounded-full bg-current"></span>{p.status}
                   </span>
                 </td>
-                <td>
+                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm">
                   {p.status === "rejected" && (
-                    <a href={`/artist/portal?new=1&editId=${p.id}`} class="mono" style="font-size:11px;text-decoration:underline">Edit &amp; resubmit</a>
+                    <a href={`/artist/portal?new=1&editId=${p.id}`} class="font-sora" style="font-size:11px;text-decoration:underline">Edit &amp; resubmit</a>
                   )}
                   {p.status === "available" && (
                     <button
-                      class="mono"
-                      style="font-size:11px;background:none;border:1px solid var(--line);padding:3px 10px;cursor:pointer;color:var(--fg-dim)"
+                      class="font-sora"
+                      style="font-size:11px;background:none;border:1px solid #E8E3D8;padding:3px 10px;cursor:pointer;color:#5A5B55"
                       onclick={`if(confirm('Delist "${p.title}"?')) fetch('/api/designs/${p.id}/delist',{method:'DELETE',credentials:'include'}).then(r=>r.ok?location.reload():alert('Failed'))`}
                     >
                       Delist
@@ -223,12 +194,12 @@ const PRIVY_APP_ID = env.PRIVY_APP_ID;
         </table>
       )}
 
-      <div class="sec">Booking calendar</div>
+      <div class="font-sora text-[10.5px] tracking-[0.2em] uppercase text-[#5A5B55] mb-4">Booking calendar</div>
       <div style="margin-bottom:52px;">
         <BookingCalendar client:load bookings={bookings} />
       </div>
 
-      <div class="sec">Earnings</div>
+      <div class="font-sora text-[10.5px] tracking-[0.2em] uppercase text-[#5A5B55] mb-4">Earnings</div>
       <div style="margin-bottom:52px;">
         <EarningsDashboard client:load />
       </div>

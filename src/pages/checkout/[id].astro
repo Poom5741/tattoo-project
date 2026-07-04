@@ -4,8 +4,6 @@ export const prerender = false;
 import Base from "../../layouts/Base.astro";
 import Nav from "../../components/Nav";
 import Footer from "../../components/Footer.astro";
-import TweaksPanel from "../../components/TweaksPanel";
-import TextureLayer from "../../components/TextureLayer";
 import CheckoutFlow from "../../components/CheckoutFlow";
 
 const { id } = Astro.params;
@@ -51,8 +49,6 @@ if (design.status !== "available") {
   description={`Acquire ${design.title}. One-of-one tattoo plate on Base Sepolia.`}
 >
   <Nav client:load currentPath="/checkout" />
-  <TextureLayer client:idle />
-  <TweaksPanel client:load />
 
   <CheckoutFlow client:only="react" design={design} />
 

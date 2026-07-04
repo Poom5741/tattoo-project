@@ -4,8 +4,6 @@ export const prerender = false;
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer.astro";
-import TweaksPanel from "../components/TweaksPanel";
-import TextureLayer from "../components/TextureLayer";
 import Toast from "../components/Toast";
 import MarketGrid from "../components/MarketGrid";
 import { cookieToInitialState } from "wagmi";
@@ -74,16 +72,14 @@ const initialState = cookieToInitialState(config, cookieHeader);
 
 <Base title="Gallery — INKNOIR" description="One-of-one tattoo plates. Browse the gallery.">
   <Nav client:load currentPath="/market" />
-  <TextureLayer client:idle />
-  <TweaksPanel client:load />
   <Toast client:load />
 
-  <section style="padding: 56px 0 80px;">
-    <div class="wrap">
-      <div class="kicker" style="margin-bottom: 16px;">The gallery</div>
-      <div style="display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px; margin-bottom: 40px;">
-        <h1 class="display" style="font-size: clamp(38px,6vw,72px);">Plates for acquisition</h1>
-        <span class="mono faint" style="font-size: 11px; letter-spacing: .12em;">{designs.length} PLATES · ONE OF EACH</span>
+  <section class="py-14 pb-20">
+    <div class="max-w-[1280px] mx-auto px-5 md:px-16">
+      <p class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mb-4">The gallery</p>
+      <div class="flex justify-between items-end flex-wrap gap-4 mb-10">
+        <h1 class="font-playfair font-semibold text-[#1B1C18] text-[clamp(38px,6vw,72px)]">Plates for acquisition</h1>
+        <span class="font-sora text-[#5A5B55]/60 text-[11px] tracking-[0.12em]">{designs.length} PLATES · ONE OF EACH</span>
       </div>
       <MarketGrid client:load designs={designs} resaleListings={resaleListings} initialState={initialState} />
     </div>
