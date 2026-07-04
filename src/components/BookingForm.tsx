@@ -114,13 +114,13 @@ export default function BookingForm({ artists, designs }: Props) {
   if (done) {
     return (
       <div className="text-center py-10">
-        <div className="font-playfair text-[32px] mb-3">✓</div>
-        <div className="font-playfair text-xl mb-2">Request sent</div>
-        <p className="font-sora text-[#5A5B55]/60 text-xs tracking-[0.06em]">
+        <div className="font-display text-headline-md mb-3">✓</div>
+        <div className="font-display text-headline-sm text-on-surface mb-2">Request sent</div>
+        <p className="font-body text-on-surface-variant/60 text-xs tracking-[0.06em]">
           We'll reply within 48 h to confirm availability and next steps.
         </p>
         <button
-          className="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-transparent text-[#1B1C18] border border-[#E8E3D8] hover:border-[#D4CFC4] mt-6"
+          className="btn-secondary mt-6"
           onClick={() => { setDone(false); setForm((p) => ({ ...p, designId: "", name: "", contact: "", message: "" })); }}
         >
           Send another request
@@ -134,8 +134,8 @@ export default function BookingForm({ artists, designs }: Props) {
 
       {/* Booking type toggle */}
       <div className="mb-5">
-        <label className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Booking type</label>
-        <div className="grid grid-cols-2 gap-px border border-[#E8E3D8] mt-2">
+        <label className="label-bb">Booking type</label>
+        <div className="grid grid-cols-2 gap-px border border-outline-variant rounded-lg overflow-hidden mt-2">
           {([["plate", "Book a plate", "Choose from existing designs"], ["custom", "Custom consultation", "Describe your own tattoo idea"]] as const).map(([val, title, sub]) => (
             <button
               key={val}
@@ -143,14 +143,14 @@ export default function BookingForm({ artists, designs }: Props) {
               onClick={() => setType(val)}
               className={`text-left px-4 py-3.5 cursor-pointer outline-none transition-colors ${
                 form.bookingType === val
-                  ? "bg-[#F5F0E8] outline outline-1 outline-[#5A5B55]"
-                  : "bg-[#FAF7F2]"
-              } ${val === "custom" ? "border-l border-[#E8E3D8]" : ""}`}
+                  ? "bg-surface-container outline outline-1 outline-on-surface-variant"
+                  : "bg-surface-container-low"
+              } ${val === "custom" ? "border-l border-outline-variant" : ""}`}
             >
-              <div className={`font-sora text-[11px] tracking-[0.12em] uppercase ${form.bookingType === val ? "text-[#1B1C18]" : "text-[#5A5B55]"}`}>
+              <div className={`font-body text-[11px] tracking-[0.12em] uppercase ${form.bookingType === val ? "text-on-surface" : "text-on-surface-variant"}`}>
                 {title}
               </div>
-              <div className="font-sora text-[10px] text-[#5A5B55]/60 mt-1 tracking-[0.04em]">
+              <div className="font-body text-[10px] text-on-surface-variant/60 mt-1 tracking-[0.04em]">
                 {sub}
               </div>
             </button>
@@ -160,10 +160,10 @@ export default function BookingForm({ artists, designs }: Props) {
 
       {/* Artist */}
       <div className="mb-5">
-        <label htmlFor="bf-artist" className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Artist</label>
+        <label htmlFor="bf-artist" className="label-bb">Artist</label>
         <select
           id="bf-artist"
-          className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors"
+          className="input-bb"
           value={form.artistId}
           onChange={(e) => set("artistId", e.target.value)}
         >
@@ -174,7 +174,7 @@ export default function BookingForm({ artists, designs }: Props) {
           ))}
         </select>
         {selectedArtist && (
-          <div className="font-sora text-[#5A5B55]/60 text-[11px] mt-2 tracking-[0.06em]">
+          <div className="font-body text-on-surface-variant/60 text-[11px] mt-2 tracking-[0.06em]">
             {selectedArtist.city} · {selectedArtist.booked}
           </div>
         )}
@@ -183,10 +183,10 @@ export default function BookingForm({ artists, designs }: Props) {
       {/* Plate booking fields */}
       {form.bookingType === "plate" && (
         <div className="mb-5">
-          <label htmlFor="bf-design" className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Design</label>
+          <label htmlFor="bf-design" className="label-bb">Design</label>
           <select
             id="bf-design"
-            className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors"
+            className="input-bb"
             value={form.designId}
             onChange={(e) => set("designId", e.target.value)}
           >
@@ -198,7 +198,7 @@ export default function BookingForm({ artists, designs }: Props) {
             ))}
           </select>
           {artistDesigns.length === 0 && (
-            <div className="font-sora text-[#5A5B55]/60 text-[11px] mt-2">
+            <div className="font-body text-on-surface-variant/60 text-[11px] mt-2">
               No available plates for this artist right now.
             </div>
           )}
@@ -208,29 +208,29 @@ export default function BookingForm({ artists, designs }: Props) {
       {/* Custom consultation fields */}
       {form.bookingType === "custom" && (
         <>
-          <div className="grid grid-cols-2 gap-[18px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-[18px]">
             <div className="mb-5">
-              <label htmlFor="bf-style" className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Style preference</label>
-              <select id="bf-style" className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors" value={form.customStyle} onChange={(e) => set("customStyle", e.target.value)}>
+              <label htmlFor="bf-style" className="label-bb">Style preference</label>
+              <select id="bf-style" className="input-bb" value={form.customStyle} onChange={(e) => set("customStyle", e.target.value)}>
                 <option value="">— Select style —</option>
                 {STYLES.map((s) => <option key={s} value={s}>{s}</option>)}
               </select>
             </div>
             <div className="mb-5">
-              <label htmlFor="bf-size" className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Approximate size</label>
-              <select id="bf-size" className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors" value={form.customSize} onChange={(e) => set("customSize", e.target.value)}>
+              <label htmlFor="bf-size" className="label-bb">Approximate size</label>
+              <select id="bf-size" className="input-bb" value={form.customSize} onChange={(e) => set("customSize", e.target.value)}>
                 <option value="">— Select size —</option>
                 {SIZES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-[18px]">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-[18px]">
             <div className="mb-5">
-              <label htmlFor="bf-placement" className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Placement <span className="text-[#E60023]">*</span></label>
+              <label htmlFor="bf-placement" className="label-bb">Placement <span className="text-primary-container">*</span></label>
               <input
                 id="bf-placement"
-                className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors"
+                className="input-bb"
                 type="text"
                 placeholder="e.g. inner forearm, left calf…"
                 value={form.customPlacement}
@@ -238,8 +238,8 @@ export default function BookingForm({ artists, designs }: Props) {
               />
             </div>
             <div className="mb-5">
-              <label htmlFor="bf-budget" className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Budget range</label>
-              <select id="bf-budget" className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors" value={form.customBudget} onChange={(e) => set("customBudget", e.target.value)}>
+              <label htmlFor="bf-budget" className="label-bb">Budget range</label>
+              <select id="bf-budget" className="input-bb" value={form.customBudget} onChange={(e) => set("customBudget", e.target.value)}>
                 <option value="">— Select budget —</option>
                 {BUDGETS.map((b) => <option key={b} value={b}>{b}</option>)}
               </select>
@@ -249,12 +249,12 @@ export default function BookingForm({ artists, designs }: Props) {
       )}
 
       {/* Shared fields */}
-      <div className="grid grid-cols-2 gap-[18px]">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-[18px]">
         <div className="mb-5">
-          <label htmlFor="bf-name" className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Full name <span className="text-[#E60023]">*</span></label>
+          <label htmlFor="bf-name" className="label-bb">Full name <span className="text-primary-container">*</span></label>
           <input
             id="bf-name"
-            className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors"
+            className="input-bb"
             type="text"
             placeholder="Your name"
             value={form.name}
@@ -263,10 +263,10 @@ export default function BookingForm({ artists, designs }: Props) {
           />
         </div>
         <div className="mb-5">
-          <label htmlFor="bf-contact" className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Email or handle <span className="text-[#E60023]">*</span></label>
+          <label htmlFor="bf-contact" className="label-bb">Email or handle <span className="text-primary-container">*</span></label>
           <input
             id="bf-contact"
-            className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors"
+            className="input-bb"
             type="text"
             placeholder="you@email.com or @handle"
             value={form.contact}
@@ -277,12 +277,12 @@ export default function BookingForm({ artists, designs }: Props) {
       </div>
 
       <div className="mb-5">
-        <label htmlFor="bf-message" className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">
+        <label htmlFor="bf-message" className="label-bb">
           {form.bookingType === "custom" ? "Describe your idea, references, skin notes…" : "Message"}
         </label>
         <textarea
           id="bf-message"
-          className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors"
+          className="input-bb resize-y"
           rows={4}
           placeholder={
             form.bookingType === "custom"
@@ -295,16 +295,16 @@ export default function BookingForm({ artists, designs }: Props) {
       </div>
 
       {error && (
-        <div className="font-sora text-xs text-[#E60023] mt-4 px-3.5 py-3 border border-[#E60023]/40 bg-[#FAF7F2]">
+        <div className="font-body text-xs text-primary-container mt-4 px-3.5 py-3 border border-primary-container/40 bg-surface-container-low rounded-lg">
           {error}
         </div>
       )}
 
       <div className="mt-7">
-        <button type="submit" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sora font-semibold text-base transition-all bg-[#E60023] text-white hover:bg-[#C4001F] disabled:opacity-40 disabled:cursor-not-allowed" disabled={submitting}>
+        <button type="submit" className="btn-primary" disabled={submitting}>
           {submitting ? "Sending…" : form.bookingType === "custom" ? "Request consultation" : "Send booking request"}
         </button>
-        <p className="font-sora text-[#5A5B55]/60 text-[10.5px] mt-3.5 tracking-[0.06em]">
+        <p className="font-body text-on-surface-variant/60 text-[10.5px] mt-3.5 tracking-[0.06em]">
           We'll reply within 48 h to confirm availability and next steps.
         </p>
       </div>

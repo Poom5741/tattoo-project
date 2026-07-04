@@ -13,33 +13,35 @@ import { ARTISTS, DESIGNS } from "../lib/catalog/seed";
   <div class="min-h-screen flex flex-col">
     <Nav currentPath="/booking" client:load />
     <main class="flex-1">
-      <section class="py-8 pb-[90px]">
-        <div class="max-w-[920px] mx-auto px-5 md:px-16">
-          <a href="/artists" class="inline-flex items-center gap-2 text-[#5A5B55] hover:text-[#1B1C18] mb-8 font-sora text-sm">&larr; All artists</a>
+      <section class="py-14 pb-20">
+        <div class="container-bb">
+          <a href="/artists" class="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface mb-8 font-body text-sm transition-colors">&larr; All artists</a>
+
+          <span class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-4 block">Book a session</span>
 
           <div class="flex justify-between items-end flex-wrap gap-4 mb-10">
             <div>
-              <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mb-3">Book a session</div>
-              <h1 class="font-playfair font-semibold text-[#1B1C18] text-[clamp(32px,4.5vw,52px)]">Request an appointment</h1>
-              <p class="text-[#5A5B55] text-[15px] mt-3.5 max-w-[48ch]">
+              <h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface">Request an appointment</h1>
+              <p class="font-body text-body-lg text-on-surface-variant mt-3.5 max-w-[48ch]">
                 Choose an artist, select a plate or describe your custom commission, and we'll reach out to confirm your session.
               </p>
             </div>
           </div>
 
-          <div class="grid grid-cols-[1.3fr_0.7fr] gap-12 items-start">
-            <div class="border border-[#E8E3D8] p-9 bg-[#F5F0E8]">
+          <div class="grid grid-cols-1 lg:grid-cols-[1.3fr_0.7fr] gap-12 items-start">
+            <div class="card-bb p-8 md:p-9">
               <BookingForm artists={ARTISTS} designs={DESIGNS} client:load />
             </div>
 
-            <div class="flex flex-col gap-px bg-[#E8E3D8] border border-[#E8E3D8]">
+            <div class="flex flex-col gap-px bg-outline-variant border border-outline-variant rounded-lg overflow-hidden">
               {ARTISTS.map((a) => (
-                <div class="p-5 px-[22px] bg-[#F5F0E8] flex flex-col gap-1.5">
-                  <div class="font-playfair font-semibold text-[#1B1C18] text-[18px]">{a.name}</div>
-                  <div class="font-sora text-[#5A5B55]/60 text-[10.5px] tracking-[0.08em]">{a.style}</div>
-                  <div class="font-sora text-[#5A5B55] text-[11px] tracking-[0.06em] mt-0.5">{a.city}</div>
+                <div class="p-5 px-[22px] bg-surface-container-low flex flex-col gap-1.5">
+                  <div class="display font-display font-semibold text-on-surface text-headline-sm">{a.name}</div>
+                  <div class="font-body text-on-surface-variant/60 text-[10.5px] tracking-[0.08em]">{a.style}</div>
+                  <div class="font-body text-on-surface-variant text-label-sm mt-0.5">{a.city}</div>
                   <div class="mt-2">
-                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border bg-[#2E7D32]/15 text-[#2E7D32] border-[#2E7D32]/40">
+                    <span class="tag-bb">
+                      <span class="w-2 h-2 rounded-full bg-primary-container"></span>
                       {a.booked}
                     </span>
                   </div>

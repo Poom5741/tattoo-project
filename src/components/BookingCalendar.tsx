@@ -143,14 +143,14 @@ export default function BookingCalendar({ bookings: initialBookings }: BookingCa
       <div className="flex justify-between items-center mb-4">
         <button
           onClick={prevMonth}
-          className="bg-transparent border border-[#E8E3D8] px-3 py-1.5 cursor-pointer text-[#5A5B55] text-[13px] font-sora"
+          className="btn-secondary !px-3 !py-1.5 text-[13px] cursor-pointer"
         >
           ←
         </button>
-        <div className="font-playfair font-semibold text-[#1B1C18] text-[18px]">{MONTH_NAMES[month]} {year}</div>
+        <div className="font-display font-semibold text-on-surface text-headline-sm">{MONTH_NAMES[month]} {year}</div>
         <button
           onClick={nextMonth}
-          className="bg-transparent border border-[#E8E3D8] px-3 py-1.5 cursor-pointer text-[#5A5B55] text-[13px] font-sora"
+          className="btn-secondary !px-3 !py-1.5 text-[13px] cursor-pointer"
         >
           →
         </button>
@@ -159,17 +159,17 @@ export default function BookingCalendar({ bookings: initialBookings }: BookingCa
       {/* Day labels */}
       <div className="grid grid-cols-7 gap-px mb-px">
         {DAY_NAMES.map(d => (
-          <div key={d} className="font-sora text-[10px] tracking-[0.1em] text-[#5A5B55]/60 text-center py-2">
+          <div key={d} className="font-body text-[10px] tracking-[0.1em] text-on-surface-variant/60 text-center py-2">
             {d}
           </div>
         ))}
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-px bg-[#E8E3D8] border border-[#E8E3D8] mb-6">
+      <div className="grid grid-cols-7 gap-px bg-outline-variant border border-outline-variant rounded-lg overflow-hidden mb-6">
         {cells.map((day, i) => {
           if (day === null) {
-            return <div key={`e${i}`} className="bg-[#FAF7F2] min-h-[52px]" />;
+            return <div key={`e${i}`} className="bg-surface-container-low min-h-[52px]" />;
           }
           const k = dayKey(year, month, day);
           const dayBookings = dayMap[k] ?? [];
@@ -186,11 +186,11 @@ export default function BookingCalendar({ bookings: initialBookings }: BookingCa
               onClick={() => setSelectedDay(isSelected ? null : k)}
               className={`min-h-[52px] p-1.5 px-2 relative transition-colors ${
                 isSelected
-                  ? "bg-[#E8E0D0] border-b-2 border-[#E60023]"
-                  : "bg-[#F0EBE1]"
+                  ? "bg-surface-container-high border-b-2 border-primary-container"
+                  : "bg-surface-container"
               } ${dayBookings.length > 0 ? "cursor-pointer" : "cursor-default"}`}
             >
-              <div className={`font-sora text-xs ${isToday ? "text-[#E60023] font-bold" : "text-[#5A5B55] font-normal"}`}>
+              <div className={`font-body text-xs ${isToday ? "text-primary-container font-bold" : "text-on-surface-variant font-normal"}`}>
                 {day}
               </div>
               {/* Dot indicators */}
@@ -198,7 +198,7 @@ export default function BookingCalendar({ bookings: initialBookings }: BookingCa
                 <div className="flex gap-0.5 mt-1 flex-wrap">
                   {hasPending && <span className="w-1.5 h-1.5 rounded-full bg-blue-500 inline-block" title="Pending inquiry" />}
                   {hasAccepted && <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" title="Accepted" />}
-                  {hasDeclined && <span className="w-1.5 h-1.5 rounded-full bg-red-500 inline-block" title="Declined" />}
+                  {hasDeclined && <span className="w-1.5 h-1.5 rounded-full bg-primary-container inline-block" title="Declined" />}
                 </div>
               )}
             </div>
@@ -208,53 +208,53 @@ export default function BookingCalendar({ bookings: initialBookings }: BookingCa
 
       {/* Detail panel */}
       {selectedDay && (
-        <div className="border border-[#E8E3D8] p-5 bg-[#F5F0E8] mb-6">
-          <div className="font-sora text-[10px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mb-4">
+        <div className="card-bb p-5 mb-6">
+          <div className="font-body text-[10px] tracking-[0.2em] uppercase text-on-surface-variant/60 mb-4">
             {selectedDay}
           </div>
           {selectedBookings.length === 0 ? (
-            <p className="text-[#5A5B55] text-[13px]">No bookings on this date.</p>
+            <p className="text-on-surface-variant text-[13px]">No bookings on this date.</p>
           ) : (
             <div className="flex flex-col gap-4">
               {selectedBookings.map((b) => {
                 const status = b.status ?? "pending";
                 return (
-                  <div key={b.id} className="border-l-2 border-[#E8E3D8] pl-4">
+                  <div key={b.id} className="border-l-2 border-outline-variant pl-4">
                     <div className="flex justify-between items-start mb-2">
                       <div>
-                        <div className="font-medium text-sm">{b.name}</div>
-                        <div className="font-sora text-[11px] text-[#5A5B55]">{b.contact}</div>
+                        <div className="font-body font-medium text-sm text-on-surface">{b.name}</div>
+                        <div className="font-body text-[11px] text-on-surface-variant">{b.contact}</div>
                       </div>
-                      <span className={`font-sora text-[9px] tracking-[0.1em] uppercase px-2 py-0.5 border border-[#E8E3D8] ${
-                        status === "accepted" ? "bg-green-500/15 text-green-500" :
-                        status === "declined" ? "bg-red-500/15 text-red-500" :
-                        "bg-blue-500/15 text-blue-500"
+                      <span className={`font-body text-[9px] tracking-[0.1em] uppercase px-2 py-0.5 border rounded-full ${
+                        status === "accepted" ? "bg-green-500/15 text-green-600 border-green-500/40" :
+                        status === "declined" ? "bg-primary-container/15 text-primary-container border-primary-container/40" :
+                        "bg-blue-500/15 text-blue-500 border-blue-500/40"
                       }`}>
                         {status}
                       </span>
                     </div>
-                    {b.message && <div className="text-xs text-[#5A5B55] mb-2">{b.message}</div>}
-                    {b.design_id && <div className="font-sora text-[11px] text-[#5A5B55]/60 mb-2">Plate: {b.design_id}</div>}
+                    {b.message && <div className="font-body text-xs text-on-surface-variant mb-2">{b.message}</div>}
+                    {b.design_id && <div className="font-body text-[11px] text-on-surface-variant/60 mb-2">Plate: {b.design_id}</div>}
 
                     {status === "pending" && (
                       <div className="flex gap-2 items-center flex-wrap mt-2.5">
                         <input
                           type="date"
-                          className="w-auto bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-[11px] px-2 py-1.5 rounded-lg outline-none focus:border-[#E60023] transition-colors"
+                          className="input-bb !w-auto !text-[11px] !px-2 !py-1.5"
                           value={appointmentInputs[b.id] ?? ""}
                           onChange={(e) => setAppointmentInputs(prev => ({ ...prev, [b.id]: e.target.value }))}
                         />
                         <button
                           onClick={() => handleAccept(b.id)}
                           disabled={actionPending.has(b.id)}
-                          className="px-3.5 py-1.5 bg-green-500 text-white border-none cursor-pointer text-xs disabled:opacity-60"
+                          className="px-3.5 py-1.5 bg-green-600 text-white border-none cursor-pointer font-body text-xs rounded-full disabled:opacity-60 transition-opacity"
                         >
                           Accept
                         </button>
                         <button
                           onClick={() => handleDecline(b.id)}
                           disabled={actionPending.has(b.id)}
-                          className="px-3.5 py-1.5 bg-red-500 text-white border-none cursor-pointer text-xs disabled:opacity-60"
+                          className="px-3.5 py-1.5 bg-primary-container text-white border-none cursor-pointer font-body text-xs rounded-full disabled:opacity-60 transition-opacity"
                         >
                           Decline
                         </button>
@@ -269,10 +269,10 @@ export default function BookingCalendar({ bookings: initialBookings }: BookingCa
       )}
 
       {/* Legend */}
-      <div className="flex gap-4 font-sora text-[11px] text-[#5A5B55]/60">
+      <div className="flex gap-4 font-body text-[11px] text-on-surface-variant/60">
         <span><span className="inline-block w-2 h-2 rounded-full bg-blue-500 mr-1 align-middle" />Pending</span>
         <span><span className="inline-block w-2 h-2 rounded-full bg-green-500 mr-1 align-middle" />Accepted</span>
-        <span><span className="inline-block w-2 h-2 rounded-full bg-red-500 mr-1 align-middle" />Declined</span>
+        <span><span className="inline-block w-2 h-2 rounded-full bg-primary-container mr-1 align-middle" />Declined</span>
       </div>
     </div>
   );

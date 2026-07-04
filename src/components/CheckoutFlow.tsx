@@ -187,143 +187,137 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
 
   if (done) {
     return (
-      <div>
-        <section className="py-[72px] pb-[100px]">
-          <div className="max-w-[700px] mx-auto px-5 md:px-16">
-            <div className="text-center">
-              <div className="w-14 h-14 rounded-full bg-[#E60023] text-white flex items-center justify-center font-sora font-bold text-lg mx-auto mb-6">✓</div>
-              <div className="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mb-4">Plate claimed</div>
-              <h1 className="font-playfair font-semibold text-[#1B1C18] text-[48px]">It&apos;s yours alone.</h1>
-              <p className="text-[#5A5B55] text-[15px] mt-[18px] mx-auto mb-9 max-w-[46ch]">
-                &ldquo;{design.title}&rdquo; has left the gallery and been retired. The certificate of authenticity is now in your collection.
-              </p>
-            </div>
-            <div className="flex gap-3 mt-7 justify-center flex-wrap">
-              <a href="/wallet" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sora font-semibold text-base transition-all bg-[#E60023] text-white hover:bg-[#C4001F]">View collection</a>
-              <a href="/market" className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sora font-semibold text-base transition-all bg-transparent text-[#1B1C18] border border-[#E8E3D8] hover:border-[#D4CFC4]">Back to gallery</a>
-            </div>
+      <section className="py-[72px] pb-[100px]">
+        <div className="max-w-[700px] mx-auto px-5 md:px-16">
+          <div className="text-center">
+            <div className="w-14 h-14 rounded-full bg-primary-container text-on-primary flex items-center justify-center font-body font-bold text-lg mx-auto mb-6">✓</div>
+            <div className="font-body font-semibold text-label-sm tracking-[0.2em] uppercase text-primary-container mb-4">Plate claimed</div>
+            <h1 className="font-display font-semibold text-on-surface text-display-lg-mobile md:text-display-lg">It&apos;s yours alone.</h1>
+            <p className="text-on-surface-variant text-body-md mt-[18px] mx-auto mb-9 max-w-[46ch]">
+              &ldquo;{design.title}&rdquo; has left the gallery and been retired. The certificate of authenticity is now in your collection.
+            </p>
           </div>
-        </section>
-      </div>
+          <div className="flex gap-3 mt-7 justify-center flex-wrap">
+            <a href="/wallet" className="btn-primary">View collection</a>
+            <a href="/market" className="btn-secondary">Back to gallery</a>
+          </div>
+        </div>
+      </section>
     );
   }
 
   return (
-    <div>
-      <section className="py-8 pb-[90px]">
-        <div className="max-w-[980px] mx-auto px-5 md:px-16">
-          <a href={`/design/${design.id}`} className="inline-flex items-center gap-2 text-[#5A5B55] hover:text-[#1B1C18] mb-8 font-sora text-sm">← Back to plate</a>
-          <h1 className="font-playfair font-semibold text-[#1B1C18] text-[clamp(34px,5vw,56px)] mb-9">Acquire the plate</h1>
-          <div className="grid grid-cols-2 gap-11">
-            <div>
-              <div className="flex gap-[18px] pb-6 border-b border-[#E8E3D8] mb-6">
-                <div>
-                  <div className="font-sora text-[#5A5B55] text-[11px] mb-2">AVAILABLE</div>
-                  <h3 className="font-playfair font-semibold text-[#1B1C18] text-[26px] mt-3 mb-1.5">{design.title}</h3>
-                  <div className="font-sora text-[#5A5B55] text-xs">{design.style}</div>
-                  <div className="font-sora text-[#5A5B55]/60 text-[11px] mt-2.5">№ {design.n} / 001 · {design.placement}</div>
-                </div>
-              </div>
-              <div className="flex flex-col gap-3">
-                {[
-                  ["Plate price", fmtUsdt(price)],
-                  ["Platform fee (3%)", fmtUsdt(platformFee)],
-                  ["Artist receives", price != null ? fmtUsdt(price - platformFee) : "—"],
-                ].map(([k, v]) => (
-                  <div key={k} className="flex justify-between font-sora text-sm">
-                    <span className="font-sora text-[#5A5B55] text-[13px]">{k}</span>
-                    <span className="font-sora text-[13px]">{v}</span>
-                  </div>
-                ))}
-                <div className="flex justify-between pt-4 border-t border-[#E8E3D8] mt-1.5">
-                  <span className="font-sora text-sm">You pay</span>
-                  <span className="font-playfair font-semibold text-[#1B1C18] text-[30px]">{fmtUsdt(price)}</span>
-                </div>
-              </div>
+    <section className="py-8 pb-[90px]">
+      <div className="max-w-container-max mx-auto px-5 md:px-16">
+        <a href={`/design/${design.id}`} className="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface mb-8 font-body text-body-md">← Back to plate</a>
+        <h1 className="font-display font-semibold text-on-surface text-headline-md md:text-display-lg mb-9">Acquire the plate</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-11">
+          <div className="card-bb p-6">
+            <div className="pb-6 border-b border-outline-variant mb-6">
+              <div className="font-body text-label-sm text-on-surface-variant mb-2">AVAILABLE</div>
+              <h3 className="font-display font-semibold text-on-surface text-headline-sm mt-3 mb-1.5">{design.title}</h3>
+              <div className="font-body text-on-surface-variant text-body-md">{design.style}</div>
+              <div className="font-body text-on-surface-variant/60 text-label-sm mt-2.5">№ {design.n} / 001 · {design.placement}</div>
             </div>
-
-            <div>
-              <h3 className="font-playfair font-semibold text-[#1B1C18] text-2xl mb-5">Payment</h3>
-
-              {!isConnected ? (
-                <div className="py-8">
-                  <p className="text-[#5A5B55] text-sm mb-5">Connect your wallet to acquire this plate.</p>
-                  <button className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sora font-semibold text-base transition-all bg-[#E60023] text-white hover:bg-[#C4001F]" onClick={login}>Connect & Sign in</button>
+            <div className="flex flex-col gap-3">
+              {[
+                ["Plate price", fmtUsdt(price)],
+                ["Platform fee (3%)", fmtUsdt(platformFee)],
+                ["Artist receives", price != null ? fmtUsdt(price - platformFee) : "—"],
+              ].map(([k, v]) => (
+                <div key={k} className="flex justify-between font-body text-body-md">
+                  <span className="text-on-surface-variant text-label-md">{k}</span>
+                  <span className="text-on-surface text-label-md">{v}</span>
                 </div>
-              ) : onWrongChain ? (
-                <div className="py-6">
-                  <p className="text-[#5A5B55] text-sm mb-4">Please switch to BSC Testnet to continue.</p>
-                  <button
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sora font-semibold text-base transition-all bg-[#E60023] text-white hover:bg-[#C4001F]"
-                    onClick={() => switchChain({ chainId: CHAIN_ID })}
-                  >
-                    Switch to BSC
-                  </button>
-                </div>
-              ) : (
-                <>
-                  <div className="mb-5">
-                    <label className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Connected wallet</label>
-                    <div className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors font-sora px-3.5 py-2.5 opacity-70 text-xs">
-                      {address?.slice(0, 6)}…{address?.slice(-4)}
-                    </div>
-                  </div>
-
-                  {(voucherError || writeError || confirmError) && (
-                    <div className="p-3 bg-[#D32F2F]/10 border border-[#D32F2F]/30 text-[#D32F2F] text-sm font-sora mb-4">
-                      {voucherError || (writeError ? writeError.message.split("\n")[0] : null) || confirmError}
-                    </div>
-                  )}
-
-                  <label className="flex gap-2.5 items-start mt-1.5 mb-6 cursor-pointer">
-                    <input type="checkbox" defaultChecked className="mt-0.5" />
-                    <span className="text-[#5A5B55] text-[12.5px]">I understand this plate is one-of-one. On purchase it is permanently retired from the gallery.</span>
-                  </label>
-
-                  {voucherData && !usdtApproved && !approveConfirmed && (
-                    <div className="p-2.5 px-3.5 bg-[#E60023]/10 border border-[#E60023]/30 mb-4 text-[12.5px] font-sora">
-                      Step 1 of 2: Approve USDT spending, then mint
-                    </div>
-                  )}
-                  <button
-                    className="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sora font-semibold text-base transition-all bg-[#E60023] text-white hover:bg-[#C4001F] disabled:opacity-40 disabled:cursor-not-allowed w-full"
-                    disabled={isFetchingVoucher || isApproving || isWriting || isWaiting || isConfirming || txConfirmed}
-                    onClick={onAcquire}
-                  >
-                    {isFetchingVoucher
-                      ? "Reserving…"
-                      : isApproving
-                      ? "Approving USDT…"
-                      : isWriting
-                      ? "Awaiting wallet…"
-                      : isWaiting
-                      ? "Waiting for confirmations…"
-                      : isConfirming
-                      ? "Confirming…"
-                      : txConfirmed
-                      ? "Confirmed!"
-                      : !voucherData
-                      ? `Acquire this plate · ${fmtUsdt(price)}`
-                      : (!usdtApproved && !approveConfirmed)
-                      ? `Approve USDT · ${fmtUsdt(price)}`
-                      : `Mint · ${fmtUsdt(price)}`}
-                  </button>
-                  <p className="font-sora text-[#5A5B55]/60 text-[10.5px] text-center mt-3.5 tracking-[0.06em]">
-                    Payment processed on BSC via USDT (BEP-20)
-                  </p>
-                  <button
-                    className="w-full mt-3 px-0 py-2.5 bg-transparent border border-[#E8E3D8] text-[#5A5B55] text-[13px] cursor-pointer font-sora hover:border-[#D4CFC4] transition-colors"
-                    onClick={() => window.alert("PaySolution integration coming soon")}
-                  >
-                    Pay with PaySolution (alternative)
-                  </button>
-                </>
-              )}
+              ))}
+              <div className="flex justify-between pt-4 border-t border-outline-variant mt-1.5">
+                <span className="font-body text-body-md">You pay</span>
+                <span className="font-display font-semibold text-on-surface text-headline-md">{fmtUsdt(price)}</span>
+              </div>
             </div>
           </div>
+
+          <div className="card-bb p-6">
+            <h3 className="font-display font-semibold text-on-surface text-headline-sm mb-5">Payment</h3>
+
+            {!isConnected ? (
+              <div className="py-8">
+                <p className="text-on-surface-variant text-body-md mb-5">Connect your wallet to acquire this plate.</p>
+                <button className="btn-primary" onClick={login}>Connect & Sign in</button>
+              </div>
+            ) : onWrongChain ? (
+              <div className="py-6">
+                <p className="text-on-surface-variant text-body-md mb-4">Please switch to BSC Testnet to continue.</p>
+                <button
+                  className="btn-primary"
+                  onClick={() => switchChain({ chainId: CHAIN_ID })}
+                >
+                  Switch to BSC
+                </button>
+              </div>
+            ) : (
+              <>
+                <div className="mb-5">
+                  <label className="label-bb">Connected wallet</label>
+                  <div className="input-bb opacity-70 text-label-sm">
+                    {address?.slice(0, 6)}…{address?.slice(-4)}
+                  </div>
+                </div>
+
+                {(voucherError || writeError || confirmError) && (
+                  <div className="p-3 bg-error-container/30 border border-error/30 text-error text-body-md font-body mb-4 rounded-lg">
+                    {voucherError || (writeError ? writeError.message.split("\n")[0] : null) || confirmError}
+                  </div>
+                )}
+
+                <label className="flex gap-2.5 items-start mt-1.5 mb-6 cursor-pointer">
+                  <input type="checkbox" defaultChecked className="mt-0.5 accent-primary-container" />
+                  <span className="text-on-surface-variant text-label-sm">I understand this plate is one-of-one. On purchase it is permanently retired from the gallery.</span>
+                </label>
+
+                {voucherData && !usdtApproved && !approveConfirmed && (
+                  <div className="p-2.5 px-3.5 bg-primary-container/10 border border-primary-container/30 mb-4 text-label-sm font-body rounded-lg">
+                    Step 1 of 2: Approve USDT spending, then mint
+                  </div>
+                )}
+                <button
+                  className="btn-primary w-full"
+                  disabled={isFetchingVoucher || isApproving || isWriting || isWaiting || isConfirming || txConfirmed}
+                  onClick={onAcquire}
+                >
+                  {isFetchingVoucher
+                    ? "Reserving…"
+                    : isApproving
+                    ? "Approving USDT…"
+                    : isWriting
+                    ? "Awaiting wallet…"
+                    : isWaiting
+                    ? "Waiting for confirmations…"
+                    : isConfirming
+                    ? "Confirming…"
+                    : txConfirmed
+                    ? "Confirmed!"
+                    : !voucherData
+                    ? `Acquire this plate · ${fmtUsdt(price)}`
+                    : (!usdtApproved && !approveConfirmed)
+                    ? `Approve USDT · ${fmtUsdt(price)}`
+                    : `Mint · ${fmtUsdt(price)}`}
+                </button>
+                <p className="font-body text-on-surface-variant/60 text-label-sm text-center mt-3.5 tracking-[0.06em]">
+                  Payment processed on BSC via USDT (BEP-20)
+                </p>
+                <button
+                  className="btn-secondary w-full mt-3"
+                  onClick={() => window.alert("PaySolution integration coming soon")}
+                >
+                  Pay with PaySolution (alternative)
+                </button>
+              </>
+            )}
+          </div>
         </div>
-      </section>
-    </div>
+      </div>
+    </section>
   );
 }
 

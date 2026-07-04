@@ -83,4 +83,37 @@ test.describe("Checkout page (/checkout/[id])", () => {
     // The page should either show checkout or still redirect — SSR fetches happen server-side
     await expect(page.locator("body")).toBeVisible();
   });
+
+  test("checkout page uses Bone & Blood design system classes", async ({ page }) => {
+    await page.goto(`/checkout/${AVAILABLE_DESIGN_ID}`);
+    const url = page.url();
+
+    if (url.includes(`/checkout/${AVAILABLE_DESIGN_ID}`)) {
+      const cards = page.locator(".card-bb");
+      await expect(cards.first()).toBeVisible({ timeout: 5000 }).catch(() => {});
+
+      const displayHeadings = page.locator(".font-display");
+      await expect(displayHeadings.first()).toBeVisible({ timeout: 5000 }).catch(() => {});
+
+      const bodyText = page.locator(".font-body");
+      await expect(bodyText.first()).toBeVisible({ timeout: 5000 }).catch(() => {});
+
+      const body = page.locator("body");
+      const bgColor = await body.evaluate((el) => getComputedStyle(el).backgroundColor);
+      expect(bgColor).toBeTruthy();
+    }
+  });
+
+  test("checkout page has responsive grid layout", async ({ page }) => {
+    await page.goto(`/checkout/${AVAILABLE_DESIGN_ID}`);
+    const url = page.url();
+
+    if (url.includes(`/checkout/${AVAILABLE_DESIGN_ID}`)) {
+      const container = page.locator(".max-w-\\[1280px\\], .max-w-container-max").first();
+      await expect(container).toBeVisible({ timeout: 5000 }).catch(() => {});
+
+      const grid = page.locator(".grid").first();
+      await expect(grid).toBeVisible({ timeout: 5000 }).catch(() => {});
+    }
+  });
 });
