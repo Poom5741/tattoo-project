@@ -75,11 +75,11 @@ const initialState = cookieToInitialState(config, cookieHeader);
   <Toast client:load />
 
   <section class="py-14 pb-20">
-    <div class="max-w-[1280px] mx-auto px-5 md:px-16">
-      <p class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mb-4">The gallery</p>
+    <div class="container-bb">
+      <p class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-4">The gallery</p>
       <div class="flex justify-between items-end flex-wrap gap-4 mb-10">
-        <h1 class="font-playfair font-semibold text-[#1B1C18] text-[clamp(38px,6vw,72px)]">Plates for acquisition</h1>
-        <span class="font-sora text-[#5A5B55]/60 text-[11px] tracking-[0.12em]">{designs.length} PLATES · ONE OF EACH</span>
+        <h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface">Plates for acquisition</h1>
+        <span class="font-body text-on-surface-variant/60 text-[11px] tracking-[0.12em]">{designs.length} PLATES · ONE OF EACH</span>
       </div>
       <MarketGrid client:load designs={designs} resaleListings={resaleListings} initialState={initialState} />
     </div>

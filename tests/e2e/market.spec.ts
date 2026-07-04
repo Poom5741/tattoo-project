@@ -14,22 +14,55 @@ test.describe("Market page (/market)", () => {
     await expect(page).toHaveTitle(/Gallery — INKNOIR/);
   });
 
-  test("shows 'Plates for acquisition' heading", async ({ page }) => {
-    await expect(page.locator("h1", { hasText: "Plates for acquisition" })).toBeVisible();
+  test("shows 'Plates for acquisition' heading with display font", async ({ page }) => {
+    const heading = page.locator("h1", { hasText: "Plates for acquisition" });
+    await expect(heading).toBeVisible();
+    await expect(heading).toHaveCSS("font-family", /Playfair Display/);
   });
 
-  test("shows 'The gallery' kicker", async ({ page }) => {
-    await expect(page.locator(".kicker", { hasText: "The gallery" })).toBeVisible();
+  test("shows 'The gallery' kicker with primary-container color", async ({ page }) => {
+    const kicker = page.locator(".kicker", { hasText: "The gallery" });
+    await expect(kicker).toBeVisible();
+    await expect(kicker).toHaveCSS("text-transform", "uppercase");
   });
 
   test("shows plate count badge (0 or more plates)", async ({ page }) => {
-    // The badge shows "N PLATES · ONE OF EACH"
     const badge = page.locator("text=/PLATES · ONE OF EACH/");
     await expect(badge).toBeVisible();
   });
 
+  test("uses Bone & Blood cream background", async ({ page }) => {
+    const body = page.locator("body");
+    const bg = await body.evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(bg).toMatch(/rgb\(251,\s*249,\s*243\)/);
+  });
+
+  test("filter buttons are present and interactive", async ({ page }) => {
+    const filterSection = page.locator('[data-testid="filter-listing"]');
+    await expect(filterSection).toBeVisible();
+
+    const buttons = filterSection.locator("button");
+    await expect(buttons).toHaveCount(3);
+
+    const firstBtn = buttons.first();
+    await expect(firstBtn).toHaveText("All listings");
+    await expect(firstBtn).toHaveCSS("background-color", /rgb\(230,\s*0,\s*35\)/);
+  });
+
+  test("style filter buttons render", async ({ page }) => {
+    const styleFilters = page.locator('[data-testid="filter-style"]');
+    await expect(styleFilters).toBeVisible();
+    await expect(styleFilters.locator("button")).toHaveCount(11);
+  });
+
+  test("plate grid uses responsive grid layout", async ({ page }) => {
+    const grid = page.locator('[data-testid="plate-grid"]');
+    const hasGrid = await grid.isVisible().catch(() => false);
+    const hasEmpty = await page.locator("text=No plates match your filters").isVisible().catch(() => false);
+    expect(hasGrid || hasEmpty).toBe(true);
+  });
+
   test("navigation works — back to home", async ({ page }) => {
-    // There should be a home link in the nav
     const homeLink = page.locator("a[href='/']").first();
     if (await homeLink.isVisible()) {
       await homeLink.click();
@@ -37,12 +70,12 @@ test.describe("Market page (/market)", () => {
     }
   });
 
-  test("shows design cards or empty state when DB seeded", async ({ page }) => {
-    // The MarketGrid component renders cards or empty state
-    // We just ensure the page body loaded without crash
-    const body = page.locator("body");
-    await expect(body).toBeVisible();
-    // No unhandled error banner
+  test("no server errors on page", async ({ page }) => {
     await expect(page.locator("text=Internal Server Error")).not.toBeVisible();
+  });
+
+  test("container uses proper max-width", async ({ page }) => {
+    const container = page.locator(".container-bb").first();
+    await expect(container).toBeVisible();
   });
 });

@@ -35,4 +35,35 @@ test.describe("Wallet page (/wallet)", () => {
     await expect(page.locator("text=500")).not.toBeVisible();
     await expect(page.locator("text=Internal Server Error")).not.toBeVisible();
   });
+
+  test("page uses Bone & Blood background color", async ({ page }) => {
+    const body = page.locator("body");
+    const bgColor = await body.evaluate((el) => getComputedStyle(el).backgroundColor);
+    // #FBF9F3 = rgb(251, 249, 243)
+    expect(bgColor).toBe("rgb(251, 249, 243)");
+  });
+
+  test("heading uses Playfair Display font", async ({ page }) => {
+    const h1 = page.locator("h1");
+    const fontFamily = await h1.evaluate((el) => getComputedStyle(el).fontFamily);
+    expect(fontFamily).toContain("Playfair Display");
+  });
+
+  test("kicker uses primary-container red accent", async ({ page }) => {
+    const kicker = page.locator(".kicker");
+    const color = await kicker.evaluate((el) => getComputedStyle(el).color);
+    // #E60023 = rgb(230, 0, 35)
+    expect(color).toBe("rgb(230, 0, 35)");
+  });
+
+  test("connect prompt uses card-bb styling when not connected", async ({ page }) => {
+    await page.waitForLoadState("domcontentloaded");
+    // The empty/connect state should use card-bb class
+    const card = page.locator(".card-bb");
+    const count = await card.count();
+    // Only check if the React component has hydrated and rendered the connect prompt
+    if (count > 0) {
+      await expect(card.first()).toBeVisible();
+    }
+  });
 });

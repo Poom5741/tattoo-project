@@ -43,23 +43,35 @@ interface MarketGridProps {
 
 const ALL_STYLES = ["Fine Line", "Blackwork", "Neo-Traditional", "Geometric", "Realism", "Lettering", "Japanese", "Watercolor", "Minimalist", "Dotwork"];
 
+const FILTER_ACTIVE = "bg-primary-container text-on-primary border-primary-container";
+const FILTER_INACTIVE = "bg-transparent text-on-surface-variant border-outline-variant hover:border-outline hover:bg-surface-container-low";
+
 function StatusTag({ status, isResale }: { status: string; isResale?: boolean }) {
   if (isResale) {
     return (
-      <span className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold bg-[#818cf8]/15 text-[#818cf8] border border-[#818cf8]/40">
-        <span className="w-1.5 h-1.5 rounded-full bg-[#818cf8]"></span>
+      <span className="tag-bb bg-surface-tint/10 text-surface-tint border border-surface-tint/30">
+        <span className="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>
         Resale
       </span>
     );
   }
   const map: Record<string, { label: string; cls: string }> = {
-    available: { label: "Available", cls: "bg-[#2E7D32]/15 text-[#2E7D32] border border-[#2E7D32]/40" },
-    reserved: { label: "Reserved", cls: "bg-[#F9A825]/15 text-[#F9A825] border border-[#F9A825]/40" },
-    sold: { label: "Claimed", cls: "bg-[#5A5B55]/15 text-[#5A5B55] border border-[#5A5B55]/40" },
+    available: {
+      label: "Available",
+      cls: "tag-bb bg-green-900/8 text-green-900 border border-green-900/20",
+    },
+    reserved: {
+      label: "Reserved",
+      cls: "tag-bb bg-amber-700/8 text-amber-700 border border-amber-700/20",
+    },
+    sold: {
+      label: "Claimed",
+      cls: "tag-bb bg-on-surface/8 text-on-surface-variant border border-on-surface/15",
+    },
   };
-  const { label, cls } = map[status] ?? { label: status, cls: "" };
+  const { label, cls } = map[status] ?? { label: status, cls: "tag-bb" };
   return (
-    <span className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold ${cls}`}>
+    <span className={cls}>
       <span className="w-1.5 h-1.5 rounded-full bg-current"></span>
       {label}
     </span>
@@ -70,13 +82,13 @@ function SellingModeBadge({ mode, royaltyPct }: { mode?: string; royaltyPct?: nu
   if (!mode) return null;
   if (mode === "one-time") {
     return (
-      <span className="font-sora text-[10px] tracking-[0.1em] text-[#5A5B55]/60 bg-[#C9A96E]/10 border border-[#E8E3D8] px-1.5 py-px rounded">
+      <span className="inline-flex items-center font-body text-[10px] tracking-[0.1em] text-on-surface-variant/60 bg-secondary-container/50 border border-outline-variant px-1.5 py-0.5 rounded">
         SOULBOUND
       </span>
     );
   }
   return (
-    <span className="font-sora text-[10px] tracking-[0.1em] text-[#5A5B55]/60 bg-[#64C864]/10 border border-[#E8E3D8] px-1.5 py-px rounded">
+    <span className="inline-flex items-center font-body text-[10px] tracking-[0.1em] text-on-surface-variant/60 bg-green-900/8 border border-outline-variant px-1.5 py-0.5 rounded">
       RESELLABLE {royaltyPct ? `${royaltyPct}%` : ""}
     </span>
   );
@@ -84,39 +96,37 @@ function SellingModeBadge({ mode, royaltyPct }: { mode?: string; royaltyPct?: nu
 
 function DesignCard({ d }: { d: DesignData }) {
   return (
-    <a href={`/design/${d.id}`} className="block no-underline text-inherit">
-      <div className="bg-[#F0EBE1] rounded-lg border border-[#E8E3D8]/30 overflow-hidden hover:shadow-md transition-all cursor-pointer">
-        <div className="aspect-[3/4] overflow-hidden bg-[#F5F0E8] relative">
-          {d.image_url ? (
-            <img
-              src={d.image_url}
-              alt={d.title}
-              className="w-full h-full object-cover block"
-            />
-          ) : (
-            <Plate seed={d.seed ?? 0} density={1} />
-          )}
+    <a href={`/design/${d.id}`} className="card-bb block no-underline text-inherit group" data-testid="plate-card">
+      <div className="aspect-[3/4] overflow-hidden bg-surface-dim relative">
+        {d.image_url ? (
+          <img
+            src={d.image_url}
+            alt={d.title}
+            className="w-full h-full object-cover block transition-transform duration-500 group-hover:scale-[1.02]"
+          />
+        ) : (
+          <Plate seed={d.seed ?? 0} density={1} />
+        )}
+      </div>
+      <div className="p-5">
+        <div className="flex justify-between items-start mb-2">
+          <StatusTag status={d.status} />
+          <span className="font-body text-[10px] tracking-[0.1em] text-on-surface-variant/60">№ {d.n}/001</span>
         </div>
-        <div className="p-5">
-          <div className="flex justify-between items-start mb-2">
-            <StatusTag status={d.status} />
-            <span className="font-sora text-[#5A5B55]/60 text-[10px] tracking-[0.1em]">№ {d.n}/001</span>
+        <h3 className="font-display text-headline-sm text-on-surface mb-1.5 group-hover:text-primary transition-colors duration-200">{d.title}</h3>
+        <div className="font-body text-xs text-on-surface-variant mb-2">{d.style} · {d.placement}</div>
+        {d.selling_mode && (
+          <div className="mb-2.5">
+            <SellingModeBadge mode={d.selling_mode} royaltyPct={d.royalty_pct} />
           </div>
-          <h3 className="font-playfair font-semibold text-[#1B1C18] text-[20px] mb-1.5">{d.title}</h3>
-          <div className="font-sora text-[#5A5B55] text-[11px] mb-2">{d.style} · {d.placement}</div>
-          {d.selling_mode && (
-            <div className="mb-2.5">
-              <SellingModeBadge mode={d.selling_mode} royaltyPct={d.royalty_pct} />
-            </div>
+        )}
+        <div className="flex justify-between items-baseline pt-3 border-t border-outline-variant/20">
+          <span className="font-display text-headline-sm text-on-surface">
+            {d.price != null ? d.price.toFixed(2) + " USDT" : "—"}
+          </span>
+          {d.drawn != null && (
+            <span className="font-body text-[10px] tracking-[0.06em] text-on-surface-variant/60">{d.drawn} watching</span>
           )}
-          <div className="flex justify-between items-baseline">
-            <span className="font-playfair font-semibold text-[#1B1C18] text-[22px]">
-              {d.price != null ? d.price.toFixed(2) + " USDT" : "—"}
-            </span>
-            {d.drawn != null && (
-              <span className="font-sora text-[#5A5B55]/60 text-[10px] tracking-[0.06em]">{d.drawn} watching</span>
-            )}
-          </div>
         </div>
       </div>
     </a>
@@ -125,38 +135,47 @@ function DesignCard({ d }: { d: DesignData }) {
 
 function ResaleCard({ r }: { r: ResaleListing }) {
   return (
-    <a href={`/design/${r.design_id}`} className="block no-underline text-inherit">
-      <div className="bg-[#F0EBE1] rounded-lg border border-[#E8E3D8]/30 overflow-hidden hover:shadow-md transition-all cursor-pointer">
-        <div className="aspect-[3/4] overflow-hidden bg-[#F5F0E8] relative">
-          {r.image_url ? (
-            <img
-              src={r.image_url}
-              alt={r.title}
-              className="w-full h-full object-cover block"
-            />
-          ) : (
-            <Plate seed={0} density={1} />
-          )}
+    <a href={`/design/${r.design_id}`} className="card-bb block no-underline text-inherit group" data-testid="resale-card">
+      <div className="aspect-[3/4] overflow-hidden bg-surface-dim relative">
+        {r.image_url ? (
+          <img
+            src={r.image_url}
+            alt={r.title}
+            className="w-full h-full object-cover block transition-transform duration-500 group-hover:scale-[1.02]"
+          />
+        ) : (
+          <Plate seed={0} density={1} />
+        )}
+      </div>
+      <div className="p-5">
+        <div className="flex justify-between items-start mb-2">
+          <StatusTag status="resale" isResale />
+          <span className="font-body text-[10px] tracking-[0.1em] text-on-surface-variant/60">Resale</span>
         </div>
-        <div className="p-5">
-          <div className="flex justify-between items-start mb-2">
-            <StatusTag status="resale" isResale />
-            <span className="font-sora text-[#5A5B55]/60 text-[10px] tracking-[0.1em]">Resale</span>
-          </div>
-          <h3 className="font-playfair font-semibold text-[#1B1C18] text-[20px] mb-1.5">{r.title}</h3>
-          <div className="font-sora text-[#5A5B55] text-[11px] mb-2">{r.style} · {r.placement}</div>
-          <div className="mb-2.5">
-            <SellingModeBadge mode={r.selling_mode} royaltyPct={r.royalty_pct} />
-          </div>
-          <div className="flex justify-between items-baseline">
-            <span className="font-playfair font-semibold text-[#1B1C18] text-[22px]">
-              {r.asking_price.toFixed(2)} USDT
-            </span>
-            <span className="font-sora text-[#5A5B55]/60 text-[10px]">by {r.artist_name}</span>
-          </div>
+        <h3 className="font-display text-headline-sm text-on-surface mb-1.5 group-hover:text-primary transition-colors duration-200">{r.title}</h3>
+        <div className="font-body text-xs text-on-surface-variant mb-2">{r.style} · {r.placement}</div>
+        <div className="mb-2.5">
+          <SellingModeBadge mode={r.selling_mode} royaltyPct={r.royalty_pct} />
+        </div>
+        <div className="flex justify-between items-baseline pt-3 border-t border-outline-variant/20">
+          <span className="font-display text-headline-sm text-on-surface">
+            {r.asking_price.toFixed(2)} USDT
+          </span>
+          <span className="font-body text-[10px] text-on-surface-variant/60">by {r.artist_name}</span>
         </div>
       </div>
     </a>
+  );
+}
+
+function FilterButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
+  return (
+    <button
+      className={`px-4 py-2 rounded-full text-sm font-body font-semibold border transition-all duration-200 ${active ? FILTER_ACTIVE : FILTER_INACTIVE}`}
+      onClick={onClick}
+    >
+      {children}
+    </button>
   );
 }
 
@@ -180,59 +199,48 @@ export default function MarketGrid({ designs, resaleListings = [] }: MarketGridP
 
   return (
     <div>
-      <div className="flex gap-3 flex-wrap mb-8">
-        {/* Primary/Resale toggle */}
-        <div className="flex flex-wrap gap-2">
+      {/* Filter bar */}
+      <div className="flex flex-col gap-4 mb-10">
+        {/* Listing type toggle */}
+        <div className="flex flex-wrap gap-2" data-testid="filter-listing">
           {(["all", "primary", "resale"] as const).map((f) => (
-            <button
-              key={f}
-              className={`px-4 py-2 rounded-full text-sm font-sora font-medium border border-[#E8E3D8] hover:border-[#D4CFC4] transition-colors ${listingFilter === f ? "bg-[#E60023] text-white border-[#E60023]" : ""}`}
-              onClick={() => setListingFilter(f)}
-            >
+            <FilterButton key={f} active={listingFilter === f} onClick={() => setListingFilter(f)}>
               {f === "all" ? "All listings" : f === "primary" ? "Primary" : "Resale"}
-            </button>
+            </FilterButton>
           ))}
         </div>
-        {/* Status filter (only relevant for primary) */}
+
+        {/* Status filter (only for primary) */}
         {listingFilter !== "resale" && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2" data-testid="filter-status">
             {["all", "available", "reserved", "sold"].map((s) => (
-              <button
-                key={s}
-                className={`px-4 py-2 rounded-full text-sm font-sora font-medium border border-[#E8E3D8] hover:border-[#D4CFC4] transition-colors ${statusFilter === s ? "bg-[#E60023] text-white border-[#E60023]" : ""}`}
-                onClick={() => setStatusFilter(s)}
-              >
+              <FilterButton key={s} active={statusFilter === s} onClick={() => setStatusFilter(s)}>
                 {s === "all" ? "All" : s.charAt(0).toUpperCase() + s.slice(1)}
-              </button>
+              </FilterButton>
             ))}
           </div>
         )}
+
         {/* Style filter */}
-        <div className="flex flex-wrap gap-2">
-          <button
-            className={`px-4 py-2 rounded-full text-sm font-sora font-medium border border-[#E8E3D8] hover:border-[#D4CFC4] transition-colors ${styleFilter === "all" ? "bg-[#E60023] text-white border-[#E60023]" : ""}`}
-            onClick={() => setStyleFilter("all")}
-          >
+        <div className="flex flex-wrap gap-2" data-testid="filter-style">
+          <FilterButton active={styleFilter === "all"} onClick={() => setStyleFilter("all")}>
             All styles
-          </button>
+          </FilterButton>
           {ALL_STYLES.map((s) => (
-            <button
-              key={s}
-              className={`px-4 py-2 rounded-full text-sm font-sora font-medium border border-[#E8E3D8] hover:border-[#D4CFC4] transition-colors ${styleFilter === s ? "bg-[#E60023] text-white border-[#E60023]" : ""}`}
-              onClick={() => setStyleFilter(s)}
-            >
+            <FilterButton key={s} active={styleFilter === s} onClick={() => setStyleFilter(s)}>
               {s}
-            </button>
+            </FilterButton>
           ))}
         </div>
       </div>
 
+      {/* Results */}
       {totalCount === 0 ? (
-        <div className="text-center py-[60px]">
-          <p className="font-sora text-[#5A5B55] text-[13px]">No plates match your filters.</p>
+        <div className="text-center py-16">
+          <p className="font-body text-body-md text-on-surface-variant">No plates match your filters.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter" data-testid="plate-grid">
           {filteredDesigns.map((d) => (
             <DesignCard key={d.id} d={d} />
           ))}

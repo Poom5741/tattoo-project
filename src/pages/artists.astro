@@ -15,6 +15,9 @@ interface ArtistRow {
   style: string | null;
   years: number | null;
   booked: string | null;
+  bio: string | null;
+  pieces: number | null;
+  rating: string | null;
   seed: number | null;
 }
 
@@ -25,7 +28,7 @@ interface CountRow {
 
 const db = Astro.locals.runtime.env.DB;
 const [aRes, cRes] = await Promise.all([
-  db.prepare("SELECT id, name, handle, city, style, years, booked, seed FROM artists ORDER BY name ASC").all<ArtistRow>(),
+  db.prepare("SELECT id, name, handle, city, style, years, booked, bio, pieces, rating, seed FROM artists ORDER BY name ASC").all<ArtistRow>(),
   db.prepare("SELECT artist_id, COUNT(*) AS available_count FROM designs WHERE status='available' GROUP BY artist_id").all<CountRow>(),
 ]);
 
@@ -47,45 +50,52 @@ const STYLE_KIND: Record<string, number> = {
     <Nav currentPath="/artists" client:load />
     <main class="flex-1">
       <section class="pt-14">
-        <div class="max-w-[1280px] mx-auto px-5 md:px-16">
-          <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mb-4">The roster</div>
-          <h1 class="font-playfair font-semibold text-[#1B1C18] text-[clamp(38px,6vw,72px)] mb-4">Resident artists</h1>
-          <p class="text-[#5A5B55] text-base max-w-[48ch] mb-14">
+        <div class="container-bb">
+          <span class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-4 block">The roster</span>
+          <h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface mb-4">Resident artists</h1>
+          <p class="font-body text-body-lg text-on-surface-variant max-w-[48ch] mb-14">
             Four artists. Each releases a limited run of one-off plates, draws them once, and inks them personally.
           </p>
         </div>
       </section>
 
-      <section class="pb-[92px]">
-        <div class="max-w-[1280px] mx-auto px-5 md:px-16">
-          <div class="grid grid-cols-2 gap-6">
+      <section class="pb-24">
+        <div class="container-bb">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter">
             {artistDesignCounts.map((a) => (
-              <a href={`/artist/${a.id}`} class="bg-[#F0EBE1] rounded-lg border border-[#E8E3D8]/30 overflow-hidden hover:shadow-md transition-all flex flex-row items-stretch no-underline">
-                <div class="w-[200px] shrink-0 relative">
+              <a href={`/artist/${a.id}`} class="card-bb flex flex-col no-underline group" data-testid={`artist-card-${a.id}`}>
+                <div class="aspect-[16/10] relative overflow-hidden bg-surface-dim">
                   <Plate seed={a.seed} label={a.style.split(" · ")[0].toUpperCase()} density={0.9} client:load />
                 </div>
-                <div class="flex-1 p-7 md:p-8 flex flex-col justify-center">
-                  <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mb-3">{a.style}</div>
-                  <h2 class="font-playfair font-semibold text-[#1B1C18] text-[32px] mb-2">{a.name}</h2>
-                  <div class="font-sora text-sm text-[#5A5B55] mb-4">{a.city}</div>
-                  <p class="text-[#5A5B55] text-[13px] mb-5 leading-relaxed">{a.bio}</p>
-                  <div class="flex gap-6 flex-wrap">
-                    <div>
-                      <div class="font-playfair text-2xl">{a.pieces}</div>
-                      <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mt-1">Plates</div>
+                <div class="p-6 md:p-8 flex-1 flex flex-col">
+                  <div class="flex items-center gap-3 mb-4">
+                    <div class="w-12 h-12 rounded-full bg-surface-container-highest border border-outline-variant/50 flex items-center justify-center flex-shrink-0">
+                      <span class="font-display text-lg text-primary-container">{a.name[0]}</span>
                     </div>
-                    <div>
-                      <div class="font-playfair text-2xl">{a.rating}</div>
-                      <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mt-1">Rating</div>
-                    </div>
-                    <div>
-                      <div class="font-playfair text-2xl">{a.availableCount}</div>
-                      <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mt-1">Available</div>
+                    <div class="min-w-0">
+                      <h2 class="font-display text-headline-sm text-on-surface leading-tight">{a.name}</h2>
+                      <div class="font-body text-xs text-on-surface-variant mt-0.5">{a.city}</div>
                     </div>
                   </div>
-                  <div class="mt-6">
-                    <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border bg-[#2E7D32]/15 text-[#2E7D32] border-[#2E7D32]/40">
-                      <span class="w-2 h-2 rounded-full bg-current"></span>
+                  <span class="tag-bb self-start mb-4">{a.style}</span>
+                  <p class="font-body text-body-md text-on-surface-variant mb-6 leading-relaxed line-clamp-3">{a.bio}</p>
+                  <div class="flex gap-8 flex-wrap mt-auto pt-4 border-t border-outline-variant/20">
+                    <div>
+                      <div class="font-display text-headline-sm text-on-surface">{a.pieces}</div>
+                      <div class="font-body text-label-sm text-on-surface-variant mt-1">Plates</div>
+                    </div>
+                    <div>
+                      <div class="font-display text-headline-sm text-on-surface">{a.rating}</div>
+                      <div class="font-body text-label-sm text-on-surface-variant mt-1">Rating</div>
+                    </div>
+                    <div>
+                      <div class="font-display text-headline-sm text-on-surface">{a.availableCount}</div>
+                      <div class="font-body text-label-sm text-on-surface-variant mt-1">Available</div>
+                    </div>
+                  </div>
+                  <div class="mt-5">
+                    <span class="tag-bb">
+                      <span class="w-2 h-2 rounded-full bg-primary-container"></span>
                       {a.booked}
                     </span>
                   </div>
@@ -96,15 +106,15 @@ const STYLE_KIND: Record<string, number> = {
         </div>
       </section>
 
-      <hr class="border-t border-[#E8E3D8]/30" />
+      <hr class="border-t border-outline-variant/30" />
 
-      <section class="py-12">
-        <div class="max-w-[1280px] mx-auto px-5 md:px-16 flex justify-between items-center gap-[30px] flex-wrap">
+      <section class="py-16">
+        <div class="container-bb flex justify-between items-center gap-8 flex-wrap">
           <div>
-            <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023] mb-3">Join the house</div>
-            <h2 class="font-playfair font-semibold text-[#1B1C18] text-[clamp(24px,3vw,36px)] max-w-[22ch]">Are you a tattoo artist? Apply to release your plates on INKNOIR.</h2>
+            <span class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-3 block">Join the house</span>
+            <h2 class="font-display text-headline-md md:text-headline-lg text-on-surface max-w-[22ch]">Are you a tattoo artist? Apply to release your plates on INKNOIR.</h2>
           </div>
-          <a href="/artists" class="inline-flex items-center justify-center gap-2 px-8 py-4 rounded-full font-sora font-semibold text-base transition-all bg-transparent text-[#1B1C18] border border-[#E8E3D8] hover:border-[#D4CFC4]">Apply to sell</a>
+          <a href="/artists" class="btn-secondary">Apply to sell</a>
         </div>
       </section>
     </main>
