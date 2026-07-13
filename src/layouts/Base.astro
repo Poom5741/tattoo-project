@@ -6,7 +6,7 @@ export interface Props {
   description?: string;
 }
 
-const { title = "INKNOIR — One-of-one tattoo plates", description = "One-of-one tattoo plates. Blockchain-verified ownership." } = Astro.props;
+const { title = "SUKNID — One-of-one tattoo plates", description = "One-of-one tattoo plates. Blockchain-verified ownership." } = Astro.props;
 
 // Tawk.to live-chat widget. Loads on all public pages, suppressed on the
 // blocked prefixes below. Add wallet/signing routes here (e.g. "/checkout",
@@ -39,8 +39,8 @@ const tawkSrc = showTawk ? `https://embed.tawk.to/${tawkProperty}/${tawkWidget}`
     <script>
       // B7 — delete legacy prototype localStorage keys on first app load
       try {
-        localStorage.removeItem("inknoir_col");
-        localStorage.removeItem("inknoir_book");
+        localStorage.removeItem("suknid_col");
+        localStorage.removeItem("suknid_book");
       } catch (_) {}
     </script>
     {

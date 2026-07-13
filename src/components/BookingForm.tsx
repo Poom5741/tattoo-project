@@ -100,7 +100,7 @@ export default function BookingForm({ artists, designs }: Props) {
       }
       setDone(true);
       window.dispatchEvent(
-        new CustomEvent("inknoir:toast", {
+        new CustomEvent("suknid:toast", {
           detail: { message: "Booking request sent — we'll be in touch within 48 h." },
         })
       );

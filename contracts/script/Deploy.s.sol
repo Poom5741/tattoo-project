@@ -2,7 +2,7 @@
 pragma solidity 0.8.24;
 
 import {Script, console2} from "forge-std/Script.sol";
-import {InknoirPlates} from "../src/InknoirPlates.sol";
+import {SuknidPlates} from "../src/SuknidPlates.sol";
 
 contract DeployScript is Script {
     function run() external {
@@ -10,7 +10,7 @@ contract DeployScript is Script {
         address treasury = vm.envAddress("ARTIST_TREASURY");
 
         vm.startBroadcast();
-        InknoirPlates plates = new InknoirPlates(signer, treasury);
+        SuknidPlates plates = new SuknidPlates(signer, treasury);
         vm.stopBroadcast();
 
         console2.log("DEPLOYED address=%s block=%d", address(plates), block.number);

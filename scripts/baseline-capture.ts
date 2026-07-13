@@ -24,7 +24,7 @@ const PROTOTYPE_PATH = path.join(
   "_handoff",
   "tattoo-project",
   "project",
-  "INKNOIR.html"
+  "SUKNID.html"
 );
 
 const VIEWPORTS = [

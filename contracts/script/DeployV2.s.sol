@@ -2,9 +2,9 @@
 pragma solidity 0.8.24;
 
 import {Script, console} from "forge-std/Script.sol";
-import {InknoirPlatesV2} from "../src/InknoirPlatesV2.sol";
+import {SuknidPlatesV2} from "../src/SuknidPlatesV2.sol";
 
-/// @notice Deploy InknoirPlatesV2 to BSC Testnet or Mainnet
+/// @notice Deploy SuknidPlatesV2 to BSC Testnet or Mainnet
 ///
 /// Usage (BSC Testnet):
 ///   forge script script/DeployV2.s.sol \
@@ -48,7 +48,7 @@ contract DeployV2 is Script {
 
         vm.startBroadcast();
 
-        InknoirPlatesV2 contract_ = new InknoirPlatesV2(
+        SuknidPlatesV2 contract_ = new SuknidPlatesV2(
             authorizedSigner,
             platformTreasury,
             usdtAddress
@@ -56,7 +56,7 @@ contract DeployV2 is Script {
 
         vm.stopBroadcast();
 
-        console.log("InknoirPlatesV2 deployed at:", address(contract_));
+        console.log("SuknidPlatesV2 deployed at:", address(contract_));
         console.log("Set PUBLIC_CONTRACT_ADDRESS =", address(contract_));
     }
 }

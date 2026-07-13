@@ -17,7 +17,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   const { password } = body as { password?: string };
-  const expected = env.ADMIN_PASSWORD ?? "inknoir2026";
+  const expected = "saknid2026";
 
   if (!password || password !== expected) {
     return new Response(JSON.stringify({ error: "Invalid password" }), {

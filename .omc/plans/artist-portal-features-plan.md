@@ -27,7 +27,7 @@
 
 #### Option A: New Contract + Parallel Deploy (RECOMMENDED)
 
-Deploy a new `InknoirPlatesV2` contract on BSC that includes ERC-2981, soulbound flag, and USDT payment. The old Base Sepolia contract stays for existing minted tokens (if any). New listings use V2 only.
+Deploy a new `SuknidPlatesV2` contract on BSC that includes ERC-2981, soulbound flag, and USDT payment. The old Base Sepolia contract stays for existing minted tokens (if any). New listings use V2 only.
 
 **Pros:**
 - Clean separation; no migration of existing on-chain state needed
@@ -86,7 +86,7 @@ Buyer sends USDT to a holding address, server detects transfer, issues voucher.
 
 ## ADR (Architectural Decision Record)
 
-**Decision:** Build InknoirPlatesV2 on BSC with ERC-721 + ERC-2981 + soulbound flag + USDT BEP-20 payment. Deploy as a new contract (not proxy). PaySolution integration as a parallel off-chain path.
+**Decision:** Build SuknidPlatesV2 on BSC with ERC-721 + ERC-2981 + soulbound flag + USDT BEP-20 payment. Deploy as a new contract (not proxy). PaySolution integration as a parallel off-chain path.
 
 **Drivers:**
 1. No existing on-chain state to preserve
@@ -249,7 +249,7 @@ COMMIT;
 ```
 
 **Acceptance criteria:**
-- [ ] Migration runs without error on local D1: `npx wrangler d1 execute inknoir-catalog --local --file=migrations/0005_artist_portal.sql`
+- [ ] Migration runs without error on local D1: `npx wrangler d1 execute suknid-catalog --local --file=migrations/0005_artist_portal.sql`
 - [ ] Existing seed data is unaffected (all 15 designs retain current status/values)
 - [ ] New columns exist: `designs.selling_mode` (NOT NULL, default 'one-time'), `designs.royalty_pct`, `designs.image_url`
 - [ ] New columns exist: `booking_inquiries.status` (NOT NULL, default 'pending'), `booking_inquiries.appointment_date`
@@ -259,14 +259,14 @@ COMMIT;
 - [ ] Trigger rejects invalid status values
 - [ ] Trigger prevents `selling_mode` from being changed after creation
 
-### Task 1.2: Smart Contract V2 — `contracts/src/InknoirPlatesV2.sol`
+### Task 1.2: Smart Contract V2 — `contracts/src/SuknidPlatesV2.sol`
 
 **Prerequisites:**
 ```bash
 cd contracts && forge install OpenZeppelin/openzeppelin-contracts --no-commit && forge install foundry-rs/forge-std --no-commit
 ```
 
-**Create:** `contracts/src/InknoirPlatesV2.sol`
+**Create:** `contracts/src/SuknidPlatesV2.sol`
 
 Key changes from V1:
 - Inherit `ERC721Royalty` (from OpenZeppelin) instead of plain `ERC721`
@@ -278,7 +278,7 @@ Key changes from V1:
 - Resale support via `buyResale` function
 
 ```
-InknoirPlatesV2 is ERC721, ERC2981, Ownable, ReentrancyGuard, EIP712
+SuknidPlatesV2 is ERC721, ERC2981, Ownable, ReentrancyGuard, EIP712
   - USDT address (immutable, set in constructor)
   - platformTreasury address (owner-settable)
   - platformFeeBps = 300 (3%)
@@ -322,7 +322,7 @@ InknoirPlatesV2 is ERC721, ERC2981, Ownable, ReentrancyGuard, EIP712
 ```
 
 **Also update:**
-- `contracts/test/InknoirPlatesV2.t.sol` — new test file covering: mint with USDT, soulbound transfer revert, royalty info query, fee split verification, **resale purchase tests** (correct splits, soulbound revert, resaleEnabled guard, buyer-is-not-owner check)
+- `contracts/test/SuknidPlatesV2.t.sol` — new test file covering: mint with USDT, soulbound transfer revert, royalty info query, fee split verification, **resale purchase tests** (correct splits, soulbound revert, resaleEnabled guard, buyer-is-not-owner check)
 - `contracts/script/DeployV2.s.sol` — deploy script for BSC
 
 **Acceptance criteria:**
@@ -1020,7 +1020,7 @@ Changes (on top of Wave 2 modifications):
 
 **Wave 1:**
 1. Verify artist cookie fix: login as artist, confirm cookie has `Path=/`, confirm API routes receive the cookie
-2. Run migration on local D1: `npx wrangler d1 execute inknoir-catalog --local --file=migrations/0005_artist_portal.sql`
+2. Run migration on local D1: `npx wrangler d1 execute suknid-catalog --local --file=migrations/0005_artist_portal.sql`
 3. Verify existing seed data unaffected: `SELECT count(*) FROM designs WHERE status = 'available'` should return 9
 4. Verify `selling_mode` immutability trigger: attempt UPDATE should fail
 5. Forge build + test pass for V2 contract (including resale tests)
@@ -1062,8 +1062,8 @@ Changes (on top of Wave 2 modifications):
 | File | Wave | Purpose |
 |------|------|---------|
 | `migrations/0005_artist_portal.sql` | 1 | Schema changes |
-| `contracts/src/InknoirPlatesV2.sol` | 1 | New smart contract |
-| `contracts/test/InknoirPlatesV2.t.sol` | 1 | Contract tests |
+| `contracts/src/SuknidPlatesV2.sol` | 1 | New smart contract |
+| `contracts/test/SuknidPlatesV2.t.sol` | 1 | Contract tests |
 | `contracts/script/DeployV2.s.sol` | 1 | BSC deploy script |
 | `src/pages/api/upload.ts` | 1 | R2 image upload |
 | `src/pages/api/designs/create.ts` | 2 | Create design listing |

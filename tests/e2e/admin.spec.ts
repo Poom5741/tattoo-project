@@ -11,9 +11,9 @@ test.describe("Admin page (/admin) — unauthenticated", () => {
     await expect(page.locator("button", { hasText: "Enter dashboard" })).toBeVisible();
   });
 
-  test("shows INKNOIR / Admin kicker", async ({ page }) => {
+  test("shows SUKNID / Admin kicker", async ({ page }) => {
     await page.goto("/admin");
-    await expect(page.locator(".kicker", { hasText: "INKNOIR / Admin" })).toBeVisible();
+    await expect(page.locator(".kicker", { hasText: "SUKNID / Admin" })).toBeVisible();
   });
 
   test("shows error message on wrong password submission", async ({ page }) => {
@@ -24,9 +24,9 @@ test.describe("Admin page (/admin) — unauthenticated", () => {
     await expect(page.locator("#login-err")).toBeVisible({ timeout: 5_000 });
   });
 
-  test("page title is 'Admin — INKNOIR'", async ({ page }) => {
+  test("page title is 'Admin — SUKNID'", async ({ page }) => {
     await page.goto("/admin");
-    await expect(page).toHaveTitle(/Admin — INKNOIR/);
+    await expect(page).toHaveTitle(/Admin — SUKNID/);
   });
 });
 
@@ -74,8 +74,8 @@ test.describe("Admin page (/admin) — authenticated", () => {
     await expect(adminPage.locator("text=All plates")).toBeVisible({ timeout: 10_000 });
   });
 
-  test("shows INKNOIR / Admin kicker in dashboard", async ({ adminPage }) => {
+  test("shows SUKNID / Admin kicker in dashboard", async ({ adminPage }) => {
     await adminPage.goto("/admin");
-    await expect(adminPage.locator(".kicker", { hasText: "INKNOIR / Admin" })).toBeVisible({ timeout: 10_000 });
+    await expect(adminPage.locator(".kicker", { hasText: "SUKNID / Admin" })).toBeVisible({ timeout: 10_000 });
   });
 });

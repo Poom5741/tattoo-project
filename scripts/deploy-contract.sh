@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Deploys InknoirPlates to Base Sepolia and writes the address to contract.ts.
+# Deploys SuknidPlates to Base Sepolia and writes the address to contract.ts.
 # Required env vars: BASE_SEPOLIA_RPC, BASESCAN_API_KEY, SIGNER_ADDRESS, ARTIST_TREASURY
 
 REPO_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -34,7 +34,7 @@ DEPLOY_BLOCK=$(jq -r '.receipts[0].blockNumber' "$BROADCAST_FILE")
 # Convert hex block number to decimal.
 DEPLOY_BLOCK_DEC=$(printf '%d' "$DEPLOY_BLOCK")
 
-echo "Deployed InknoirPlates at $ADDRESS (block $DEPLOY_BLOCK_DEC)"
+echo "Deployed SuknidPlates at $ADDRESS (block $DEPLOY_BLOCK_DEC)"
 
 # Write deployment JSON.
 mkdir -p "$(dirname "$DEPLOY_JSON")"

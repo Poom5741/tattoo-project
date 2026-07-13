@@ -42,10 +42,10 @@ interface Erc721Metadata {
 function buildMetadata(design: (typeof DESIGNS)[0]): Erc721Metadata {
   const artist = ARTISTS.find((a: { id: string }) => a.id === design.artistId)!;
   return {
-    name: `INKNOIR — ${design.title}`,
+    name: `SUKNID — ${design.title}`,
     description: `${design.title} by ${artist.name}. ${artist.bio}`,
     image: `${R2_PUBLIC_URL}/metadata/${design.token_id}.json`,
-    external_url: `https://inknoir.pages.dev/design/${design.id}`,
+    external_url: `https://suknid.pages.dev/design/${design.id}`,
     attributes: [
       { trait_type: "Artist", value: artist.name },
       { trait_type: "Style", value: design.style },

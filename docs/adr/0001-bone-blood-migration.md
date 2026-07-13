@@ -7,7 +7,7 @@ Accepted
 2026-07-02
 
 ## Context
-INKNOIR currently uses a dark monochrome "Ink Noir" design (near-black backgrounds, Bodoni Moda + Space Mono fonts, grain/scan/hatch textures). The project is migrating to a "Bone & Blood" identity — warm cream/paper tones with an aggressive red accent, Playfair Display + Sora fonts, and refined minimalism.
+SUKNID currently uses a dark monochrome "Ink Noir" design (near-black backgrounds, Bodoni Moda + Space Mono fonts, grain/scan/hatch textures). The project is migrating to a "Bone & Blood" identity — warm cream/paper tones with an aggressive red accent, Playfair Display + Sora fonts, and refined minimalism.
 
 The existing design system is encoded in a 340-line `global.css` with hardcoded dark theme values. The codebase uses Astro 5 + React + Tailwind CDN (via stitch prototypes). Production needs properly installed Tailwind with theme configuration.
 
@@ -28,11 +28,11 @@ The existing design system is encoded in a 340-line `global.css` with hardcoded 
 - **Update Playwright tests** alongside each page migration
 
 ### Stitch References
-- `stitch_inknoir_tattoo_nft_marketplace/bone_blood/DESIGN.md` — Design system tokens
-- `stitch_inknoir_tattoo_nft_marketplace/inknoir_home_bone_blood/code.html` — Home reference
-- `stitch_inknoir_tattoo_nft_marketplace/design_detail_bone_blood/code.html` — Detail reference
-- `stitch_inknoir_tattoo_nft_marketplace/the_vault_bone_blood/code.html` — Vault reference
-- `stitch_inknoir_tattoo_nft_marketplace/artist_dashboard_bone_blood/code.html` — Dashboard reference
+- `stitch_suknid_tattoo_nft_marketplace/bone_blood/DESIGN.md` — Design system tokens
+- `stitch_suknid_tattoo_nft_marketplace/suknid_home_bone_blood/code.html` — Home reference
+- `stitch_suknid_tattoo_nft_marketplace/design_detail_bone_blood/code.html` — Detail reference
+- `stitch_suknid_tattoo_nft_marketplace/the_vault_bone_blood/code.html` — Vault reference
+- `stitch_suknid_tattoo_nft_marketplace/artist_dashboard_bone_blood/code.html` — Dashboard reference
 
 ## Consequences
 

@@ -4,7 +4,7 @@ type Texture = "grain" | "scan" | "hatch" | "none";
 
 function loadTexture(): Texture {
   try {
-    const raw = localStorage.getItem("inknoir.v2.tweaks");
+    const raw = localStorage.getItem("suknid.v2.tweaks");
     if (raw) {
       const parsed = JSON.parse(raw);
       return parsed.texture || "grain";
@@ -22,8 +22,8 @@ export default function TextureLayer() {
       const t = (e as CustomEvent<Texture>).detail;
       if (t) setTexture(t);
     };
-    window.addEventListener("inknoir:texture", handler);
-    return () => window.removeEventListener("inknoir:texture", handler);
+    window.addEventListener("suknid:texture", handler);
+    return () => window.removeEventListener("suknid:texture", handler);
   }, []);
 
   return (

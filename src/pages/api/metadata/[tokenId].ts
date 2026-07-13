@@ -67,10 +67,10 @@ export const GET: APIRoute = async ({ params, locals }) => {
     }
 
     const metadata = {
-      name: `INKNOIR — ${row.title}`,
+      name: `SUKNID — ${row.title}`,
       description: `${row.title} by ${row.artist_name}. ${row.bio}`,
       image,
-      external_url: `https://inknoir.pages.dev/design/${row.id}`,
+      external_url: `https://suknid.pages.dev/design/${row.id}`,
       attributes: [
         { trait_type: "Artist", value: row.artist_name },
         { trait_type: "Style", value: row.style },

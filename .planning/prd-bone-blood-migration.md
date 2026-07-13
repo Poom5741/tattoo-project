@@ -2,11 +2,11 @@
 
 ## Problem Statement
 
-INKNOIR's current "Ink Noir" dark monochrome design (near-black backgrounds, Bodoni Moda + Space Mono fonts, grain/scan/hatch texture overlays) no longer aligns with the refined, tactile aesthetic the brand is evolving toward. The design feels heavy, dated, and visually aggressive rather than inviting collectors to explore one-of-one tattoo plates. The codebase has accumulated 340+ lines of dark-theme CSS that's difficult to maintain and lacks a systematic design token approach.
+SUKNID's current "Ink Noir" dark monochrome design (near-black backgrounds, Bodoni Moda + Space Mono fonts, grain/scan/hatch texture overlays) no longer aligns with the refined, tactile aesthetic the brand is evolving toward. The design feels heavy, dated, and visually aggressive rather than inviting collectors to explore one-of-one tattoo plates. The codebase has accumulated 340+ lines of dark-theme CSS that's difficult to maintain and lacks a systematic design token approach.
 
 ## Solution
 
-Migrate the entire INKNOIR frontend to the "Bone & Blood" design system: a warm cream/paper aesthetic (#FBF9F3 surface), Playfair Display + Sora typography, aggressive red accent (#E60023), and refined minimalism with tactile texture (subtle paper-fiber background). This migration will:
+Migrate the entire SUKNID frontend to the "Bone & Blood" design system: a warm cream/paper aesthetic (#FBF9F3 surface), Playfair Display + Sora typography, aggressive red accent (#E60023), and refined minimalism with tactile texture (subtle paper-fiber background). This migration will:
 
 - Replace the dark theme with a light-only, paper-toned interface
 - Install Tailwind CSS properly with a complete design token system
@@ -19,7 +19,7 @@ Migrate the entire INKNOIR frontend to the "Bone & Blood" design system: a warm 
 
 ### Navigation & Layout
 1. As a collector, I want a sticky navigation bar with a warm cream background, so that branding feels consistent and premium as I scroll
-2. As a collector, I want the INKNOIR brand name displayed in Playfair Display serif font, so that the visual identity feels refined and editorial
+2. As a collector, I want the SUKNID brand name displayed in Playfair Display serif font, so that the visual identity feels refined and editorial
 3. As a collector, I want navigation links to highlight with a red underline when active, so that I always know which section I'm viewing
 4. As a collector, I want a rounded "Connect Wallet" button in red, so that the primary call-to-action stands out against the cream background
 5. As a collector, I want the navigation to collapse into a mobile menu on small screens, so that the interface remains usable on phones
@@ -27,7 +27,7 @@ Migrate the entire INKNOIR frontend to the "Bone & Blood" design system: a warm 
 7. As a collector, I want consistent container widths with proper margins (64px desktop, 20px mobile), so that content feels balanced and never cramped
 
 ### Home Page — Hero Section
-8. As a collector, I want to see a featured tattoo plate prominently displayed on the home page, so that I immediately understand what INKNOIR offers
+8. As a collector, I want to see a featured tattoo plate prominently displayed on the home page, so that I immediately understand what SUKNID offers
 9. As a collector, I want the featured plate to appear in a tactile card container with rounded corners and subtle border, so that it feels like a physical artifact
 10. As a collector, I want a clear headline and description explaining the featured drop, so that I understand the context and urgency
 11. As a collector, I want prominent "Explore Drop" and "View Artist" buttons, so that I can take immediate action
@@ -39,7 +39,7 @@ Migrate the entire INKNOIR frontend to the "Bone & Blood" design system: a warm 
 15. As a collector, I want the grid to be responsive (3 columns desktop, 2 tablet, 1 mobile), so that it works on any device
 
 ### Home Page — How It Works
-16. As a collector, I want to see a 3-step process explanation with icons and connecting lines, so that I understand how INKNOIR works
+16. As a collector, I want to see a 3-step process explanation with icons and connecting lines, so that I understand how SUKNID works
 17. As a collector, I want each step to be visually distinct but cohesive, so that the flow feels intentional
 18. As a collector, I want the process section to use the cream background with subtle texture, so that it feels premium
 
@@ -94,7 +94,7 @@ Migrate the entire INKNOIR frontend to the "Bone & Blood" design system: a warm 
 
 ### Design System Foundation
 - **Tailwind CSS v4.3.2** installed via `@astrojs/tailwind` integration
-- **Design tokens** from `stitch_inknoir_tattoo_nft_marketplace/bone_blood/DESIGN.md` mapped to `tailwind.config.mjs`:
+- **Design tokens** from `stitch_suknid_tattoo_nft_marketplace/bone_blood/DESIGN.md` mapped to `tailwind.config.mjs`:
   - Surface colors: background (#fbf9f3), surface-container (#f0eee8), surface-container-low (#f5f3ed), surface-container-high (#eae8e2), surface-container-highest (#e4e2dd)
   - Primary: primary-container (#e60023 red accent), on-primary-container (#fff7f6)
   - Text: on-surface (#1b1c18), secondary (#615e5b), tertiary (#5e5a52)
@@ -172,11 +172,11 @@ Migrate the entire INKNOIR frontend to the "Bone & Blood" design system: a warm 
 ## Further Notes
 
 ### Stitch References
-- `stitch_inknoir_tattoo_nft_marketplace/bone_blood/DESIGN.md` — Full design system tokens
-- `stitch_inknoir_tattoo_nft_marketplace/inknoir_home_bone_blood/code.html` — Home page reference (Tailwind CDN prototype)
-- `stitch_inknoir_tattoo_nft_marketplace/design_detail_bone_blood/code.html` — Detail page reference
-- `stitch_inknoir_tattoo_nft_marketplace/the_vault_bone_blood/code.html` — Wallet/vault reference
-- `stitch_inknoir_tattoo_nft_marketplace/artist_dashboard_bone_blood/code.html` — Artist dashboard reference
+- `stitch_suknid_tattoo_nft_marketplace/bone_blood/DESIGN.md` — Full design system tokens
+- `stitch_suknid_tattoo_nft_marketplace/suknid_home_bone_blood/code.html` — Home page reference (Tailwind CDN prototype)
+- `stitch_suknid_tattoo_nft_marketplace/design_detail_bone_blood/code.html` — Detail page reference
+- `stitch_suknid_tattoo_nft_marketplace/the_vault_bone_blood/code.html` — Wallet/vault reference
+- `stitch_suknid_tattoo_nft_marketplace/artist_dashboard_bone_blood/code.html` — Artist dashboard reference
 
 ### Current State
 - ✅ Tailwind installed and configured

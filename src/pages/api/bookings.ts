@@ -74,7 +74,7 @@ async function sendEmail(opts: {
   env: { RESEND_API_KEY?: string };
 }) {
   const { artistId, name, contact, message, env } = opts;
-  const subject = `New INKNOIR booking inquiry for ${artistId}`;
+  const subject = `New SUKNID booking inquiry for ${artistId}`;
   const text = `From: ${name}\nContact: ${contact}\nArtist: ${artistId}\n\n${message ?? ""}`;
 
   if (env.RESEND_API_KEY) {
@@ -85,8 +85,8 @@ async function sendEmail(opts: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        from: "INKNOIR <noreply@inknoir.pages.dev>",
-        to: ["bookings@inknoir.pages.dev"],
+        from: "SUKNID <noreply@suknid.pages.dev>",
+        to: ["bookings@suknid.pages.dev"],
         subject,
         text,
       }),
@@ -97,8 +97,8 @@ async function sendEmail(opts: {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        personalizations: [{ to: [{ email: "bookings@inknoir.pages.dev" }] }],
-        from: { email: "noreply@inknoir.pages.dev", name: "INKNOIR" },
+        personalizations: [{ to: [{ email: "bookings@suknid.pages.dev" }] }],
+        from: { email: "noreply@suknid.pages.dev", name: "SUKNID" },
         subject,
         content: [{ type: "text/plain", value: text }],
       }),

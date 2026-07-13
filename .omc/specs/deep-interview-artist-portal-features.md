@@ -27,13 +27,13 @@
 |-----------|--------|-------------|--------------------------|
 | Tattoo Listing Form | active | Artist uploads photo + fills design details from portal, submitted for admin review | Full flow defined: upload to R2, USDT pricing, selling mode selection, admin approval gate, edit/resubmit on rejection, delist unsold |
 | Selling Mode Configuration | active | Per-design choice between soulbound (one-time) and resellable with artist-chosen royalty % | Locked permanently at listing time, 5-15% royalty range, soulbound = non-transferable NFT |
-| Secondary Market / Resale Engine | active | NFT resale with ERC-2981 royalties on INKNOIR and external marketplaces | Both platforms, resale from /design/:id page, seller sets price, no admin approval for resale, 3% platform fee |
+| Secondary Market / Resale Engine | active | NFT resale with ERC-2981 royalties on SUKNID and external marketplaces | Both platforms, resale from /design/:id page, seller sets price, no admin approval for resale, 3% platform fee |
 | Booking Calendar | active | Monthly calendar on artist portal showing inquiries and appointments | Read-only grid with dot indicators, click for detail panel, accept/decline inquiries, date picker for appointments |
 | Admin Listing Review | active | Admin dashboard component for reviewing pending tattoo listings | Simple approve/reject, rejection allows artist resubmit, only gates new listings (not resales) |
 
 ## Goal
 
-Build 5 interconnected features for the INKNOIR tattoo platform that enable artists to self-service list new tattoo designs through their portal, choose between one-time (soulbound) and resellable selling modes with artist-chosen royalties, manage their bookings via a visual calendar, and track their earnings — all gated by admin approval. Additionally, enable NFT holders to resell transferable tattoo NFTs on both the INKNOIR marketplace and external platforms, with automatic royalty distribution to the original artist.
+Build 5 interconnected features for the SUKNID tattoo platform that enable artists to self-service list new tattoo designs through their portal, choose between one-time (soulbound) and resellable selling modes with artist-chosen royalties, manage their bookings via a visual calendar, and track their earnings — all gated by admin approval. Additionally, enable NFT holders to resell transferable tattoo NFTs on both the SUKNID marketplace and external platforms, with automatic royalty distribution to the original artist.
 
 ## Constraints
 - **Blockchain:** BSC (BNB Smart Chain)
@@ -270,7 +270,7 @@ Ontology converged strongly from round 15 onwards — the core domain model stab
 **Ambiguity:** 57% (Goal: 0.68, Constraints: 0.30, Criteria: 0.17, Context: 0.49)
 
 ### Round 9 (Ontologist Mode)
-**Q:** Does resale happen on INKNOIR, external marketplaces like OpenSea, or both?
+**Q:** Does resale happen on SUKNID, external marketplaces like OpenSea, or both?
 **A:** Both.
 **Ambiguity:** 56% (Goal: 0.69, Constraints: 0.33, Criteria: 0.17, Context: 0.50)
 

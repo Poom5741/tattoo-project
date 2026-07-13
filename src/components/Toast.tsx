@@ -13,8 +13,8 @@ export default function Toast() {
       setMsg(detail.message);
       setTimeout(() => setMsg(null), 2600);
     };
-    window.addEventListener("inknoir:toast", show);
-    return () => window.removeEventListener("inknoir:toast", show);
+    window.addEventListener("suknid:toast", show);
+    return () => window.removeEventListener("suknid:toast", show);
   }, []);
 
   return (

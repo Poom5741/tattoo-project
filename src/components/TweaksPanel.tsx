@@ -24,7 +24,7 @@ const ACCENTS = {
   jade: { accent: "oklch(0.78 0.12 165)", ok: "oklch(0.78 0.12 165)" },
 } as const;
 
-const TWEAKS_KEY = "inknoir.v2.tweaks";
+const TWEAKS_KEY = "suknid.v2.tweaks";
 
 interface TweakValues {
   fontPair: keyof typeof FONT_PAIRS;
@@ -143,7 +143,7 @@ export default function TweaksPanel() {
     const ac = ACCENTS[t.accent] || ACCENTS.bone;
     r.setProperty("--accent", ac.accent);
     r.setProperty("--ok", ac.ok);
-    window.dispatchEvent(new CustomEvent("inknoir:texture", { detail: t.texture }));
+    window.dispatchEvent(new CustomEvent("suknid:texture", { detail: t.texture }));
   }, [t]);
 
   const setTweak = <K extends keyof TweakValues>(key: K, val: TweakValues[K]) => {

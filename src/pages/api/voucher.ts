@@ -185,7 +185,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const signature = await walletClient.signTypedData({
       domain: {
-        name: "INKNOIR",
+        name: "SUKNID",
         version: "1",
         chainId: CHAIN_ID,
         verifyingContract: CONTRACT_ADDRESS,

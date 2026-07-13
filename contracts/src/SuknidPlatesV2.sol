@@ -11,18 +11,18 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
-/// @title InknoirPlatesV2
-/// @notice ERC-721 NFT contract for INKNOIR on BSC with:
+/// @title SuknidPlatesV2
+/// @notice ERC-721 NFT contract for SUKNID on BSC with:
 ///   - USDT (BEP-20) payment via ERC-20 transferFrom (18 decimals on BSC)
 ///   - ERC-2981 royalties per token
 ///   - Soulbound flag (prevents transfer after mint)
 ///   - Resale mechanism via buyResale()
 ///   - 3% platform fee split at mint and resale
-contract InknoirPlatesV2 is ERC721, ERC2981, Ownable, ReentrancyGuard, EIP712 {
+contract SuknidPlatesV2 is ERC721, ERC2981, Ownable, ReentrancyGuard, EIP712 {
     using ECDSA for bytes32;
     using SafeERC20 for IERC20;
 
-    string private constant SIGNING_DOMAIN = "INKNOIR";
+    string private constant SIGNING_DOMAIN = "SUKNID";
     string private constant SIGNATURE_VERSION = "1";
 
     /// @notice USDT BEP-20 token address on BSC
@@ -86,7 +86,7 @@ contract InknoirPlatesV2 is ERC721, ERC2981, Ownable, ReentrancyGuard, EIP712 {
         address treasury,
         address usdtAddress
     )
-        ERC721("InknoirPlatesV2", "INKNOIR2")
+        ERC721("SuknidPlatesV2", "SUKNID2")
         Ownable(msg.sender)
         EIP712(SIGNING_DOMAIN, SIGNATURE_VERSION)
     {

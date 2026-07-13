@@ -10,8 +10,8 @@ test.describe("Market page (/market)", () => {
     await expect(page.locator("body")).toBeVisible();
   });
 
-  test("shows page title 'Gallery — INKNOIR'", async ({ page }) => {
-    await expect(page).toHaveTitle(/Gallery — INKNOIR/);
+  test("shows page title 'Gallery — SUKNID'", async ({ page }) => {
+    await expect(page).toHaveTitle(/Gallery — SUKNID/);
   });
 
   test("shows 'Plates for acquisition' heading with display font", async ({ page }) => {

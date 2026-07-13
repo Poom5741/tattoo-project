@@ -65,10 +65,10 @@ test.describe("Navigation", () => {
     await expect(header).toHaveCSS("position", "sticky");
   });
 
-  test("brand name renders INKNOIR", async ({ page }) => {
+  test("brand name renders SUKNID", async ({ page }) => {
     await page.goto("/");
     const brand = page.locator("header a.font-display").first();
-    await expect(brand).toContainText("INKNOIR");
+    await expect(brand).toContainText("SUKNID");
   });
 
   test("active nav link shows red underline", async ({ page }) => {

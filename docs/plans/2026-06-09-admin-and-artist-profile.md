@@ -46,7 +46,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   }
 
   const { password } = body as { password?: string };
-  const expected = env.ADMIN_PASSWORD ?? "inknoir2026";
+  const expected = env.ADMIN_PASSWORD ?? "suknid2026";
 
   if (!password || password !== expected) {
     return new Response(JSON.stringify({ error: "Invalid password" }), {
@@ -211,7 +211,7 @@ function fmtDate(ts: number) {
 }
 ---
 
-<Base title="Admin — INKNOIR">
+<Base title="Admin — SUKNID">
   <style>
     .adm { max-width: 1100px; margin: 0 auto; padding: 40px 28px 80px; }
     .adm-hd { display: flex; justify-content: space-between; align-items: center; padding-bottom: 24px; border-bottom: 1px solid var(--line); margin-bottom: 40px; }
@@ -235,7 +235,7 @@ function fmtDate(ts: number) {
   {!authed ? (
     <div class="login-outer">
       <div class="login-box">
-        <div class="kicker" style="margin-bottom: 18px;">INKNOIR / Admin</div>
+        <div class="kicker" style="margin-bottom: 18px;">SUKNID / Admin</div>
         <h1 class="display" style="font-size: 30px; margin-bottom: 28px;">Sign in</h1>
         <form id="lf" novalidate>
           <div class="field">
@@ -268,7 +268,7 @@ function fmtDate(ts: number) {
     <div class="adm">
       <div class="adm-hd">
         <div>
-          <div class="kicker" style="margin-bottom: 8px;">INKNOIR / Admin</div>
+          <div class="kicker" style="margin-bottom: 8px;">SUKNID / Admin</div>
           <h1 class="display" style="font-size: 34px;">Dashboard</h1>
         </div>
         <form method="POST" action="/api/admin/logout">
@@ -426,9 +426,9 @@ Expected: `[build] Complete!` with no errors.
 
 **Step 2: Deploy**
 ```bash
-pnpm dlx wrangler pages deploy dist --project-name inknoir --branch main --commit-dirty=true
+pnpm dlx wrangler pages deploy dist --project-name suknid --branch main --commit-dirty=true
 ```
-Expected: `Deployment complete!` with a `*.inknoir.pages.dev` URL.
+Expected: `Deployment complete!` with a `*.suknid.pages.dev` URL.
 
 **Step 3: Smoke-test admin**
 ```bash
@@ -440,7 +440,7 @@ curl -s -X POST https://<deploy-url>/api/admin/login \
 # Should return ok:true with correct password
 curl -s -c /tmp/cookies.txt -X POST https://<deploy-url>/api/admin/login \
   -H "Content-Type: application/json" \
-  -d '{"password":"inknoir2026"}' | python3 -m json.tool
+  -d '{"password":"suknid2026"}' | python3 -m json.tool
 
 # Should return 302 redirect to /admin
 curl -s -b /tmp/cookies.txt -o /dev/null -w "%{http_code}" \

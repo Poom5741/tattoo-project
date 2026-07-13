@@ -1,7 +1,7 @@
-# Deep Interview Spec: INKNOIR — Astro + Cloudflare NFT Ecommerce
+# Deep Interview Spec: SUKNID — Astro + Cloudflare NFT Ecommerce
 
 ## Metadata
-- Interview ID: di-inknoir-001
+- Interview ID: di-suknid-001
 - Rounds: 5 (Topology Round 0 + 5 scoring rounds)
 - Final Ambiguity Score: 18%
 - Type: brownfield (prototype zip provided) → greenfield (new Astro repo)
@@ -10,7 +10,7 @@
 - Threshold Source: default
 - Initial Context Summarized: yes (handoff zip read, only relevant facts carried forward)
 - Status: PASSED
-- Spec Path: `.omc/specs/deep-interview-inknoir-astro-cloudflare.md`
+- Spec Path: `.omc/specs/deep-interview-suknid-astro-cloudflare.md`
 
 ## Clarity Breakdown
 | Dimension | Score | Weight | Weighted |
@@ -27,7 +27,7 @@ All 7 top-level components confirmed active in Round 0.
 
 | Component | Status | Description | Coverage / Deferral Note |
 |-----------|--------|-------------|--------------------------|
-| Astro Frontend | active | Port INKNOIR React prototype to Astro pages/components, preserve visual design exactly | All 8 prototype screens visually ported; pixel-faithful match |
+| Astro Frontend | active | Port SUKNID React prototype to Astro pages/components, preserve visual design exactly | All 8 prototype screens visually ported; pixel-faithful match |
 | Catalog & Data Layer | active | Designs + artists source-of-truth on Cloudflare D1; image assets on R2; ERC-721 metadata pinned to IPFS | D1 schema for artists/designs/status; R2 bucket for images; IPFS for tokenURI metadata JSON |
 | Commerce Flow | active | Lazy-mint ERC-721 with EIP-712 voucher; Checkout → buyer signs mint tx paying ETH price + gas | One-of-one inventory locked at contract level (unique tokenId per design, no re-mint); Worker signer |
 | Bookings | active | Booking screen submits to a Worker endpoint that emails the artist; persisted as inquiry rows in D1 | Form → Worker → D1 booking_inquiries table + email notification |
@@ -37,7 +37,7 @@ All 7 top-level components confirmed active in Round 0.
 
 ## Goal
 
-Build a production-grade Astro 5 project that pixel-faithfully recreates the INKNOIR React prototype as a one-of-one NFT marketplace for tattoo designs. Buyers connect a wallet, browse curated "plates" by 4 artists across 15 designs, and acquire any AVAILABLE design via a lazy-mint flow on **Base Sepolia testnet**: the Astro frontend requests an EIP-712 signed voucher from a Cloudflare Worker, the buyer signs the mint transaction in their wallet, and the ERC-721 token (one-of-one per design) is minted directly to their address while paying ETH. Owned tokens appear on the Wallet screen via on-chain reads. The Booking screen routes artist inquiries through a Worker into D1. All catalog data lives in Cloudflare D1, all images on Cloudflare R2 with a custom public domain, and all token metadata JSON is pinned to IPFS. The site deploys to Cloudflare Pages with @astrojs/cloudflare adapter and supporting Workers, with live deployment attempted via the Cloudflare MCP tools after the repo is pushed to github.com/Poom5741/tattoo-project.
+Build a production-grade Astro 5 project that pixel-faithfully recreates the SUKNID React prototype as a one-of-one NFT marketplace for tattoo designs. Buyers connect a wallet, browse curated "plates" by 4 artists across 15 designs, and acquire any AVAILABLE design via a lazy-mint flow on **Base Sepolia testnet**: the Astro frontend requests an EIP-712 signed voucher from a Cloudflare Worker, the buyer signs the mint transaction in their wallet, and the ERC-721 token (one-of-one per design) is minted directly to their address while paying ETH. Owned tokens appear on the Wallet screen via on-chain reads. The Booking screen routes artist inquiries through a Worker into D1. All catalog data lives in Cloudflare D1, all images on Cloudflare R2 with a custom public domain, and all token metadata JSON is pinned to IPFS. The site deploys to Cloudflare Pages with @astrojs/cloudflare adapter and supporting Workers, with live deployment attempted via the Cloudflare MCP tools after the repo is pushed to github.com/Poom5741/tattoo-project.
 
 ## Constraints
 
@@ -48,12 +48,12 @@ Build a production-grade Astro 5 project that pixel-faithfully recreates the INK
 - **Auth:** Wallet-connect only. No email/password. SIWE not required for v1 (owned-collection is derived from on-chain reads, not from a session).
 - **Frontend framework:** Astro 5 with `@astrojs/cloudflare` adapter, output `hybrid`. Static pages prerendered; `/api/*` routes SSR on Workers.
 - **UI:** React 18 islands for the interactive screens (Market filters, DesignDetail acquire button, Checkout, Wallet, Booking form, TweaksPanel). Static content (Home hero, Footer, Nav shell) rendered at build time as `.astro`.
-- **Design fidelity:** Pixel-faithful port of `INKNOIR.html` + `styles.css`. Same font stack (Bodoni Moda / Playfair / Spectral / Archivo / Space Mono / JetBrains Mono / IBM Plex), same `--accent` themes (bone/ember/jade), same texture overlays (grain/scanlines/hatch). TweaksPanel preserved and functional.
+- **Design fidelity:** Pixel-faithful port of `SUKNID.html` + `styles.css`. Same font stack (Bodoni Moda / Playfair / Spectral / Archivo / Space Mono / JetBrains Mono / IBM Plex), same `--accent` themes (bone/ember/jade), same texture overlays (grain/scanlines/hatch). TweaksPanel preserved and functional.
 - **Catalog source:** D1 SQLite. Seed migration carries the 4 artists + 15 designs from `data.jsx` verbatim. Procedural SVG renderer (the `ink.jsx` `Plate` component) is ported to React so listings still render visually even without uploaded images. R2 holds optional override images per design.
 - **Token metadata:** ERC-721 `tokenURI` returns an IPFS gateway URL. Metadata JSON is generated at admin-upload time and pinned via NFT.Storage or web3.storage (key in Worker Secrets). For v1, metadata can be auto-generated from the seed catalog at deploy time.
 - **Bookings:** Worker route `POST /api/bookings` validates payload, inserts into D1 `booking_inquiries`, sends email via Resend or MailChannels. Email service key in Worker Secrets.
 - **State:** localStorage cache for "drawn" (saved) ids stays for UX continuity; canonical owned-collection is on-chain.
-- **Deployment surface:** Cloudflare Pages for the Astro app; a single Worker (or Pages Functions) for `/api/*`. D1 + R2 bindings live in `wrangler.toml`. Resources namespaced `inknoir-*` to avoid colliding with the 8 existing Workers in the account.
+- **Deployment surface:** Cloudflare Pages for the Astro app; a single Worker (or Pages Functions) for `/api/*`. D1 + R2 bindings live in `wrangler.toml`. Resources namespaced `suknid-*` to avoid colliding with the 8 existing Workers in the account.
 - **Secrets:** Voucher signer private key, NFT.Storage key, Resend/email key — all `wrangler secret put` only. Never committed.
 - **Repo:** `git init` in `/Users/poom-work/codingZone/business/tattoo-project`. Remote: `https://github.com/Poom5741/tattoo-project.git`. Branch: `main`. Single initial push.
 - **Live deploy:** Attempt via Cloudflare MCP tools (`d1_database_create`, `r2_bucket_create`, deploy Worker code, Pages project creation). Account has 8 existing Workers — must not modify them.
@@ -76,20 +76,20 @@ Build a production-grade Astro 5 project that pixel-faithfully recreates the INK
 
 ### Astro Frontend
 - [ ] All 8 prototype screens exist as routes: `/` (Home), `/market`, `/design/[id]`, `/artists`, `/artist/[id]`, `/booking`, `/checkout/[id]`, `/wallet`.
-- [ ] Visual diff against `INKNOIR.html` rendered locally is pixel-faithful (fonts, colors, spacing, textures, accent themes match).
+- [ ] Visual diff against `SUKNID.html` rendered locally is pixel-faithful (fonts, colors, spacing, textures, accent themes match).
 - [ ] TweaksPanel toggles fontPair / texture / accent and applies CSS custom properties on `:root`.
 - [ ] All `styles.css` rules ported (kept as a single CSS file or split into per-component scopes — visual output identical).
 - [ ] `Plate` SVG renderer ported and produces the same procedural designs from the same seeds.
 
 ### Catalog & Data Layer
-- [ ] D1 database `inknoir-catalog` created with tables: `artists`, `designs`, `booking_inquiries`.
+- [ ] D1 database `suknid-catalog` created with tables: `artists`, `designs`, `booking_inquiries`.
 - [ ] D1 seed migration inserts the 4 artists + 15 designs from `data.jsx` verbatim (id, name, handle, city, style, etc. for artists; n, title, artistId, style, price, status, placement, seed, token, minted, medium, sessions, drawn for designs).
-- [ ] R2 bucket `inknoir-assets` created with public access for image overrides (optional).
+- [ ] R2 bucket `suknid-assets` created with public access for image overrides (optional).
 - [ ] `/api/designs` and `/api/designs/[id]` Worker routes return D1-backed data.
 - [ ] `/api/metadata/[tokenId]` Worker route returns ERC-721-compliant metadata JSON (referenced by `tokenURI` from the contract).
 
 ### Commerce Flow
-- [ ] ERC-721 contract `InknoirPlates` deployed to Base Sepolia.
+- [ ] ERC-721 contract `SuknidPlates` deployed to Base Sepolia.
 - [ ] Contract supports `mintWithVoucher(LazyMintVoucher voucher, bytes signature)` payable, validates EIP-712 signature against an authorized signer address, reverts if `tokenId` already exists, transfers ETH to artist (or platform) treasury.
 - [ ] Worker route `POST /api/voucher` returns an EIP-712-signed `LazyMintVoucher{tokenId, designId, price, artistTreasury, expiry, buyer}` for a given design id (only if status=AVAILABLE in D1).
 - [ ] Checkout screen: wallet connected → Acquire button → POST /api/voucher → wallet signs mint tx → tx confirmed → success toast → redirect to `/wallet`.
@@ -110,7 +110,7 @@ Build a production-grade Astro 5 project that pixel-faithfully recreates the INK
 ### Cloudflare Infrastructure
 - [ ] `wrangler.toml` declares `[[d1_databases]]`, `[[r2_buckets]]`, vars, and a single `[ai]`-free Worker entry.
 - [ ] `@astrojs/cloudflare` adapter installed, `output: 'hybrid'`, `prerender = true` on static pages, `false` on `/api/*` and dynamic checkout/design pages that read live data.
-- [ ] Pages project `inknoir` created and deployed; live URL accessible.
+- [ ] Pages project `suknid` created and deployed; live URL accessible.
 - [ ] D1 + R2 + Worker secrets created in the account via MCP.
 
 ### Repo & CI
@@ -134,9 +134,9 @@ Build a production-grade Astro 5 project that pixel-faithfully recreates the INK
 ## Technical Context
 
 ### Brownfield findings (from handoff zip)
-- `INKNOIR.html` loads React 18 UMD + Babel standalone + 8 `.jsx` files in order: `data → ink → ui → screens-1/2/3 → tweaks-panel → app`.
+- `SUKNID.html` loads React 18 UMD + Babel standalone + 8 `.jsx` files in order: `data → ink → ui → screens-1/2/3 → tweaks-panel → app`.
 - `data.jsx`: 4 artists, 15 designs hardcoded; assigns to `window.{ARTISTS, DESIGNS, STYLES, STATUS, hash6}`.
-- `app.jsx`: SCREENS map = `{home, market, design, artists, artist, booking, checkout, wallet}`; uses `localStorage` keys `inknoir_col` and `inknoir_book`; tweaks via `useTweaks` and CSS custom properties (`--font-display`, `--font-mono`, `--font-body`, `--accent`, `--ok`); textures via `<TextureLayer>` overlay.
+- `app.jsx`: SCREENS map = `{home, market, design, artists, artist, booking, checkout, wallet}`; uses `localStorage` keys `suknid_col` and `suknid_book`; tweaks via `useTweaks` and CSS custom properties (`--font-display`, `--font-mono`, `--font-body`, `--accent`, `--ok`); textures via `<TextureLayer>` overlay.
 - Fonts: Bodoni Moda, Playfair Display, Spectral, Archivo, IBM Plex Sans, Space Mono, JetBrains Mono, IBM Plex Mono.
 - Accent presets: `bone` (#f4f1ea), `ember` (oklch ember), `jade` (oklch jade).
 
@@ -150,7 +150,7 @@ Build a production-grade Astro 5 project that pixel-faithfully recreates the INK
 - **Resend** (or MailChannels) for artist email notification.
 
 ### Resource naming
-All new Cloudflare resources prefixed `inknoir-` (e.g., `inknoir-catalog` D1, `inknoir-assets` R2, `inknoir` Pages project). Must not collide with existing 8 Workers in the account.
+All new Cloudflare resources prefixed `suknid-` (e.g., `suknid-catalog` D1, `suknid-assets` R2, `suknid` Pages project). Must not collide with existing 8 Workers in the account.
 
 ## Ontology (Key Entities — final round)
 

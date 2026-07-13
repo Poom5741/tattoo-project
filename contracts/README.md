@@ -1,6 +1,6 @@
-# InknoirPlates — Foundry Smart Contract
+# SuknidPlates — Foundry Smart Contract
 
-ERC-721 lazy-mint contract for INKNOIR tattoo plates. Vouchers are signed off-chain by the Cloudflare Worker and verified on-chain via EIP-712.
+ERC-721 lazy-mint contract for SUKNID tattoo plates. Vouchers are signed off-chain by the Cloudflare Worker and verified on-chain via EIP-712.
 
 ## Prerequisites
 

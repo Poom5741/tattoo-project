@@ -25,7 +25,7 @@ test.describe("Checkout page (/checkout/[id])", () => {
     if (url.includes(`/checkout/${AVAILABLE_DESIGN_ID}`)) {
       // Should render the CheckoutFlow React component
       await expect(page.locator("body")).toBeVisible();
-      await expect(page).toHaveTitle(/Acquire.*INKNOIR/);
+      await expect(page).toHaveTitle(/Acquire.*SUKNID/);
     } else if (url.includes(`/design/${AVAILABLE_DESIGN_ID}`)) {
       // Redirected to design page — design may not be available
       expect(url).toContain("/design/");
@@ -40,7 +40,7 @@ test.describe("Checkout page (/checkout/[id])", () => {
     const url = page.url();
 
     if (url.includes(`/checkout/${AVAILABLE_DESIGN_ID}`)) {
-      await expect(page).toHaveTitle(/INKNOIR/);
+      await expect(page).toHaveTitle(/SUKNID/);
     }
   });
 

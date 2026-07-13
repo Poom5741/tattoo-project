@@ -7,10 +7,10 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 import {EIP712} from "@openzeppelin/contracts/utils/cryptography/EIP712.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-contract InknoirPlates is ERC721, Ownable, ReentrancyGuard, EIP712 {
+contract SuknidPlates is ERC721, Ownable, ReentrancyGuard, EIP712 {
     using ECDSA for bytes32;
 
-    string private constant SIGNING_DOMAIN = "INKNOIR";
+    string private constant SIGNING_DOMAIN = "SUKNID";
     string private constant SIGNATURE_VERSION = "1";
 
     address public authorizedSigner;
@@ -35,7 +35,7 @@ contract InknoirPlates is ERC721, Ownable, ReentrancyGuard, EIP712 {
     event SignerRotated(address indexed oldSigner, address indexed newSigner);
 
     constructor(address signer, address treasury)
-        ERC721("InknoirPlates", "INKNOIR")
+        ERC721("SuknidPlates", "SUKNID")
         Ownable(msg.sender)
         EIP712(SIGNING_DOMAIN, SIGNATURE_VERSION)
     {

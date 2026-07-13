@@ -2,22 +2,22 @@
 pragma solidity 0.8.24;
 
 import {Test, console2} from "forge-std/Test.sol";
-import {InknoirPlates} from "../src/InknoirPlates.sol";
+import {SuknidPlates} from "../src/SuknidPlates.sol";
 
 // Acts as both buyer and malicious treasury.
 // On first call, mint succeeds and triggers payment to self (treasury == address(this)).
 // On receive(), tries to re-enter mintWithVoucher with a second voucher.
 // ReentrancyGuard should cause the re-entrant call to revert.
 contract MaliciousTreasury {
-    InknoirPlates public target;
-    InknoirPlates.LazyMintVoucher public reentrantVoucher;
+    SuknidPlates public target;
+    SuknidPlates.LazyMintVoucher public reentrantVoucher;
     bytes public reentrantSig;
     string public reentrantCid;
     bool public shouldAttack;
 
     function setup(
-        InknoirPlates _target,
-        InknoirPlates.LazyMintVoucher memory voucher,
+        SuknidPlates _target,
+        SuknidPlates.LazyMintVoucher memory voucher,
         bytes memory sig,
         string memory cid
     ) external {
@@ -36,7 +36,7 @@ contract MaliciousTreasury {
     }
 
     function mint(
-        InknoirPlates.LazyMintVoucher memory voucher,
+        SuknidPlates.LazyMintVoucher memory voucher,
         bytes memory sig,
         string memory cid
     ) external payable {
@@ -45,8 +45,8 @@ contract MaliciousTreasury {
     }
 }
 
-contract InknoirPlatesTest is Test {
-    InknoirPlates plates;
+contract SuknidPlatesTest is Test {
+    SuknidPlates plates;
 
     uint256 signerKey = 0xA11CE;
     address signer;
@@ -64,7 +64,7 @@ contract InknoirPlatesTest is Test {
         treasury = makeAddr("treasury");
         buyer = vm.addr(buyerKey);
 
-        plates = new InknoirPlates(signer, treasury);
+        plates = new SuknidPlates(signer, treasury);
     }
 
     // ─── helpers ────────────────────────────────────────────────────────────
@@ -77,8 +77,8 @@ contract InknoirPlatesTest is Test {
         uint256 expiry,
         address _buyer,
         string memory cid
-    ) internal pure returns (InknoirPlates.LazyMintVoucher memory) {
-        return InknoirPlates.LazyMintVoucher({
+    ) internal pure returns (SuknidPlates.LazyMintVoucher memory) {
+        return SuknidPlates.LazyMintVoucher({
             tokenId: tokenId,
             designId: designId,
             price: price,
@@ -89,7 +89,7 @@ contract InknoirPlatesTest is Test {
         });
     }
 
-    function _sign(InknoirPlates.LazyMintVoucher memory voucher, uint256 pk)
+    function _sign(SuknidPlates.LazyMintVoucher memory voucher, uint256 pk)
         internal
         view
         returns (bytes memory)
@@ -113,7 +113,7 @@ contract InknoirPlatesTest is Test {
 
     function testSuccessfulMint() public {
         string memory cid = "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi";
-        InknoirPlates.LazyMintVoucher memory voucher = _makeVoucher(
+        SuknidPlates.LazyMintVoucher memory voucher = _makeVoucher(
             1, "d1", 0.01 ether, treasury, block.timestamp + 1 hours, buyer, cid
         );
         bytes memory sig = _sign(voucher, signerKey);
@@ -128,7 +128,7 @@ contract InknoirPlatesTest is Test {
 
     function testRevertOnExpiredVoucher() public {
         string memory cid = "bafytest1";
-        InknoirPlates.LazyMintVoucher memory voucher = _makeVoucher(
+        SuknidPlates.LazyMintVoucher memory voucher = _makeVoucher(
             2, "d2", 0.01 ether, treasury, block.timestamp - 1, buyer, cid
         );
         bytes memory sig = _sign(voucher, signerKey);
@@ -142,7 +142,7 @@ contract InknoirPlatesTest is Test {
     function testRevertOnWrongSigner() public {
         uint256 randomKey = 0xDEAD;
         string memory cid = "bafytest2";
-        InknoirPlates.LazyMintVoucher memory voucher = _makeVoucher(
+        SuknidPlates.LazyMintVoucher memory voucher = _makeVoucher(
             3, "d3", 0.01 ether, treasury, block.timestamp + 1 hours, buyer, cid
         );
         bytes memory sig = _sign(voucher, randomKey); // signed with wrong key
@@ -155,7 +155,7 @@ contract InknoirPlatesTest is Test {
 
     function testRevertOnDoubleClaim() public {
         string memory cid = "bafytest3";
-        InknoirPlates.LazyMintVoucher memory voucher = _makeVoucher(
+        SuknidPlates.LazyMintVoucher memory voucher = _makeVoucher(
             4, "d4", 0.01 ether, treasury, block.timestamp + 1 hours, buyer, cid
         );
         bytes memory sig = _sign(voucher, signerKey);
@@ -171,7 +171,7 @@ contract InknoirPlatesTest is Test {
 
     function testRevertOnUnderpayment() public {
         string memory cid = "bafytest4";
-        InknoirPlates.LazyMintVoucher memory voucher = _makeVoucher(
+        SuknidPlates.LazyMintVoucher memory voucher = _makeVoucher(
             5, "d5", 0.01 ether, treasury, block.timestamp + 1 hours, buyer, cid
         );
         bytes memory sig = _sign(voucher, signerKey);
@@ -186,7 +186,7 @@ contract InknoirPlatesTest is Test {
         address impostor = makeAddr("impostor");
         string memory cid = "bafytest5";
         // voucher is bound to `buyer` but impostor tries to redeem
-        InknoirPlates.LazyMintVoucher memory voucher = _makeVoucher(
+        SuknidPlates.LazyMintVoucher memory voucher = _makeVoucher(
             6, "d6", 0.01 ether, treasury, block.timestamp + 1 hours, buyer, cid
         );
         bytes memory sig = _sign(voucher, signerKey);
@@ -199,14 +199,14 @@ contract InknoirPlatesTest is Test {
 
     function testRevertOnWrongChainId() public {
         string memory cid = "bafytest6";
-        InknoirPlates.LazyMintVoucher memory voucher = _makeVoucher(
+        SuknidPlates.LazyMintVoucher memory voucher = _makeVoucher(
             7, "d7", 0.01 ether, treasury, block.timestamp + 1 hours, buyer, cid
         );
 
         // Sign against a contract deployed at chainId=1 (different domain separator).
         // We do this by deploying a shadow contract on a forked chainId.
         vm.chainId(1);
-        InknoirPlates shadowPlates = new InknoirPlates(signer, treasury);
+        SuknidPlates shadowPlates = new SuknidPlates(signer, treasury);
         bytes32 structHash = keccak256(abi.encode(
             VOUCHER_TYPEHASH,
             voucher.tokenId,
@@ -234,7 +234,7 @@ contract InknoirPlatesTest is Test {
         string memory cidA = "bafytest-cidA";
         string memory cidB = "bafytest-cidB";
         // Voucher is signed with cidHash for cidA.
-        InknoirPlates.LazyMintVoucher memory voucher = _makeVoucher(
+        SuknidPlates.LazyMintVoucher memory voucher = _makeVoucher(
             8, "d8", 0.01 ether, treasury, block.timestamp + 1 hours, buyer, cidA
         );
         bytes memory sig = _sign(voucher, signerKey);
@@ -261,14 +261,14 @@ contract InknoirPlatesTest is Test {
 
         // First voucher: malTreasury is both buyer and treasury.
         string memory cid1 = "bafytest-reentrant-1";
-        InknoirPlates.LazyMintVoucher memory voucher1 = _makeVoucher(
+        SuknidPlates.LazyMintVoucher memory voucher1 = _makeVoucher(
             9, "d9", 0.01 ether, address(malTreasury), block.timestamp + 1 hours, address(malTreasury), cid1
         );
         bytes memory sig1 = _sign(voucher1, signerKey);
 
         // Second voucher: used for the re-entry attempt inside receive().
         string memory cid2 = "bafytest-reentrant-2";
-        InknoirPlates.LazyMintVoucher memory voucher2 = _makeVoucher(
+        SuknidPlates.LazyMintVoucher memory voucher2 = _makeVoucher(
             91, "d91", 0.01 ether, address(malTreasury), block.timestamp + 1 hours, address(malTreasury), cid2
         );
         bytes memory sig2 = _sign(voucher2, signerKey);
@@ -291,7 +291,7 @@ contract InknoirPlatesTest is Test {
         plates.setAuthorizedSigner(newSignerAddr);
 
         string memory cid = "bafytest-rotated";
-        InknoirPlates.LazyMintVoucher memory voucher = _makeVoucher(
+        SuknidPlates.LazyMintVoucher memory voucher = _makeVoucher(
             10, "d10", 0.01 ether, treasury, block.timestamp + 1 hours, buyer, cid
         );
         // Sign with the OLD key.
@@ -305,7 +305,7 @@ contract InknoirPlatesTest is Test {
 
     function testTokenURIReturnsIpfs() public {
         string memory cid = "bafybeigdyrzt5sfp7udm7hu76uh7y26nf3efuylqabf3oclgtqy55fbzdi";
-        InknoirPlates.LazyMintVoucher memory voucher = _makeVoucher(
+        SuknidPlates.LazyMintVoucher memory voucher = _makeVoucher(
             11, "d11", 0, treasury, block.timestamp + 1 hours, buyer, cid
         );
         bytes memory sig = _sign(voucher, signerKey);

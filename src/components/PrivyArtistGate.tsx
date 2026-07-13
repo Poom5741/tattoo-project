@@ -10,7 +10,7 @@ function LoginWall() {
   const { login, ready } = usePrivy();
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6">
-      <div className="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023]">INKNOIR / Artist Portal</div>
+      <div className="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023]">SUKNID / Artist Portal</div>
       <h1 className="font-playfair font-semibold text-[#1B1C18] text-[34px]">Sign in with your wallet</h1>
       <p className="font-sora text-[13px] text-[#5A5B55] max-w-[360px] text-center">
         Use email, Google, or any Ethereum wallet. No seed phrase required — your smart wallet is created automatically.

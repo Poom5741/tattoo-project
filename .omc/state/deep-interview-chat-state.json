@@ -13,7 +13,7 @@
     "current_ambiguity": 1.0,
     "threshold": 0.2,
     "threshold_source": "default",
-    "codebase_context": "Astro5 SSR on Cloudflare Pages/Workers. Bindings: D1 (inknoir-catalog), KV (SESSION), R2 (MEDIA). No realtime yet. Base.astro global layout. Admin=password->KV token cookie. Artists=Privy JWT->KV session, D1 artists table. Visitors anonymous; booking form captures name+contact.",
+    "codebase_context": "Astro5 SSR on Cloudflare Pages/Workers. Bindings: D1 (suknid-catalog), KV (SESSION), R2 (MEDIA). No realtime yet. Base.astro global layout. Admin=password->KV token cookie. Artists=Privy JWT->KV session, D1 artists table. Visitors anonymous; booking form captures name+contact.",
     "topology": {
       "status": "confirmed",
       "confirmed_at": "2026-06-09",

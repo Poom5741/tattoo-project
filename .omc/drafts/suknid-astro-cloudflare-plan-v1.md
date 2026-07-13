@@ -1,7 +1,7 @@
-# Implementation Plan: INKNOIR — Astro + Cloudflare NFT Ecommerce (v1)
+# Implementation Plan: SUKNID — Astro + Cloudflare NFT Ecommerce (v1)
 
 **Status:** DRAFT (Planner output, pre-review)
-**Source spec:** `.omc/specs/deep-interview-inknoir-astro-cloudflare.md`
+**Source spec:** `.omc/specs/deep-interview-suknid-astro-cloudflare.md`
 **Mode:** Consensus, deliberate (high-risk: smart contract + signer key + value flow on testnet)
 
 ---
@@ -13,7 +13,7 @@
 2. **On-chain is canonical for ownership; D1 is canonical for listing state.** No dual writes of the same fact. Voucher issuance flips D1 `status` to RESERVED; on-chain `Transfer` event confirms SOLD.
 3. **Signer keys never leave Cloudflare Workers Secrets.** No client-side signing, no leaked env vars in the repo, no signer key in `wrangler.toml`.
 4. **One Worker, one voucher contract, one chain (Base Sepolia).** Resist scope creep into indexers, multi-chain, mainnet, or microservices in v1.
-5. **Idempotent infra, deterministic deploy.** Re-running `wrangler deploy` or contract deploy must converge, not drift. Resource names prefixed `inknoir-` to avoid colliding with the 8 existing Workers in the account.
+5. **Idempotent infra, deterministic deploy.** Re-running `wrangler deploy` or contract deploy must converge, not drift. Resource names prefixed `suknid-` to avoid colliding with the 8 existing Workers in the account.
 
 ### Decision Drivers (top 3)
 1. **Security-of-funds (testnet but still real ETH semantics).** Any signing/minting bug becomes a class of "anyone can mint anything" or "signer key exfiltrated" — these are unrecoverable in NFT space, even on testnet they teach bad habits.
@@ -66,7 +66,7 @@ TweaksPanel mutates `document.documentElement.style` on every render. With Astro
 
 #### Failure 3 — D1 status drift vs on-chain reality
 A buyer mints successfully on-chain, but the D1 `status` stays RESERVED forever because no event ingestion ran. Two days later another buyer requests a voucher for the same `tokenId`, the Worker happily signs because D1 says RESERVED-but-expired, the second `mintWithVoucher` reverts at the contract (token exists), the buyer eats gas, support tickets follow.
-**Prevention:** Worker `POST /api/voucher` is the read-path-of-truth. Before signing, it MUST call `viem.readContract(InknoirPlates, 'exists', [tokenId])` against Base Sepolia. If `true`, return 409 and update D1 `status` to SOLD synchronously. The D1 `status=RESERVED` window has a hard 15-minute TTL (`reserved_until`); after expiry, the next voucher request re-checks chain and either flips to SOLD or back to AVAILABLE. Optional Cron Worker every 5 minutes reconciles RESERVED rows past TTL.
+**Prevention:** Worker `POST /api/voucher` is the read-path-of-truth. Before signing, it MUST call `viem.readContract(SuknidPlates, 'exists', [tokenId])` against Base Sepolia. If `true`, return 409 and update D1 `status` to SOLD synchronously. The D1 `status=RESERVED` window has a hard 15-minute TTL (`reserved_until`); after expiry, the next voucher request re-checks chain and either flips to SOLD or back to AVAILABLE. Optional Cron Worker every 5 minutes reconciles RESERVED rows past TTL.
 **Detection:** `/api/health` endpoint returns count of (D1 RESERVED) and (D1 SOLD without on-chain token) — alerts when ratio diverges.
 
 ### Expanded Test Plan
@@ -77,16 +77,16 @@ A buyer mints successfully on-chain, but the D1 `status` stays RESERVED forever 
 | **Unit (worker)** | Voucher payload validates against zod schema; signer derives address from `SIGNER_PRIVATE_KEY` matching contract's `authorizedSigner`; D1 status flips correctly on issue/expire. | Vitest + `wrangler dev --test-scheduled` |
 | **Unit (frontend)** | `Plate` SVG produces identical paths for same seed (snapshot test). Tweaks state persists to localStorage. | Vitest + React Testing Library |
 | **Integration** | Voucher endpoint → contract: forge script signs a voucher with the same key, runs `mintWithVoucher` on a local anvil forked from Base Sepolia, expects success and `Transfer` event. | Foundry script + Vitest |
-| **e2e (visual)** | Playwright screenshot diff per screen vs the rendered `INKNOIR.html` baseline at 3 viewports (mobile 390px, tablet 768px, desktop 1440px). | Playwright + pixelmatch |
+| **e2e (visual)** | Playwright screenshot diff per screen vs the rendered `SUKNID.html` baseline at 3 viewports (mobile 390px, tablet 768px, desktop 1440px). | Playwright + pixelmatch |
 | **e2e (functional)** | Connect mock wallet → browse Market → click design → Acquire → see success → Wallet shows token. Uses Viem mock transport + a stub voucher endpoint. | Playwright |
 | **Observability** | Worker logs request_id, route, status, duration, chainCallMs, d1QueryMs. Sentry-light: structured `console.log` JSON to `cf observability` queries. Frontend ships `web-vitals` to a Worker endpoint. | `wrangler tail` + Cloudflare observability MCP |
-| **Smoke (post-deploy)** | A scripted curl flow: `GET /api/designs` returns 15 rows, `GET /api/health` returns ok, `GET /metadata/1` returns ERC-721 JSON, root URL returns 200 with `<title>INKNOIR</title>`. | Shell script run by deploy step |
+| **Smoke (post-deploy)** | A scripted curl flow: `GET /api/designs` returns 15 rows, `GET /api/health` returns ok, `GET /metadata/1` returns ERC-721 JSON, root URL returns 200 with `<title>SUKNID</title>`. | Shell script run by deploy step |
 
 ---
 
 ## Requirements Summary
 
-Port the INKNOIR React prototype to an Astro 5 project with `@astrojs/cloudflare` (hybrid output), wire a lazy-mint ERC-721 on Base Sepolia (Foundry, EIP-712 voucher signed by a Cloudflare Worker), persist catalog + bookings in D1, serve images from R2 with a procedural SVG fallback, pin token metadata to IPFS, deploy live to Cloudflare Pages via the Cloudflare MCP, and push the repo to `https://github.com/Poom5741/tattoo-project` `main`. All 8 prototype screens visually faithful. Status: testnet only, wallet-only auth, no fiat.
+Port the SUKNID React prototype to an Astro 5 project with `@astrojs/cloudflare` (hybrid output), wire a lazy-mint ERC-721 on Base Sepolia (Foundry, EIP-712 voucher signed by a Cloudflare Worker), persist catalog + bookings in D1, serve images from R2 with a procedural SVG fallback, pin token metadata to IPFS, deploy live to Cloudflare Pages via the Cloudflare MCP, and push the repo to `https://github.com/Poom5741/tattoo-project` `main`. All 8 prototype screens visually faithful. Status: testnet only, wallet-only auth, no fiat.
 
 ---
 
@@ -109,17 +109,17 @@ Port the INKNOIR React prototype to an Astro 5 project with `@astrojs/cloudflare
 - [ ] **B6.** Mobile viewport (390×844): all screens scroll without horizontal overflow.
 
 ### C. Catalog & Data Layer
-- [ ] **C1.** D1 db `inknoir-catalog` exists; `wrangler d1 execute inknoir-catalog --remote --command "SELECT COUNT(*) FROM designs"` returns 15.
+- [ ] **C1.** D1 db `suknid-catalog` exists; `wrangler d1 execute suknid-catalog --remote --command "SELECT COUNT(*) FROM designs"` returns 15.
 - [ ] **C2.** `SELECT COUNT(*) FROM artists` returns 4 with the same ids as `data.jsx` (`mara`, `koto`, `sol`, `vera`).
 - [ ] **C3.** `GET /api/designs` returns JSON array of 15 designs with full schema.
 - [ ] **C4.** `GET /api/designs/d1` returns design 1 (Serpent in Negative) with `artistName: "Mara Vael"`.
 - [ ] **C5.** `GET /api/metadata/1` returns ERC-721 metadata: `{name, description, image, attributes:[{trait_type, value}]}` validating against the OpenSea schema.
-- [ ] **C6.** R2 bucket `inknoir-assets` exists; `wrangler r2 object list inknoir-assets` succeeds.
+- [ ] **C6.** R2 bucket `suknid-assets` exists; `wrangler r2 object list suknid-assets` succeeds.
 
 ### D. Commerce Flow
-- [ ] **D1.** Contract `InknoirPlates` (ERC-721) deployed to Base Sepolia (chainId 84532). Deployment tx visible on basescan-sepolia.
+- [ ] **D1.** Contract `SuknidPlates` (ERC-721) deployed to Base Sepolia (chainId 84532). Deployment tx visible on basescan-sepolia.
 - [ ] **D2.** Contract source verified or `forge verify-contract` script provided.
-- [ ] **D3.** `forge test --match-contract InknoirPlatesTest` passes: `testRevertOnExpiredVoucher`, `testRevertOnWrongSigner`, `testRevertOnDoubleClaim`, `testRevertOnUnderpayment`, `testSuccessfulMint`, `testTokenURIReturnsIPFS`.
+- [ ] **D3.** `forge test --match-contract SuknidPlatesTest` passes: `testRevertOnExpiredVoucher`, `testRevertOnWrongSigner`, `testRevertOnDoubleClaim`, `testRevertOnUnderpayment`, `testSuccessfulMint`, `testTokenURIReturnsIPFS`.
 - [ ] **D4.** `POST /api/voucher` body `{designId:"d1", buyer:"0x…"}` returns `{tokenId, designId, price, artistTreasury, expiry, buyer, signature}` with valid EIP-712 signature; D1 row updated to RESERVED with `reserved_until = now + 15min`.
 - [ ] **D5.** `POST /api/voucher` for a design with `status=SOLD` or `status=RESERVED` (non-expired) returns 409 with explanatory body.
 - [ ] **D6.** Checkout page connects wallet, calls `/api/voucher`, prompts wallet to sign `mintWithVoucher`, awaits 1 confirmation, shows success toast.
@@ -135,12 +135,12 @@ Port the INKNOIR React prototype to an Astro 5 project with `@astrojs/cloudflare
 - [ ] **F1.** RainbowKit Connect button visible in Nav; clicking opens RainbowKit modal.
 - [ ] **F2.** Wagmi config targets only `baseSepolia`. Wrong-chain wallet prompts switch.
 - [ ] **F3.** Wallet screen with no wallet connected shows a "Connect wallet" empty state.
-- [ ] **F4.** Wallet screen with a connected address that owns `tokenId=1` displays the corresponding plate (read via `viem.readContract(InknoirPlates, 'balanceOf', [addr])` + `tokenOfOwnerByIndex`).
+- [ ] **F4.** Wallet screen with a connected address that owns `tokenId=1` displays the corresponding plate (read via `viem.readContract(SuknidPlates, 'balanceOf', [addr])` + `tokenOfOwnerByIndex`).
 
 ### G. Cloudflare Infrastructure
-- [ ] **G1.** `wrangler.toml` declares: `[[d1_databases]]` (inknoir-catalog), `[[r2_buckets]]` (inknoir-assets), `[vars]` (PUBLIC_BASE_RPC, PUBLIC_CONTRACT_ADDRESS, PUBLIC_CHAIN_ID), `[env.production]` overrides.
-- [ ] **G2.** Cloudflare Pages project `inknoir` exists; `wrangler pages deployment list inknoir` shows a successful deploy.
-- [ ] **G3.** Deployed URL `https://inknoir.pages.dev` (or alias) returns 200 and renders Home.
+- [ ] **G1.** `wrangler.toml` declares: `[[d1_databases]]` (suknid-catalog), `[[r2_buckets]]` (suknid-assets), `[vars]` (PUBLIC_BASE_RPC, PUBLIC_CONTRACT_ADDRESS, PUBLIC_CHAIN_ID), `[env.production]` overrides.
+- [ ] **G2.** Cloudflare Pages project `suknid` exists; `wrangler pages deployment list suknid` shows a successful deploy.
+- [ ] **G3.** Deployed URL `https://suknid.pages.dev` (or alias) returns 200 and renders Home.
 - [ ] **G4.** Secrets `SIGNER_PRIVATE_KEY`, `NFT_STORAGE_KEY`, `RESEND_API_KEY` (or `EMAIL_FROM` for MailChannels) are set via `wrangler secret put` and listed by `wrangler secret list`.
 - [ ] **G5.** Existing 8 Workers in the account are untouched (verified via `mcp__cloudflare-bindings__workers_list` before and after — same 8 names present).
 
@@ -190,11 +190,11 @@ Port the INKNOIR React prototype to an Astro 5 project with `@astrojs/cloudflare
 
 ### Phase 3 — Smart contract (Foundry) (5 steps, ~1.5 hr)
 - **3.1** `contracts/` subtree with `foundry.toml`, `lib/openzeppelin-contracts` (forge install), `lib/openzeppelin-contracts-upgradeable` skipped (we don't need upgradeability for v1).
-- **3.2** `contracts/src/InknoirPlates.sol`:
+- **3.2** `contracts/src/SuknidPlates.sol`:
   - ERC-721 base from OpenZeppelin v5.
   - Storage: `address public authorizedSigner; address public artistTreasury; mapping(uint256 => bool) public used;`
   - Struct `LazyMintVoucher { uint256 tokenId; string designId; uint256 price; address artistTreasury; uint256 expiry; address buyer; }`
-  - EIP-712 domain: `name="INKNOIR", version="1", chainId, verifyingContract`.
+  - EIP-712 domain: `name="SUKNID", version="1", chainId, verifyingContract`.
   - Function `mintWithVoucher(LazyMintVoucher voucher, bytes signature) external payable`:
     1. `require(block.timestamp <= voucher.expiry, "EXPIRED")`
     2. `require(msg.value >= voucher.price, "UNDERPAID")`
@@ -207,12 +207,12 @@ Port the INKNOIR React prototype to an Astro 5 project with `@astrojs/cloudflare
 - **3.3** `contracts/script/Deploy.s.sol` script:
   - Reads `SIGNER_ADDRESS`, `ARTIST_TREASURY`, `BASE_URI` from env.
   - Deploys, writes deploy address to `contracts/deployments/base-sepolia.json`.
-- **3.4** `contracts/test/InknoirPlates.t.sol`:
+- **3.4** `contracts/test/SuknidPlates.t.sol`:
   - All 6 unit tests listed in D3.
 - **3.5** Deploy script wrapper `scripts/deploy-contract.sh` that runs `forge script script/Deploy.s.sol --rpc-url $BASE_SEPOLIA_RPC --broadcast` and pipes the address into `src/lib/config/contract.ts` for the frontend.
 
 ### Phase 4 — Commerce wiring (5 steps, ~1 hr)
-- **4.1** `src/lib/wagmi.ts`: configure Wagmi with `baseSepolia` chain only, RainbowKit theme tuned to INKNOIR's bone accent.
+- **4.1** `src/lib/wagmi.ts`: configure Wagmi with `baseSepolia` chain only, RainbowKit theme tuned to SUKNID's bone accent.
 - **4.2** `src/components/WalletProvider.tsx`: wraps WagmiProvider + RainbowKitProvider + QueryClientProvider; root layout uses `client:load` for it.
 - **4.3** `src/pages/api/voucher.ts`:
   - POST handler, zod-validate `{designId, buyer}`.
@@ -221,7 +221,7 @@ Port the INKNOIR React prototype to an Astro 5 project with `@astrojs/cloudflare
   - Otherwise: build `LazyMintVoucher`, sign with `SIGNER_PRIVATE_KEY` via `viem.signTypedData`, return JSON.
   - UPDATE D1: `status='reserved', reserved_until=now+900`.
 - **4.4** `src/components/CheckoutFlow.tsx` (client:load):
-  - useAccount, fetch voucher, `writeContract({abi: InknoirPlates, functionName: 'mintWithVoucher', args: [voucher, signature], value: voucher.price})`, wait for receipt, navigate to `/wallet`.
+  - useAccount, fetch voucher, `writeContract({abi: SuknidPlates, functionName: 'mintWithVoucher', args: [voucher, signature], value: voucher.price})`, wait for receipt, navigate to `/wallet`.
 - **4.5** Optional reconcile endpoint `src/pages/api/reconcile.ts` (called by a Cron Trigger every 5 min): scan D1 RESERVED rows past TTL, check on-chain, flip statuses.
 
 ### Phase 5 — Bookings (3 steps, ~30 min)
@@ -242,11 +242,11 @@ For each prototype screen, create `src/pages/<route>.astro` that uses `Base.astr
 
 ### Phase 7 — Cloudflare resources via MCP (6 steps, ~30 min, live deploy)
 - **7.1** `workers_list` baseline snapshot (already done in interview, 8 Workers). Save names to plan log for "untouched after" check (G5).
-- **7.2** `d1_database_create name=inknoir-catalog`. Capture returned `database_id`. Update `wrangler.toml`.
-- **7.3** `r2_bucket_create name=inknoir-assets` (jurisdiction=default). Update `wrangler.toml`.
-- **7.4** Apply migrations remotely: `wrangler d1 execute inknoir-catalog --remote --file migrations/0001_init.sql` then `0002_seed.sql`.
-- **7.5** `wrangler pages project create inknoir --production-branch main`. Set secrets via `wrangler pages secret put` (or via dashboard if MCP doesn't expose Pages secrets).
-- **7.6** Build + deploy: `pnpm build && wrangler pages deploy dist --project-name inknoir`. Capture deploy URL.
+- **7.2** `d1_database_create name=suknid-catalog`. Capture returned `database_id`. Update `wrangler.toml`.
+- **7.3** `r2_bucket_create name=suknid-assets` (jurisdiction=default). Update `wrangler.toml`.
+- **7.4** Apply migrations remotely: `wrangler d1 execute suknid-catalog --remote --file migrations/0001_init.sql` then `0002_seed.sql`.
+- **7.5** `wrangler pages project create suknid --production-branch main`. Set secrets via `wrangler pages secret put` (or via dashboard if MCP doesn't expose Pages secrets).
+- **7.6** Build + deploy: `pnpm build && wrangler pages deploy dist --project-name suknid`. Capture deploy URL.
 
 ### Phase 8 — Push to GitHub (3 steps, ~5 min)
 - **8.1** `git remote add origin https://github.com/Poom5741/tattoo-project.git`
@@ -254,8 +254,8 @@ For each prototype screen, create `src/pages/<route>.astro` that uses `Base.astr
 - **8.3** `git push -u origin main` (requires user's gh auth in env or Personal Access Token; if push fails, surface error and ask the user for credentials).
 
 ### Phase 9 — Verification (4 steps, ~30 min)
-- **9.1** Run smoke script `scripts/smoke.sh https://inknoir.pages.dev` — checks all 5 GETs return 200 with expected bodies.
-- **9.2** Run Playwright visual diff against the reference render of `INKNOIR.html`.
+- **9.1** Run smoke script `scripts/smoke.sh https://suknid.pages.dev` — checks all 5 GETs return 200 with expected bodies.
+- **9.2** Run Playwright visual diff against the reference render of `SUKNID.html`.
 - **9.3** Run `forge test -vv` and `pnpm test` — all green.
 - **9.4** Re-run `workers_list` and assert the same 8 pre-existing Workers are present.
 
@@ -282,9 +282,9 @@ For each prototype screen, create `src/pages/<route>.astro` that uses `Base.astr
 │   └── seed-export.ts
 ├── contracts/
 │   ├── foundry.toml
-│   ├── src/InknoirPlates.sol
+│   ├── src/SuknidPlates.sol
 │   ├── script/Deploy.s.sol
-│   ├── test/InknoirPlates.t.sol
+│   ├── test/SuknidPlates.t.sol
 │   └── deployments/base-sepolia.json     (post-deploy)
 ├── src/
 │   ├── styles/global.css
@@ -343,7 +343,7 @@ For each prototype screen, create `src/pages/<route>.astro` that uses `Base.astr
 | MCP deploy fails mid-Phase 7 | Medium | Medium | Each Phase 7 step is idempotent + reversible; rollback by deleting created resource |
 | `git push` fails for missing GitHub auth | Medium | Low | Detect and prompt user; do not attempt force-push; do not commit credentials |
 | Pixel diff fails due to font loading order | Low | Medium | Preload all Google fonts in `<head>` of Base.astro; visual diff tolerance 2% |
-| Existing 8 Workers accidentally modified | Very Low | Critical | Phase 7.1 baseline + Phase 9.4 verify; `inknoir-` prefix everywhere |
+| Existing 8 Workers accidentally modified | Very Low | Critical | Phase 7.1 baseline + Phase 9.4 verify; `suknid-` prefix everywhere |
 | Lazy-mint signer compromised | Low | High | Contract enforces `msg.value >= price` and `expiry` even if signer leaks — attacker can't mint for free |
 
 ---
@@ -352,16 +352,16 @@ For each prototype screen, create `src/pages/<route>.astro` that uses `Base.astr
 
 1. `pnpm test` → green.
 2. `forge test -vv --root contracts` → green.
-3. `wrangler d1 execute inknoir-catalog --remote --command "SELECT status, COUNT(*) FROM designs GROUP BY status"` → expect `available: 11, reserved: 2, sold: 2` (matches seed status counts).
-4. `curl -s https://inknoir.pages.dev/api/health` → `{"ok": true, ...}`.
-5. `curl -s https://inknoir.pages.dev/api/designs | jq 'length'` → `15`.
-6. `curl -s https://inknoir.pages.dev/api/metadata/1 | jq -e '.name and .image and .attributes'` → truthy.
-7. Open `https://inknoir.pages.dev` in browser → Home renders, fonts loaded, accent applied.
+3. `wrangler d1 execute suknid-catalog --remote --command "SELECT status, COUNT(*) FROM designs GROUP BY status"` → expect `available: 11, reserved: 2, sold: 2` (matches seed status counts).
+4. `curl -s https://suknid.pages.dev/api/health` → `{"ok": true, ...}`.
+5. `curl -s https://suknid.pages.dev/api/designs | jq 'length'` → `15`.
+6. `curl -s https://suknid.pages.dev/api/metadata/1 | jq -e '.name and .image and .attributes'` → truthy.
+7. Open `https://suknid.pages.dev` in browser → Home renders, fonts loaded, accent applied.
 8. Click `/market` → 15 plates visible, filter by style works.
 9. Open `/design/d1` → Acquire button visible; clicking with no wallet shows Connect prompt.
 10. Connect MetaMask on Base Sepolia → Acquire → sign mint tx → see token on BaseScan Sepolia.
 11. `/wallet` → newly minted plate appears.
-12. `mcp__cloudflare-bindings__workers_list` shows the same 8 pre-existing Worker names plus the new Pages-bundled Worker (named `inknoir`).
+12. `mcp__cloudflare-bindings__workers_list` shows the same 8 pre-existing Worker names plus the new Pages-bundled Worker (named `suknid`).
 13. `gh repo view Poom5741/tattoo-project` shows `main` with the latest commit.
 
 ---
@@ -388,7 +388,7 @@ Use **Astro 5 + @astrojs/cloudflare (hybrid output) + React 18 islands** as the 
 
 ### Why Chosen
 - Maps directly to every spec choice with no compromises.
-- Minimum viable surface area: 1 contract + 1 Worker + 1 D1 + 1 R2 + 1 Pages project = 5 resources, all under one `inknoir-` namespace.
+- Minimum viable surface area: 1 contract + 1 Worker + 1 D1 + 1 R2 + 1 Pages project = 5 resources, all under one `suknid-` namespace.
 - Security posture survives signer key compromise (contract-side price/expiry enforcement).
 - All 8 prototype screens ship without dropping any UX.
 

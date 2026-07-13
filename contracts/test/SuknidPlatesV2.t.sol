@@ -2,7 +2,7 @@
 pragma solidity 0.8.24;
 
 import {Test, console} from "forge-std/Test.sol";
-import {InknoirPlatesV2} from "../src/InknoirPlatesV2.sol";
+import {SuknidPlatesV2} from "../src/SuknidPlatesV2.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /// @notice Minimal mock ERC-20 for testing USDT transfers
@@ -40,8 +40,8 @@ contract MockUSDT {
     }
 }
 
-contract InknoirPlatesV2Test is Test {
-    InknoirPlatesV2 public nft;
+contract SuknidPlatesV2Test is Test {
+    SuknidPlatesV2 public nft;
     MockUSDT public usdt;
 
     uint256 internal signerKey = 0xA11CE;
@@ -56,7 +56,7 @@ contract InknoirPlatesV2Test is Test {
     function setUp() public {
         signer = vm.addr(signerKey);
         usdt = new MockUSDT();
-        nft = new InknoirPlatesV2(signer, treasury, address(usdt));
+        nft = new SuknidPlatesV2(signer, treasury, address(usdt));
     }
 
     // ─────────────────────────────────────────────────────────────────────
@@ -71,10 +71,10 @@ contract InknoirPlatesV2Test is Test {
         address buyerAddr,
         bool isSoulbound,
         uint96 royaltyBps
-    ) internal view returns (InknoirPlatesV2.LazyMintVoucher memory) {
+    ) internal view returns (SuknidPlatesV2.LazyMintVoucher memory) {
         string memory cid = "QmTestCID123";
         bytes32 cidHash = keccak256(bytes(cid));
-        return InknoirPlatesV2.LazyMintVoucher({
+        return SuknidPlatesV2.LazyMintVoucher({
             tokenId: tokenId,
             designId: designId,
             price: price,
@@ -87,7 +87,7 @@ contract InknoirPlatesV2Test is Test {
         });
     }
 
-    function _sign(InknoirPlatesV2.LazyMintVoucher memory v) internal view returns (bytes memory) {
+    function _sign(SuknidPlatesV2.LazyMintVoucher memory v) internal view returns (bytes memory) {
         bytes32 structHash = keccak256(abi.encode(
             keccak256("LazyMintVoucher(uint256 tokenId,string designId,uint256 price,address artistTreasury,uint256 expiry,address buyer,bytes32 cidHash,bool soulbound,uint96 royaltyBps)"),
             v.tokenId,
@@ -107,7 +107,7 @@ contract InknoirPlatesV2Test is Test {
 
     function _mintForBuyer(uint256 tokenId, bool isSoulbound, uint96 royaltyBps) internal {
         usdt.mint(buyer, PRICE);
-        InknoirPlatesV2.LazyMintVoucher memory voucher = _makeVoucher(
+        SuknidPlatesV2.LazyMintVoucher memory voucher = _makeVoucher(
             tokenId, "design-1", PRICE, artist, buyer, isSoulbound, royaltyBps
         );
         bytes memory sig = _sign(voucher);
@@ -157,7 +157,7 @@ contract InknoirPlatesV2Test is Test {
     }
 
     function test_mint_expired_voucher() public {
-        InknoirPlatesV2.LazyMintVoucher memory voucher = _makeVoucher(
+        SuknidPlatesV2.LazyMintVoucher memory voucher = _makeVoucher(
             1, "design-1", PRICE, artist, buyer, false, 0
         );
         voucher.expiry = block.timestamp - 1;
@@ -166,13 +166,13 @@ contract InknoirPlatesV2Test is Test {
         usdt.mint(buyer, PRICE);
         vm.startPrank(buyer);
         usdt.approve(address(nft), PRICE);
-        vm.expectRevert(InknoirPlatesV2.EXPIRED.selector);
+        vm.expectRevert(SuknidPlatesV2.EXPIRED.selector);
         nft.mintWithVoucher(voucher, sig, "QmTestCID123");
         vm.stopPrank();
     }
 
     function test_mint_wrong_buyer() public {
-        InknoirPlatesV2.LazyMintVoucher memory voucher = _makeVoucher(
+        SuknidPlatesV2.LazyMintVoucher memory voucher = _makeVoucher(
             1, "design-1", PRICE, artist, buyer, false, 0
         );
         bytes memory sig = _sign(voucher);
@@ -180,13 +180,13 @@ contract InknoirPlatesV2Test is Test {
         usdt.mint(buyer2, PRICE);
         vm.startPrank(buyer2);
         usdt.approve(address(nft), PRICE);
-        vm.expectRevert(InknoirPlatesV2.WRONG_BUYER.selector);
+        vm.expectRevert(SuknidPlatesV2.WRONG_BUYER.selector);
         nft.mintWithVoucher(voucher, sig, "QmTestCID123");
         vm.stopPrank();
     }
 
     function test_mint_bad_sig() public {
-        InknoirPlatesV2.LazyMintVoucher memory voucher = _makeVoucher(
+        SuknidPlatesV2.LazyMintVoucher memory voucher = _makeVoucher(
             1, "design-1", PRICE, artist, buyer, false, 0
         );
         // Sign with wrong key
@@ -209,7 +209,7 @@ contract InknoirPlatesV2Test is Test {
         usdt.mint(buyer, PRICE);
         vm.startPrank(buyer);
         usdt.approve(address(nft), PRICE);
-        vm.expectRevert(InknoirPlatesV2.BAD_SIG.selector);
+        vm.expectRevert(SuknidPlatesV2.BAD_SIG.selector);
         nft.mintWithVoucher(voucher, badSig, "QmTestCID123");
         vm.stopPrank();
     }
@@ -222,7 +222,7 @@ contract InknoirPlatesV2Test is Test {
         _mintForBuyer(1, true, 0);
 
         vm.startPrank(buyer);
-        vm.expectRevert(InknoirPlatesV2.SOULBOUND.selector);
+        vm.expectRevert(SuknidPlatesV2.SOULBOUND.selector);
         nft.transferFrom(buyer, buyer2, 1);
         vm.stopPrank();
     }
@@ -231,7 +231,7 @@ contract InknoirPlatesV2Test is Test {
         _mintForBuyer(1, true, 0);
 
         vm.startPrank(buyer);
-        vm.expectRevert(InknoirPlatesV2.SOULBOUND.selector);
+        vm.expectRevert(SuknidPlatesV2.SOULBOUND.selector);
         nft.safeTransferFrom(buyer, buyer2, 1);
         vm.stopPrank();
     }
@@ -256,7 +256,7 @@ contract InknoirPlatesV2Test is Test {
         usdt.mint(buyer2, PRICE);
         vm.startPrank(buyer2);
         usdt.approve(address(nft), PRICE);
-        vm.expectRevert(InknoirPlatesV2.RESALE_DISABLED.selector);
+        vm.expectRevert(SuknidPlatesV2.RESALE_DISABLED.selector);
         nft.buyResale(1, PRICE);
         vm.stopPrank();
     }
@@ -299,7 +299,7 @@ contract InknoirPlatesV2Test is Test {
         usdt.mint(buyer2, PRICE);
         vm.startPrank(buyer2);
         usdt.approve(address(nft), PRICE);
-        vm.expectRevert(InknoirPlatesV2.SOULBOUND.selector);
+        vm.expectRevert(SuknidPlatesV2.SOULBOUND.selector);
         nft.buyResale(1, PRICE);
         vm.stopPrank();
     }
@@ -311,7 +311,7 @@ contract InknoirPlatesV2Test is Test {
         usdt.mint(buyer, PRICE);
         vm.startPrank(buyer);
         usdt.approve(address(nft), PRICE);
-        vm.expectRevert(InknoirPlatesV2.CANNOT_BUY_OWN_TOKEN.selector);
+        vm.expectRevert(SuknidPlatesV2.CANNOT_BUY_OWN_TOKEN.selector);
         nft.buyResale(1, PRICE);
         vm.stopPrank();
     }

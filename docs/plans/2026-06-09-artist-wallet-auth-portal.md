@@ -24,7 +24,7 @@
    - **Login methods**: enable Email, Google, and "External wallet"
    - **Embedded wallets**: ON, set `Create on login: true`
    - **Smart wallets**: ON, select "Alchemy" or "Kernel (ZeroDev)" implementation, set chain to **Base Sepolia**
-   - **Allowed domains**: add `inknoir.pages.dev` and `localhost:4321`
+   - **Allowed domains**: add `suknid.pages.dev` and `localhost:4321`
 3. Copy **App ID** (public) and **App Secret** (private)
 
 ---
@@ -75,14 +75,14 @@ COMMIT;
 
 **Step 2: Run against remote D1**
 ```bash
-node_modules/.pnpm/node_modules/.bin/wrangler d1 execute inknoir-catalog \
+node_modules/.pnpm/node_modules/.bin/wrangler d1 execute suknid-catalog \
   --file migrations/0004_artist_wallets.sql --remote
 ```
 Expected output: `Executed 1 commands` or similar success message.
 
 **Step 3: Verify column exists**
 ```bash
-node_modules/.pnpm/node_modules/.bin/wrangler d1 execute inknoir-catalog \
+node_modules/.pnpm/node_modules/.bin/wrangler d1 execute suknid-catalog \
   --command "PRAGMA table_info(artists);" --remote
 ```
 Expected: output includes `wallet_address` row.
@@ -109,7 +109,7 @@ PRIVY_APP_ID = "clxxxxxxxxxxxxxxxxxxxxxxx"   # replace with your real App ID
 **Step 2: Add PRIVY_APP_SECRET as a Cloudflare secret**
 ```bash
 node_modules/.pnpm/node_modules/.bin/wrangler pages secret put PRIVY_APP_SECRET \
-  --project-name inknoir
+  --project-name suknid
 # Paste your Privy App Secret at the prompt
 ```
 
@@ -345,7 +345,7 @@ function LoginWall() {
       }}
     >
       <div className="kicker" style={{ letterSpacing: "0.2em" }}>
-        INKNOIR / Artist Portal
+        SUKNID / Artist Portal
       </div>
       <h1 className="display" style={{ fontSize: "34px" }}>
         Sign in with your wallet
@@ -561,7 +561,7 @@ function fmtDate(ts: number) {
 const PRIVY_APP_ID = env.PRIVY_APP_ID;
 ---
 
-<Base title="Artist Portal — INKNOIR">
+<Base title="Artist Portal — SUKNID">
   <style>
     .portal { max-width: 1000px; margin: 0 auto; padding: 40px 28px 80px; }
     .portal-hd { display: flex; justify-content: space-between; align-items: center;
@@ -603,7 +603,7 @@ const PRIVY_APP_ID = env.PRIVY_APP_ID;
     <div class="portal">
       <div class="portal-hd">
         <div>
-          <div class="kicker" style="margin-bottom: 8px;">INKNOIR / Artist Portal</div>
+          <div class="kicker" style="margin-bottom: 8px;">SUKNID / Artist Portal</div>
           <h1 class="display" style="font-size: 32px;">{artistName}</h1>
           <div class="wallet-chip" style="margin-top: 8px;" title={session.walletAddress}>
             {session.walletAddress.slice(0, 6)}…{session.walletAddress.slice(-4)}
@@ -882,17 +882,17 @@ Expected: `[build] Complete!`
 
 **Step 2: Deploy**
 ```bash
-node_modules/.pnpm/node_modules/.bin/wrangler pages deploy dist --project-name inknoir
+node_modules/.pnpm/node_modules/.bin/wrangler pages deploy dist --project-name suknid
 ```
 
 **Step 3: Set a test artist wallet address via admin dashboard**
-1. Go to `https://inknoir.pages.dev/admin`
+1. Go to `https://suknid.pages.dev/admin`
 2. Log in with the admin password
 3. Scroll to "Artist wallet addresses"
 4. Enter your wallet address for the `mara` artist and click Save
 
 **Step 4: Test artist portal login**
-1. Go to `https://inknoir.pages.dev/artist/portal`
+1. Go to `https://suknid.pages.dev/artist/portal`
 2. Should see the Privy login modal
 3. Log in with email or Google
 4. Privy creates an embedded wallet → your session is verified → redirected to portal
@@ -915,7 +915,7 @@ git commit -m "feat: deploy artist wallet auth + portal (Privy AA, KV sessions)"
 After the first deploy, set the Privy App Secret if not already done:
 ```bash
 node_modules/.pnpm/node_modules/.bin/wrangler pages secret put PRIVY_APP_SECRET \
-  --project-name inknoir
+  --project-name suknid
 # Paste your secret at the prompt
 ```
 

@@ -10,8 +10,8 @@ test.describe("Wallet page (/wallet)", () => {
     await expect(page.locator("body")).toBeVisible();
   });
 
-  test("shows page title 'Your Collection — INKNOIR'", async ({ page }) => {
-    await expect(page).toHaveTitle(/Your Collection — INKNOIR/);
+  test("shows page title 'Your Collection — SUKNID'", async ({ page }) => {
+    await expect(page).toHaveTitle(/Your Collection — SUKNID/);
   });
 
   test("shows 'Your collection' kicker", async ({ page }) => {

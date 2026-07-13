@@ -18,7 +18,7 @@ This captures the prototype's Home screen at 3 viewports:
 
 ## Limitations
 
-The prototype (`_handoff/tattoo-project/project/INKNOIR.html`) uses an internal
+The prototype (`_handoff/tattoo-project/project/SUKNID.html`) uses an internal
 React state router — navigation between screens is driven by component state, not
 URL changes. Only the initial Home render can be captured deterministically by an
 automated script.

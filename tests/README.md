@@ -67,7 +67,7 @@ idempotency guard in the voucher route is broken.
 Hits the live deployment (or any URL passed as `$1`) and checks four endpoints.
 
 ```bash
-bash scripts/smoke.sh                          # tests https://inknoir.pages.dev
+bash scripts/smoke.sh                          # tests https://suknid.pages.dev
 bash scripts/smoke.sh http://localhost:8788    # tests local wrangler pages dev
 ```
 

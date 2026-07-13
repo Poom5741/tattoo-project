@@ -29,9 +29,9 @@ test.describe("Artist portal (/artist/portal) — unauthenticated", () => {
     await expect(page.locator("body")).toBeVisible();
   });
 
-  test("page title references INKNOIR", async ({ page }) => {
+  test("page title references SUKNID", async ({ page }) => {
     await page.goto("/artist/portal");
-    await expect(page).toHaveTitle(/INKNOIR/);
+    await expect(page).toHaveTitle(/SUKNID/);
   });
 });
 
