@@ -6,27 +6,25 @@ import Nav from "../components/Nav";
 import Footer from "../components/Footer.astro";
 import Toast from "../components/Toast";
 import BookingForm from "../components/BookingForm";
-import { ARTISTS, DESIGNS } from "../lib/catalog/seed";
----
+import { createT } from "../lib/i18n";
 
-<Base title="Book a session — SUKNID" description="Book a session with one of our resident artists. One-of-one tattoo plates, hand-drawn and inked once.">
+const locale = Astro.locals?.locale ?? "en";
+const t = typeof createT !== "undefined" ? createT(locale) : (s: string) => s;
+---
+<Base title="Book a session — SAKNID" description="Book a session with one of our resident artists. One-of-one tattoo plates, hand-drawn and inked once.">
   <div class="min-h-screen flex flex-col">
     <Nav currentPath="/booking" client:load />
     <main class="flex-1">
-      <section class="py-14 pb-20">
         <div class="container-bb">
-          <a href="/artists" class="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface mb-8 font-body text-sm transition-colors">&larr; All artists</a>
-
-          <span class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-4 block">Book a session</span>
-
+          <a href="/artists" class="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface mb-8 font-body text-sm transition-colors">{t("bookingPage.backToArtists")}</a>
+          <span class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-4 block">{t("bookingPage.kicker")}</span>
           <div class="flex justify-between items-end flex-wrap gap-4 mb-10">
             <div>
-              <h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface">Request an appointment</h1>
-              <p class="font-body text-body-lg text-on-surface-variant mt-3.5 max-w-[48ch]">
-                Choose an artist, select a plate or describe your custom commission, and we'll reach out to confirm your session.
-              </p>
+              <h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface">{t("bookingPage.title")}</h1>
+              <p class="font-body text-body-lg text-on-surface-variant mt-3.5 max-w-[48ch]">{t("bookingPage.subtitle")}</p>
             </div>
           </div>
+
 
           <div class="grid grid-cols-1 lg:grid-cols-[1.3fr_0.7fr] gap-12 items-start">
             <div class="card-bb p-8 md:p-9">

@@ -7,6 +7,7 @@ import Footer from "../../components/Footer.astro";
 import Toast from "../../components/Toast";
 import Plate from "../../components/Plate";
 import ResaleButton from "../../components/ResaleButton";
+import { createT } from "../../lib/i18n";
 
 const { id } = Astro.params;
 
@@ -94,10 +95,12 @@ function fmtDate(ts: number) {
 }
 
 const PRIVY_APP_ID = Astro.locals.runtime.env.PRIVY_APP_ID;
+const locale = Astro.locals?.locale ?? "en";
+const t = createT(locale);
 ---
 
 <Base
-  title={design.title + " — SUKNID"}
+  title={design.title + " — SAKNID"}
   description={`${design.title} by ${artist?.name ?? ""}. One-of-one tattoo plate.`}
 >
   <Nav client:load currentPath="/market" />
@@ -105,7 +108,7 @@ const PRIVY_APP_ID = Astro.locals.runtime.env.PRIVY_APP_ID;
 
   <section class="py-8 pb-20">
     <div class="max-w-container-max mx-auto px-5 md:px-16">
-      <a href="/market" class="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface mb-8 font-body text-sm transition-colors duration-200">← Back to gallery</a>
+      <a href="/market" class="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface mb-8 font-body text-sm transition-colors duration-200">{t("artistDetail.backToGallery")}</a>
 
       <div class="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-8 lg:gap-12">
         {/* ── Plate display ── */}
@@ -122,7 +125,7 @@ const PRIVY_APP_ID = Astro.locals.runtime.env.PRIVY_APP_ID;
           <div class="flex justify-between items-center mb-[22px]">
             <span class={`tag-bb text-xs border ${design.status === "available" ? "bg-green-600/10 text-green-700 border-green-600/30" : design.status === "reserved" ? "bg-amber-500/10 text-amber-600 border-amber-500/30" : "bg-on-surface-variant/10 text-on-surface-variant border-on-surface-variant/30"}`}>
               <span class="w-2 h-2 rounded-full bg-current"></span>
-              {design.status === "available" ? "Available" : design.status === "reserved" ? "Reserved" : "Claimed"}
+              {design.status === "available" ? t("artistDetail.available") : design.status === "reserved" ? t("artistDetail.reserved") : t("artistDetail.claimed")}
             </span>
             <span class="font-body text-on-surface-variant/60 text-label-sm tracking-wider">№ {design.n} / 001</span>
           </div>
@@ -153,42 +156,42 @@ const PRIVY_APP_ID = Astro.locals.runtime.env.PRIVY_APP_ID;
           <div class="flex items-baseline gap-3.5 py-[22px] border-t border-outline-variant/20 border-b border-outline-variant/20 mb-[26px]">
             <span class="font-display text-headline-sm text-on-surface">{fmtUsdt(design.price)}</span>
             <span class="font-body text-on-surface-variant/60 text-xs tracking-wide">
-              {design.selling_mode === "one-time" ? "SOULBOUND" : `RESELLABLE · ${design.royalty_pct ?? 0}% ROYALTY`}
+              {design.selling_mode === "one-time" ? t("artistDetail.soulbound") : t("artistDetail.resellable").replace("{pct}", String(design.royalty_pct ?? 0))}
             </span>
           </div>
 
           <div class="flex flex-col gap-3 mb-[26px]">
             {design.status === "available" ? (
               <>
-                <a href={`/checkout/${design.id}`} class="btn-primary w-full">Acquire this plate</a>
+                <a href={`/checkout/${design.id}`} class="btn-primary w-full">{t("artistDetail.acquirePlate")}</a>
                 {artist && (
                   <a href={`/booking?designId=${design.id}`} class="btn-secondary w-full">
-                    Book {artist.name.split(" ")[0]} to ink it
+                    {t("artistDetail.bookArtist").replace("{name}", artist.name.split(" ")[0])}
                   </a>
                 )}
               </>
             ) : (
               <button class="btn-secondary w-full" disabled>
-                🔒 {design.status === "reserved" ? "Reserved" : "Claimed — retired"}
+                🔒 {design.status === "reserved" ? t("artistDetail.reserved") : t("artistDetail.claimed")}
               </button>
             )}
           </div>
 
           <div class="bg-surface-container rounded-lg border border-outline-variant/30 p-6">
             <div class="flex justify-between items-center mb-4 pb-3 border-b border-outline-variant/20">
-              <span class="font-display font-semibold text-on-surface">Certificate of plate</span>
+              <span class="font-display font-semibold text-on-surface">{t("artistDetail.certificate")}</span>
               <span class="w-14 h-14 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-body font-bold text-lg">{design.n}</span>
             </div>
             <div class="flex flex-col gap-3">
               {[
-                ["Edition", "№ " + design.n + " / 001"],
-                ["Medium", "Digital ink plate"],
-                ["Placement", design.placement ?? "—"],
-                ["Watching", String(design.drawn ?? 0) + " collectors"],
-              ].map(([k, v]) => (
+                [t("artistDetail.edition"), "№ " + design.n + " / 001"],
+                [t("artistDetail.medium"), t("artistDetail.digitalInkPlate")],
+                [t("artistDetail.placement"), design.placement ?? "—"],
+                [t("artistDetail.watching").replace("{n}", String(design.drawn ?? 0)), String(design.drawn ?? 0) + " collectors"],
+              ].map(([key, val]) => (
                 <div class="flex justify-between font-body text-sm">
-                  <span class="text-on-surface-variant">{k}</span>
-                  <span class="text-on-surface font-medium">{v}</span>
+                  <span class="text-on-surface-variant">{key}</span>
+                  <span class="text-on-surface font-medium">{val}</span>
                 </div>
               ))}
             </div>
@@ -206,16 +209,16 @@ const PRIVY_APP_ID = Astro.locals.runtime.env.PRIVY_APP_ID;
       {resaleListings.length > 0 && (
         <div class="mt-14">
           <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant/60 mb-5">
-            Active resale listings
+            {t("artistDetail.resaleListings")}
           </div>
           <div class="card-bb overflow-x-auto">
             <table class="w-full border-collapse">
               <thead>
                 <tr>
-                  <th class="font-body text-[10px] text-left p-3 px-4 border-b border-outline-variant/20 text-on-surface-variant/60 tracking-wider">Seller</th>
-                  <th class="font-body text-[10px] text-left p-3 px-4 border-b border-outline-variant/20 text-on-surface-variant/60 tracking-wider">Price</th>
-                  <th class="font-body text-[10px] text-left p-3 px-4 border-b border-outline-variant/20 text-on-surface-variant/60 tracking-wider">Listed</th>
-                  <th class="font-body text-[10px] text-left p-3 px-4 border-b border-outline-variant/20 text-on-surface-variant/60 tracking-wider">Action</th>
+                  <th class="font-body text-[10px] text-left p-3 px-4 border-b border-outline-variant/20 text-on-surface-variant/60 tracking-wider">{t("artistDetail.seller")}</th>
+                  <th class="font-body text-[10px] text-left p-3 px-4 border-b border-outline-variant/20 text-on-surface-variant/60 tracking-wider">{t("artistDetail.price")}</th>
+                  <th class="font-body text-[10px] text-left p-3 px-4 border-b border-outline-variant/20 text-on-surface-variant/60 tracking-wider">{t("artistDetail.listed")}</th>
+                  <th class="font-body text-[10px] text-left p-3 px-4 border-b border-outline-variant/20 text-on-surface-variant/60 tracking-wider">{t("artistDetail.action")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -231,7 +234,7 @@ const PRIVY_APP_ID = Astro.locals.runtime.env.PRIVY_APP_ID;
                       {fmtDate(r.created_at)}
                     </td>
                     <td class="p-3 px-4 border-b border-outline-variant/20">
-                      <a href={`/checkout/${design.id}?resale=${r.id}`} class="btn-primary text-xs !px-4 !py-2">Buy resale</a>
+                      <a href={`/checkout/${design.id}?resale=${r.id}`} class="btn-primary text-xs !px-4 !py-2">{t("artistDetail.buyResale")}</a>
                     </td>
                   </tr>
                 ))}
@@ -245,7 +248,7 @@ const PRIVY_APP_ID = Astro.locals.runtime.env.PRIVY_APP_ID;
       {moreDesigns.length > 0 && artist && (
         <div class="mt-[72px]">
           <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant/60 mb-6">
-            More from {artist.name}
+            {t("common.by")} {artist.name}
           </div>
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-gutter">
             {moreDesigns.map((m) => (

@@ -11,22 +11,30 @@ test.describe("Admin page (/admin) — unauthenticated", () => {
     await expect(page.locator("button", { hasText: "Enter dashboard" })).toBeVisible();
   });
 
-  test("shows SUKNID / Admin kicker", async ({ page }) => {
+  test("shows SAKNID / Admin kicker", async ({ page }) => {
     await page.goto("/admin");
-    await expect(page.locator(".kicker", { hasText: "SUKNID / Admin" })).toBeVisible();
+    await expect(page.locator(".kicker", { hasText: "SAKNID / Admin" })).toBeVisible();
   });
 
-  test("shows error message on wrong password submission", async ({ page }) => {
+  test("shows server error message on wrong password submission", async ({ page }) => {
     await page.goto("/admin");
     await page.fill("#pw", "wrongpass");
     await page.click("button[type='submit']");
-    // Error message should appear
     await expect(page.locator("#login-err")).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator("#login-err")).toContainText("Invalid password");
   });
 
-  test("page title is 'Admin — SUKNID'", async ({ page }) => {
+  test("shows password required error when submitting empty", async ({ page }) => {
     await page.goto("/admin");
-    await expect(page).toHaveTitle(/Admin — SUKNID/);
+    await page.fill("#pw", "");
+    await page.click("button[type='submit']");
+    await expect(page.locator("#login-err")).toBeVisible({ timeout: 5_000 });
+    await expect(page.locator("#login-err")).toContainText("Password is required");
+  });
+
+  test("page title is 'Admin — SAKNID'", async ({ page }) => {
+    await page.goto("/admin");
+    await expect(page).toHaveTitle(/Admin — SAKNID/);
   });
 });
 
@@ -74,8 +82,8 @@ test.describe("Admin page (/admin) — authenticated", () => {
     await expect(adminPage.locator("text=All plates")).toBeVisible({ timeout: 10_000 });
   });
 
-  test("shows SUKNID / Admin kicker in dashboard", async ({ adminPage }) => {
+  test("shows SAKNID / Admin kicker in dashboard", async ({ adminPage }) => {
     await adminPage.goto("/admin");
-    await expect(adminPage.locator(".kicker", { hasText: "SUKNID / Admin" })).toBeVisible({ timeout: 10_000 });
+    await expect(adminPage.locator(".kicker", { hasText: "SAKNID / Admin" })).toBeVisible({ timeout: 10_000 });
   });
 });

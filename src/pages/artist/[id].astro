@@ -6,6 +6,7 @@ import Nav from "../../components/Nav";
 import Footer from "../../components/Footer.astro";
 import Toast from "../../components/Toast";
 import Plate from "../../components/Plate";
+import { createT } from "../../lib/i18n";
 
 const { id } = Astro.params;
 
@@ -68,10 +69,12 @@ function fmtEth(v: number | null) {
   if (!v) return "—";
   return v.toFixed(3) + " ETH";
 }
+const locale = Astro.locals?.locale ?? "en";
+const t = createT(locale);
 ---
 
 <Base
-  title={`${artist.name} — SUKNID`}
+  title={`${artist.name} — SAKNID`}
   description={artist.bio ?? `${artist.name} — ${artist.style}`}
 >
   <Nav client:load currentPath="/artists" />
@@ -79,7 +82,7 @@ function fmtEth(v: number | null) {
 
   <section class="py-8 pb-20">
     <div class="max-w-container-max mx-auto px-5 md:px-16">
-      <a href="/artists" class="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface mb-8 font-body text-sm transition-colors duration-200">← All artists</a>
+      <a href="/artists" class="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface mb-8 font-body text-sm transition-colors duration-200">{t("artistDetail.backToArtists")}</a>
 
       {/* ── Profile header ── */}
       <div class="grid grid-cols-1 lg:grid-cols-[300px_1fr] gap-8 lg:gap-12 items-start">
@@ -100,32 +103,32 @@ function fmtEth(v: number | null) {
             {artist.years != null && (
               <div>
                 <div class="font-display font-semibold text-on-surface text-headline-sm">{artist.years} yrs</div>
-                <div class="font-body text-on-surface-variant/60 text-label-sm tracking-wider uppercase mt-1">Experience</div>
+                <div class="font-body text-on-surface-variant/60 text-label-sm tracking-wider uppercase mt-1">{t("artistDetail.experience")}</div>
               </div>
             )}
             {artist.pieces != null && (
               <div>
                 <div class="font-display font-semibold text-on-surface text-headline-sm">{artist.pieces}</div>
-                <div class="font-body text-on-surface-variant/60 text-label-sm tracking-wider uppercase mt-1">Plates released</div>
+                <div class="font-body text-on-surface-variant/60 text-label-sm tracking-wider uppercase mt-1">{t("artistDetail.platesReleased")}</div>
               </div>
             )}
             {artist.rating != null && (
               <div>
                 <div class="font-display font-semibold text-on-surface text-headline-sm">{artist.rating} ★</div>
-                <div class="font-body text-on-surface-variant/60 text-label-sm tracking-wider uppercase mt-1">Rating</div>
+                <div class="font-body text-on-surface-variant/60 text-label-sm tracking-wider uppercase mt-1">{t("artistDetail.rating")}</div>
               </div>
             )}
             {artist.rate != null && (
               <div>
                 <div class="font-display font-semibold text-on-surface text-headline-sm">€{artist.rate}/hr</div>
-                <div class="font-body text-on-surface-variant/60 text-label-sm tracking-wider uppercase mt-1">Session rate</div>
+                <div class="font-body text-on-surface-variant/60 text-label-sm tracking-wider uppercase mt-1">{t("artistDetail.sessionRate")}</div>
               </div>
             )}
           </div>
 
           {/* ── CTAs ── */}
           <div class="flex gap-3 flex-wrap">
-            <a href={`/booking?artistId=${artist.id}`} class="btn-primary">Book a session</a>
+            <a href={`/booking?artistId=${artist.id}`} class="btn-primary">{t("artistDetail.bookSession")}</a>
             {artist.booked && (
               <span class="tag-bb text-xs border bg-green-600/10 text-green-700 border-green-600/30 self-center">
                 <span class="w-2 h-2 rounded-full bg-current"></span>{artist.booked}

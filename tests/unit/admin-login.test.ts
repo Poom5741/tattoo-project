@@ -1,0 +1,128 @@
+/**
+ * Admin login API — unit tests (TDD red phase).
+ *
+ * Tests the POST /api/admin/login handler for error differentiation
+ * and clear error messages (ticket #34).
+ *
+ * Prerequisites: vitest (pnpm test). No network required.
+ */
+
+import { describe, it, expect, vi, beforeEach } from "vitest";
+
+import { POST } from "@/pages/api/admin/login";
+
+interface MockKv {
+  get: ReturnType<typeof vi.fn>;
+  put: ReturnType<typeof vi.fn>;
+  delete: ReturnType<typeof vi.fn>;
+  list: ReturnType<typeof vi.fn>;
+}
+
+function mockKv(): MockKv {
+  return {
+    get: vi.fn<() => Promise<string | null>>().mockResolvedValue(null),
+    put: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+    delete: vi.fn<() => Promise<void>>().mockResolvedValue(undefined),
+    list: vi.fn(),
+  };
+}
+
+/** Build a minimal mock Astro APIContext for the login route. */
+function mockContext(body?: BodyInit) {
+  return {
+    request: new Request("http://localhost/api/admin/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body,
+    }),
+    locals: {
+      runtime: {
+        env: {
+          ADMIN_PASSWORD: "test-admin-password",
+          SESSION: mockKv(),
+        },
+      },
+    },
+  } as const;
+}
+
+describe("POST /api/admin/login", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("returns 200 with correct password", async () => {
+    const ctx = mockContext(JSON.stringify({ password: "test-admin-password" }));
+    const res = await POST(ctx as never);
+    expect(res.status).toBe(200);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body).toEqual({ ok: true });
+  });
+  it("sets admin_token cookie on success (KV put call)", async () => {
+    const kv = mockKv();
+    const ctx = {
+      request: new Request("http://localhost/api/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: "test-admin-password" }),
+      }),
+      locals: {
+        runtime: {
+          env: {
+            ADMIN_PASSWORD: "test-admin-password",
+            SESSION: kv,
+          },
+        },
+      },
+    } as const;
+
+    const res = await POST(ctx as never);
+    expect(res.status).toBe(200);
+    expect(kv.put).toHaveBeenCalledTimes(1);
+    const [key, val, opts] = kv.put.mock.calls[0];
+    expect(key).toMatch(/^admin:/);
+    expect(val).toBe("1");
+    expect(opts?.expirationTtl).toBe(8 * 60 * 60);
+  });
+
+  it("returns 401 with wrong password", async () => {
+    const ctx = mockContext(JSON.stringify({ password: "wrong-password-xyz" }));
+    const res = await POST(ctx as never);
+    expect(res.status).toBe(401);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body).toHaveProperty("error");
+    expect(typeof body.error).toBe("string");
+  });
+
+  it("returns 400 with 'Password is required' for empty password", async () => {
+    const ctx = mockContext(JSON.stringify({ password: "" }));
+    const res = await POST(ctx as never);
+    expect(res.status).toBe(400);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body.error).toBe("Password is required");
+  });
+
+  it("returns 400 with 'Password is required' for missing password field", async () => {
+    const ctx = mockContext(JSON.stringify({}));
+    const res = await POST(ctx as never);
+    expect(res.status).toBe(400);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body.error).toBe("Password is required");
+  });
+
+  it("returns 400 with 'Password is required' for null password", async () => {
+    const ctx = mockContext(JSON.stringify({ password: null }));
+    const res = await POST(ctx as never);
+    expect(res.status).toBe(400);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body.error).toBe("Password is required");
+  });
+
+  it("returns 400 with 'Invalid request body' for malformed JSON", async () => {
+    const ctx = mockContext("not valid json");
+    const res = await POST(ctx as never);
+    expect(res.status).toBe(400);
+    const body = await res.json() as Record<string, unknown>;
+    expect(body.error).toBe("Invalid request body");
+  });
+});

@@ -87,7 +87,7 @@ const thBase = "font-body text-label-sm tracking-wider uppercase text-on-surface
 const tdBase = "px-4 py-3 border-b border-outline-variant/40 text-body-md font-body";
 ---
 
-<Base title="Admin — SUKNID">
+<Base title="Admin — SAKNID">
   <style>
     #login-err {
       font-family: 'Sora', sans-serif;
@@ -101,30 +101,41 @@ const tdBase = "px-4 py-3 border-b border-outline-variant/40 text-body-md font-b
   {!authed ? (
     <div class="min-h-screen flex items-center justify-center bg-surface px-5">
       <div class="w-full max-w-[400px] card-bb p-10">
-        <div class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-5">SUKNID / Admin</div>
+        <div class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-5">SAKNID / Admin</div>
         <h1 class="font-display text-headline-sm text-on-surface mb-7">Sign in</h1>
         <form id="lf" novalidate>
           <div class="mb-5">
             <label for="pw" class="label-bb">Password</label>
             <input id="pw" type="password" class="input-bb" placeholder="••••••••" autocomplete="current-password" />
           </div>
-          <div id="login-err">Incorrect password.</div>
+          <div id="login-err"></div>
           <button type="submit" class="btn-primary w-full mt-5">Enter dashboard</button>
         </form>
         <script>
           document.getElementById("lf")?.addEventListener("submit", async (e) => {
             e.preventDefault();
             const pw = (document.getElementById("pw") as HTMLInputElement).value;
-            const res = await fetch("/api/admin/login", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ password: pw }),
-            });
-            if (res.ok) {
-              location.reload();
-            } else {
-              const el = document.getElementById("login-err");
-              if (el) el.style.display = "block";
+            const errEl = document.getElementById("login-err");
+            try {
+              const res = await fetch("/api/admin/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password: pw }),
+              });
+              if (res.ok) {
+                location.reload();
+                return;
+              }
+              const body = await res.json().catch(() => ({}));
+              if (errEl) {
+                errEl.textContent = body?.error ?? "Login failed";
+                errEl.style.display = "block";
+              }
+            } catch {
+              if (errEl) {
+                errEl.textContent = "Network error — check your connection";
+                errEl.style.display = "block";
+              }
             }
           });
         </script>
@@ -135,7 +146,7 @@ const tdBase = "px-4 py-3 border-b border-outline-variant/40 text-body-md font-b
       {/* ── Header ── */}
       <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-outline-variant mb-10">
         <div>
-          <div class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-2">SUKNID / Admin</div>
+          <div class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-2">SAKNID / Admin</div>
           <h1 class="font-display text-headline-md text-on-surface">Dashboard</h1>
         </div>
         <form method="POST" action="/api/admin/logout">

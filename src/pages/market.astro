@@ -69,20 +69,17 @@ try {
 const cookieHeader = Astro.request.headers.get("cookie") ?? "";
 const initialState = cookieToInitialState(config, cookieHeader);
 ---
-
-<Base title="Gallery — SUKNID" description="One-of-one tattoo plates. Browse the gallery.">
-  <Nav client:load currentPath="/market" />
-  <Toast client:load />
-
-  <section class="py-14 pb-20">
-    <div class="container-bb">
-      <p class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-4">The gallery</p>
-      <div class="flex justify-between items-end flex-wrap gap-4 mb-10">
-        <h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface">Plates for acquisition</h1>
-        <span class="font-body text-on-surface-variant/60 text-[11px] tracking-[0.12em]">{designs.length} PLATES · ONE OF EACH</span>
-      </div>
-      <MarketGrid client:load designs={designs} resaleListings={resaleListings} initialState={initialState} />
-    </div>
+const { t } = (() => {
+  const mod = await import("../lib/i18n");
+  const locale = Astro.locals?.locale ?? "en";
+  return { t: mod.createT(locale) };
+})();
+---
+          <p class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-4">{t("marketPage.kicker")}</p>
+          <div class="flex justify-between items-end flex-wrap gap-4 mb-10">
+            <h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface">{t("marketPage.title")}</h1>
+            <span class="font-body text-on-surface-variant/60 text-[11px] tracking-[0.12em]">{t("marketPage.countLabel").replace("{n}", String(designs.length))}</span>
+          </div>
   </section>
 
   <Footer />

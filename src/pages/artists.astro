@@ -6,6 +6,7 @@ import Nav from "../components/Nav";
 import Footer from "../components/Footer.astro";
 import Toast from "../components/Toast";
 import Plate from "../components/Plate";
+import { createT } from "../lib/i18n";
 
 interface ArtistRow {
   id: string;
@@ -43,19 +44,20 @@ const STYLE_KIND: Record<string, number> = {
   Geometric: 0, Blackwork: 1, "Fine Line": 2,
   Irezumi: 3, "Neo-Trad": 3, Realism: 4, Lettering: 5,
 };
+
+const locale = Astro.locals?.locale ?? "en";
+const t = createT(locale);
 ---
 
-<Base title="Artists — SUKNID">
+<Base title="Artists — SAKNID">
   <div class="min-h-screen flex flex-col">
     <Nav currentPath="/artists" client:load />
     <main class="flex-1">
       <section class="pt-14">
         <div class="container-bb">
-          <span class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-4 block">The roster</span>
-          <h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface mb-4">Resident artists</h1>
-          <p class="font-body text-body-lg text-on-surface-variant max-w-[48ch] mb-14">
-            Four artists. Each releases a limited run of one-off plates, draws them once, and inks them personally.
-          </p>
+          <span class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-4 block">{t("artistsPage.kicker")}</span>
+          <h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface mb-4">{t("artistsPage.title")}</h1>
+          <p class="font-body text-body-lg text-on-surface-variant max-w-[48ch] mb-14">{t("artistsPage.subtitle")}</p>
         </div>
       </section>
 
@@ -82,15 +84,15 @@ const STYLE_KIND: Record<string, number> = {
                   <div class="flex gap-8 flex-wrap mt-auto pt-4 border-t border-outline-variant/20">
                     <div>
                       <div class="font-display text-headline-sm text-on-surface">{a.pieces}</div>
-                      <div class="font-body text-label-sm text-on-surface-variant mt-1">Plates</div>
+                      <div class="font-body text-label-sm text-on-surface-variant mt-1">{t("artistsPage.plates")}</div>
                     </div>
                     <div>
                       <div class="font-display text-headline-sm text-on-surface">{a.rating}</div>
-                      <div class="font-body text-label-sm text-on-surface-variant mt-1">Rating</div>
+                      <div class="font-body text-label-sm text-on-surface-variant mt-1">{t("artistsPage.rating")}</div>
                     </div>
                     <div>
                       <div class="font-display text-headline-sm text-on-surface">{a.availableCount}</div>
-                      <div class="font-body text-label-sm text-on-surface-variant mt-1">Available</div>
+                      <div class="font-body text-label-sm text-on-surface-variant mt-1">{t("artistsPage.available")}</div>
                     </div>
                   </div>
                   <div class="mt-5">
@@ -111,10 +113,10 @@ const STYLE_KIND: Record<string, number> = {
       <section class="py-16">
         <div class="container-bb flex justify-between items-center gap-8 flex-wrap">
           <div>
-            <span class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-3 block">Join the house</span>
-            <h2 class="font-display text-headline-md md:text-headline-lg text-on-surface max-w-[22ch]">Are you a tattoo artist? Apply to release your plates on SUKNID.</h2>
+            <span class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-3 block">{t("artistsPage.joinKicker")}</span>
+            <h2 class="font-display text-headline-md md:text-headline-lg text-on-surface max-w-[22ch]">{t("artistsPage.joinTitle")}</h2>
           </div>
-          <a href="/artists" class="btn-secondary">Apply to sell</a>
+          <a href="/artists" class="btn-secondary">{t("artistsPage.applyToSell")}</a>
         </div>
       </section>
     </main>

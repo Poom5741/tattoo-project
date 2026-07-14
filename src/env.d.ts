@@ -3,7 +3,9 @@
 type Runtime = import("@astrojs/cloudflare").Runtime<Env>;
 
 declare namespace App {
-  interface Locals extends Runtime {}
+  interface Locals extends Runtime {
+    locale: string;
+  }
 }
 
 // Build-time public vars, inlined by Vite via `import.meta.env.*`.

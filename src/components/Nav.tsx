@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import PrivyNavButton from "./PrivyNavButton";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 interface NavProps {
   currentPath?: string;
@@ -45,7 +46,7 @@ export default function Nav({ currentPath = "/" }: NavProps) {
             href="/"
             className="font-display text-2xl md:text-3xl font-bold tracking-tight text-on-surface"
           >
-            SUKNID
+            SAKNID
           </a>
 
           {/* Desktop links */}
@@ -74,6 +75,11 @@ export default function Nav({ currentPath = "/" }: NavProps) {
                 </a>
               );
             })}
+          </div>
+
+          {/* Language switcher */}
+          <div className="hidden md:block">
+            <LanguageSwitcher />
           </div>
 
           {/* Right side — connect + burger */}
@@ -151,6 +157,9 @@ export default function Nav({ currentPath = "/" }: NavProps) {
         </nav>
         <div className="mt-6 px-3">
           <PrivyNavButton />
+        </div>
+        <div className="mt-4 px-3">
+          <LanguageSwitcher />
         </div>
       </div>
     </>

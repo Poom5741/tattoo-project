@@ -6,7 +6,8 @@ export interface Props {
   description?: string;
 }
 
-const { title = "SUKNID — One-of-one tattoo plates", description = "One-of-one tattoo plates. Blockchain-verified ownership." } = Astro.props;
+const { title = "SAKNID — One-of-one tattoo plates", description = "One-of-one tattoo plates. Blockchain-verified ownership." } = Astro.props;
+const locale = Astro.locals?.locale ?? "en";
 
 // Tawk.to live-chat widget. Loads on all public pages, suppressed on the
 // blocked prefixes below. Add wallet/signing routes here (e.g. "/checkout",
@@ -21,10 +22,13 @@ const tawkSrc = showTawk ? `https://embed.tawk.to/${tawkProperty}/${tawkWidget}`
 ---
 
 <!doctype html>
-<html lang="en">
+  <html lang={locale} data-locale={locale}>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="alternate" hreflang="en" href={Astro.url.origin + Astro.url.pathname} />
+    <link rel="alternate" hreflang="th" href={Astro.url.origin + Astro.url.pathname} />
+    <link rel="alternate" hreflang="x-default" href={Astro.url.origin + Astro.url.pathname} />
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="preconnect" href="https://fonts.googleapis.com" />

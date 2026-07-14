@@ -10,31 +10,30 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     body = await request.json();
   } catch {
-    return new Response(JSON.stringify({ error: "Invalid JSON" }), {
+    return new Response(JSON.stringify({ error: "Invalid request body" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
   }
-
   const { password } = body as { password?: string };
-  const expected = "saknid2026";
-
-  if (!password || password !== expected) {
+  const expected = env.ADMIN_PASSWORD ?? "saknid2026";
+  if (!password || typeof password !== "string" || password.length === 0) {
+    return new Response(JSON.stringify({ error: "Password is required" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  if (password !== expected) {
     return new Response(JSON.stringify({ error: "Invalid password" }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
     });
   }
-
   const token = randomUUID();
   await env.SESSION.put(`admin:${token}`, "1", { expirationTtl: 60 * 60 * 8 });
-
   const headers = new Headers();
   headers.set("Content-Type", "application/json");
-  // Set new cookie at Path=/
   headers.append("Set-Cookie", `admin_token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=28800`);
-  // Expire stale cookie at old Path=/admin
   headers.append("Set-Cookie", "admin_token=; Path=/admin; HttpOnly; SameSite=Lax; Max-Age=0");
-
   return new Response(JSON.stringify({ ok: true }), { status: 200, headers });
 };

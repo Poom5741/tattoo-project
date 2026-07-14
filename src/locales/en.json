@@ -1,0 +1,105 @@
+{
+  "nav": {
+    "gallery": "Gallery",
+    "artists": "Artists",
+    "book": "Book",
+    "myWallet": "My Wallet",
+    "artistPortal": "Artist Portal",
+    "howItWorks": "How it works"
+  },
+  "hero": {
+    "kicker": "One plate · One owner · One needle",
+    "title": "Ink you can own.",
+    "titleHtml": "Ink you<br />can <em>own</em>.",
+    "description": "A gallery of one-of-one tattoo plates. Each design is drawn a single time, claimed by a single collector, and inked by the artist who made it. When it's gone, it's gone.",
+    "exploreDrop": "Explore Drop",
+    "viewArtists": "View Artists",
+    "platesReleased": "Plates released",
+    "residentArtists": "Resident artists",
+    "oneOfOne": "One of one"
+  },
+  "featured": {
+    "availableNow": "Available now",
+    "latestPlates": "Latest plates",
+    "allPlates": "All plates",
+    "ofOne": "1 of 1",
+    "featuredDrop": "Featured drop"
+  },
+  "howItWorks": {
+    "housePrinciple": "The house principle",
+    "title": "The Process",
+    "subtitle": "From digital acquisition to physical realization.",
+    "step1": { "title": "Claim the plate", "description": "Every design exists once. Acquire it and a certificate of authenticity is issued to your collection — the plate is retired from the gallery the moment you do." },
+    "step2": { "title": "Book the maker", "description": "The artist who drew your plate inks it, and only it. Schedule your session, choose placement and size, and reserve with a deposit." },
+    "step3": { "title": "Wear the original", "description": "You leave with a one-of-one tattoo and a signed proof. The design will never be drawn, sold, or inked again. Provenance stays on your certificate." }
+  },
+  "artists": {
+    "roster": "The roster",
+    "residentArtists": "Resident artists",
+    "meetThemAll": "Meet them all"
+  },
+  "cta": {
+    "title": "Your skin deserves an original.",
+    "description": "One-of-one tattoo plates. Each design drawn once, claimed once, inked once.",
+    "browseGallery": "Browse the gallery"
+  },
+  "marketPage": {
+    "kicker": "The gallery",
+    "title": "Plates for acquisition",
+    "countLabel": "{n} PLATES · ONE OF EACH"
+  },
+  "artistsPage": {
+    "kicker": "The roster",
+    "title": "Resident artists",
+    "subtitle": "Four artists. Each releases a limited run of one-off plates, draws them once, and inks them personally.",
+    "plates": "Plates",
+    "rating": "Rating",
+    "available": "Available",
+    "joinKicker": "Join the house",
+    "joinTitle": "Are you a tattoo artist? Apply to release your plates on SAKNID.",
+    "applyToSell": "Apply to sell"
+  },
+  "bookingPage": {
+    "backToArtists": "← All artists",
+    "kicker": "Book a session",
+    "title": "Request an appointment",
+    "subtitle": "Choose an artist, select a plate or describe your custom commission, and we'll reach out to confirm your session."
+  },
+  "walletPage": {
+    "kicker": "Your collection",
+    "title": "Held by you"
+  },
+  "artistDetail": {
+    "backToArtists": "← All artists",
+    "experience": "Experience",
+    "platesReleased": "Plates released",
+    "rating": "Rating",
+    "sessionRate": "Session rate",
+    "bookSession": "Book a session",
+    "acquirePlate": "Acquire this plate",
+    "bookArtist": "Book {name} to ink it",
+    "reserved": "Reserved",
+    "claimed": "Claimed — retired",
+    "certificate": "Certificate of plate",
+    "edition": "Edition",
+    "medium": "Medium",
+    "placement": "Placement",
+    "watching": "{n} collectors",
+    "digitalInkPlate": "Digital ink plate",
+    "backToGallery": "← Back to gallery",
+    "available": "Available",
+    "resaleListings": "Active resale listings",
+    "seller": "Seller",
+    "price": "Price",
+    "listed": "Listed",
+    "action": "Action",
+    "buyResale": "Buy resale",
+    "soulbound": "SOULBOUND",
+    "resellable": "RESELLABLE · {pct}% ROYALTY"
+  },
+  "common": {
+    "by": "by",
+    "loading": "Loading…",
+    "error": "Something went wrong"
+  }
+}
