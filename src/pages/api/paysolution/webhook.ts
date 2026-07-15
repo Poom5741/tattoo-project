@@ -1,7 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
-import { randomUUID } from "crypto";
+import { createHmac, randomUUID, timingSafeEqual } from "crypto";
 
 // PaySolution webhook handler
 // Called by PaySolution when a payment is confirmed
@@ -9,17 +9,27 @@ import { randomUUID } from "crypto";
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = locals.runtime.env;
 
-  // TODO: Verify PaySolution webhook signature
-  // PaySolution sends an HMAC-SHA256 signature in the X-PaySolution-Signature header
-  // Verification logic:
-  //   const signature = request.headers.get("X-PaySolution-Signature");
-  //   const rawBody = await request.text();
-  //   const expected = createHmac("sha256", env.PAYSOLUTION_WEBHOOK_SECRET).update(rawBody).digest("hex");
-  //   if (signature !== expected) return new Response(null, { status: 401 });
+  const rawBody = await request.text();
+
+  const signature = request.headers.get("X-PaySolution-Signature");
+  const secret = env.PAYSOLUTION_WEBHOOK_SECRET;
+  if (!signature || !secret) {
+    return new Response(JSON.stringify({ error: "Missing signature or secret" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+  const expected = createHmac("sha256", secret).update(rawBody).digest("hex");
+  if (!timingSafeEqual(Buffer.from(signature), Buffer.from(expected))) {
+    return new Response(JSON.stringify({ error: "Invalid signature" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
 
   let body: unknown;
   try {
-    body = await request.json();
+    body = JSON.parse(rawBody);
   } catch {
     return new Response(JSON.stringify({ error: "Invalid JSON" }), {
       status: 400,

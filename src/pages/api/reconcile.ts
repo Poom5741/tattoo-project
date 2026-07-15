@@ -1,8 +1,8 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
-import { createPublicClient, fallback, http, parseAbiItem } from "viem";
-import { baseSepolia } from "viem/chains";
+import { parseAbiItem } from "viem";
+import { getChainClient } from "../../lib/config/chain-client";
 
 let deploymentAddress = "";
 try {
@@ -26,10 +26,7 @@ export const GET: APIRoute = async ({ locals }) => {
     });
   }
 
-  const client = createPublicClient({
-    chain: baseSepolia,
-    transport: fallback([http(env.BASE_RPC_PRIMARY), http(env.BASE_RPC_FALLBACK)]),
-  });
+  const client = getChainClient(env);
 
   // Find reserved rows past TTL
   const { results: expired } = await db

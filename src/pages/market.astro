@@ -8,6 +8,7 @@ import Toast from "../components/Toast";
 import MarketGrid from "../components/MarketGrid";
 import { cookieToInitialState } from "wagmi";
 import { config } from "../lib/wagmi";
+import { createT } from "../lib/i18n";
 
 interface DesignRow {
   id: string;
@@ -68,18 +69,23 @@ try {
 
 const cookieHeader = Astro.request.headers.get("cookie") ?? "";
 const initialState = cookieToInitialState(config, cookieHeader);
+const locale = Astro.locals?.locale ?? "en";
+const t = createT(locale);
 ---
-const { t } = (() => {
-  const mod = await import("../lib/i18n");
-  const locale = Astro.locals?.locale ?? "en";
-  return { t: mod.createT(locale) };
-})();
----
-          <p class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-4">{t("marketPage.kicker")}</p>
-          <div class="flex justify-between items-end flex-wrap gap-4 mb-10">
-            <h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface">{t("marketPage.title")}</h1>
-            <span class="font-body text-on-surface-variant/60 text-[11px] tracking-[0.12em]">{t("marketPage.countLabel").replace("{n}", String(designs.length))}</span>
-          </div>
+
+<Base title="Gallery — SAKNID" description="One-of-one tattoo plates. Browse the gallery.">
+  <Nav client:load currentPath="/market" />
+  <Toast client:load />
+
+  <section class="py-14 pb-20">
+    <div class="container-bb">
+      <p class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-4">{t("marketPage.kicker")}</p>
+      <div class="flex justify-between items-end flex-wrap gap-4 mb-10">
+        <h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface">{t("marketPage.title")}</h1>
+        <span class="font-body text-on-surface-variant/60 text-[11px] tracking-[0.12em]">{t("marketPage.countLabel").replace("{n}", String(designs.length))}</span>
+      </div>
+      <MarketGrid client:load designs={designs} resaleListings={resaleListings} initialState={initialState} />
+    </div>
   </section>
 
   <Footer />

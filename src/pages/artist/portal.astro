@@ -99,7 +99,7 @@ function fmtDate(ts: number) {
 const PRIVY_APP_ID = env.PRIVY_APP_ID;
 ---
 
-<Base title="Artist Portal — SUKNID">
+<Base title="Artist Portal — SAKNID">
   
 
   {!session ? (
@@ -108,7 +108,7 @@ const PRIVY_APP_ID = env.PRIVY_APP_ID;
     <div class="max-w-[1000px] mx-auto px-7 py-10 pb-20">
       <div class="flex justify-between items-center pb-6 border-b border-[#E8E3D8] mb-10">
         <div>
-          <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023]" style="margin-bottom: 8px;">SUKNID / Artist Portal</div>
+          <div class="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023]" style="margin-bottom: 8px;">SAKNID / Artist Portal</div>
           <h1 class="font-playfair font-semibold text-[#1B1C18]" style="font-size: 32px;">{artistName}</h1>
           <div class="font-sora text-[10px] bg-[#E8E0D0] border border-[#E8E3D8] px-2 py-0.5 rounded text-[#5A5B55] max-w-[140px] truncate inline-block" style="margin-top: 8px;" title={session.walletAddress}>
             {session.walletAddress.slice(0, 6)}…{session.walletAddress.slice(-4)}

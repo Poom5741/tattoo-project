@@ -2,10 +2,9 @@ export const prerender = false;
 
 import type { APIRoute } from "astro";
 import { randomUUID } from "crypto";
-import { createPublicClient, http, fallback } from "viem";
-import { bscTestnet } from "wagmi/chains";
 import { ResaleListingSchema } from "../../../lib/api/schemas";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "../../../lib/config/contract";
+import { getChainClient } from "../../../lib/config/chain-client";
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = locals.runtime.env;
@@ -73,15 +72,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   // Verify on-chain ownership
   try {
-    const transport = fallback([
-      http(env.BSC_RPC_PRIMARY),
-      http(env.BSC_RPC_FALLBACK),
-    ]);
-
-    const publicClient = createPublicClient({
-      chain: bscTestnet,
-      transport,
-    });
+    const publicClient = getChainClient(env);
 
     const owner = await publicClient.readContract({
       address: CONTRACT_ADDRESS,

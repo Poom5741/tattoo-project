@@ -65,10 +65,10 @@ test.describe("Navigation", () => {
     await expect(header).toHaveCSS("position", "sticky");
   });
 
-  test("brand name renders SUKNID", async ({ page }) => {
+  test("brand name renders SAKNID", async ({ page }) => {
     await page.goto("/");
     const brand = page.locator("header a.font-display").first();
-    await expect(brand).toContainText("SUKNID");
+    await expect(brand).toContainText("SAKNID");
   });
 
   test("active nav link shows red underline", async ({ page }) => {
@@ -93,7 +93,9 @@ test.describe("Navigation", () => {
 
     const closeButton = page.locator("button[aria-label='Close menu']").first();
     await closeButton.click();
-    await expect(panel).not.toBeVisible();
+    await page.waitForTimeout(500);
+    const transform = await panel.evaluate((el) => getComputedStyle(el).transform);
+    expect(transform).toContain("matrix(1, 0, 0, 1, 300, 0)");
   });
 
   test("Connect Wallet button text is correct", async ({ page }) => {

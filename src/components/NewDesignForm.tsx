@@ -126,7 +126,7 @@ export default function NewDesignForm() {
         <div className="text-3xl mb-3">✓</div>
         <h3 className="font-playfair font-semibold text-[#1B1C18] text-xl mb-2">Design submitted for review</h3>
         <p className="text-[#5A5B55] text-sm">
-          Your design is now pending review by the SUKNID team. You&apos;ll be able to see it in your portal with &ldquo;pending&rdquo; status.
+          Your design is now pending review by the SAKNID team. You&apos;ll be able to see it in your portal with &ldquo;pending&rdquo; status.
         </p>
         <button
           className="mt-5 inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-[#E60023] text-white hover:bg-[#C4001F]"

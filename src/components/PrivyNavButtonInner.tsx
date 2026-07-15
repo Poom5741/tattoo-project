@@ -1,5 +1,5 @@
 import { PrivyProvider, usePrivy, useWallets } from "@privy-io/react-auth";
-import { baseSepolia } from "viem/chains";
+import { PRIVY_CONFIG } from "../lib/config/privy";
 
 const PRIVY_APP_ID = import.meta.env.PUBLIC_PRIVY_APP_ID as string;
 
@@ -38,13 +38,7 @@ export default function PrivyNavButton() {
   return (
     <PrivyProvider
       appId={PRIVY_APP_ID}
-      config={{
-        loginMethods: ["email", "google", "wallet"],
-        embeddedWallets: { createOnLogin: "all-users", requireUserPasswordOnCreate: false },
-        defaultChain: baseSepolia,
-        supportedChains: [baseSepolia],
-        appearance: { theme: "light", accentColor: "#E60023" },
-      }}
+      config={PRIVY_CONFIG}
     >
       <Button />
     </PrivyProvider>

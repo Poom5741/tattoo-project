@@ -23,33 +23,41 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 
-  const { accessToken, walletAddress: clientWallet } = body as {
+  const { accessToken } = body as {
     accessToken?: string;
-    walletAddress?: string;
   };
 
-  if (!accessToken || !clientWallet) {
-    return new Response(JSON.stringify({ error: "Missing accessToken or walletAddress" }), {
+  if (!accessToken) {
+    return new Response(JSON.stringify({ error: "Missing accessToken" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
   }
 
-  // Verify Privy JWT via JWKS — no server SDK needed, keeps bundle under 3 MiB
   const appId = env.PRIVY_APP_ID;
+  let walletAddress: string;
   try {
     const jwks = createRemoteJWKSet(
       new URL(`https://auth.privy.io/api/v1/apps/${appId}/jwks.json`)
     );
-    await jwtVerify(accessToken, jwks, { issuer: "privy.io", audience: appId });
+    const { payload } = await jwtVerify(accessToken, jwks, { issuer: "privy.io", audience: appId });
+    const privyPayload = payload as { wallet?: { address?: string }[]; smart_wallet?: { address?: string }[] };
+    const smartWallet = privyPayload.smart_wallet?.[0]?.address;
+    const embeddedWallet = privyPayload.wallet?.[0]?.address;
+    const extractedWallet = smartWallet ?? embeddedWallet;
+    if (!extractedWallet) {
+      return new Response(JSON.stringify({ error: "No wallet found in Privy token" }), {
+        status: 401,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+    walletAddress = extractedWallet.toLowerCase();
   } catch {
     return new Response(JSON.stringify({ error: "Invalid Privy token" }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
     });
   }
-
-  const walletAddress = clientWallet.toLowerCase();
 
   const artist = await env.DB.prepare(
     "SELECT id, name, wallet_address FROM artists WHERE lower(wallet_address) = ?"

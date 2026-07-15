@@ -8,6 +8,7 @@ import { createT } from "../lib/i18n";
 const locale = Astro.locals?.locale ?? "en";
 const t = createT(locale);
 
+---
 <Base title="Your Collection — SAKNID" description="View your one-of-one tattoo plates.">
   <Nav client:load currentPath="/wallet" />
   <Toast client:load />

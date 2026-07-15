@@ -1,10 +1,9 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
-import { createPublicClient, http, fallback } from "viem";
-import { bscTestnet } from "wagmi/chains";
 import { z } from "zod";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "../../../lib/config/contract";
+import { getChainClient } from "../../../lib/config/chain-client";
 
 const CancelResaleSchema = z.object({
   callerWallet: z.string().regex(/^0x[0-9a-fA-F]{40}$/, "Must be a 0x Ethereum address"),
@@ -64,15 +63,7 @@ export const DELETE: APIRoute = async ({ request, params, locals }) => {
 
   // Verify on-chain ownership
   try {
-    const transport = fallback([
-      http(env.BSC_RPC_PRIMARY),
-      http(env.BSC_RPC_FALLBACK),
-    ]);
-
-    const publicClient = createPublicClient({
-      chain: bscTestnet,
-      transport,
-    });
+    const publicClient = getChainClient(env);
 
     const owner = await publicClient.readContract({
       address: CONTRACT_ADDRESS,

@@ -2,10 +2,10 @@ export const prerender = false;
 
 import type { APIRoute } from "astro";
 import { randomUUID } from "crypto";
-import { createPublicClient, http, fallback, parseEventLogs, zeroAddress } from "viem";
-import { bscTestnet } from "wagmi/chains";
+import { parseEventLogs, zeroAddress } from "viem";
 import { ConfirmRequestSchema } from "../../lib/api/schemas";
 import { CONTRACT_ADDRESS, CONTRACT_ABI } from "../../lib/config/contract";
+import { getChainClient } from "../../lib/config/chain-client";
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const start = Date.now();
@@ -58,15 +58,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       });
     }
 
-    const transport = fallback([
-      http(env.BSC_RPC_PRIMARY),
-      http(env.BSC_RPC_FALLBACK),
-    ]);
-
-    const publicClient = createPublicClient({
-      chain: bscTestnet,
-      transport,
-    });
+    const publicClient = getChainClient(env);
 
     const chainStart = Date.now();
 

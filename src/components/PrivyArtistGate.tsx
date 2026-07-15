@@ -1,6 +1,6 @@
 import React from "react";
 import { PrivyProvider, usePrivy, useWallets, useCreateWallet } from "@privy-io/react-auth";
-import { baseSepolia } from "viem/chains";
+import { PRIVY_CONFIG } from "../lib/config/privy";
 
 interface Props {
   appId: string;
@@ -10,7 +10,7 @@ function LoginWall() {
   const { login, ready } = usePrivy();
   return (
     <div className="min-h-[60vh] flex flex-col items-center justify-center gap-6">
-      <div className="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023]">SUKNID / Artist Portal</div>
+      <div className="font-sora font-semibold text-xs tracking-[0.2em] uppercase text-[#E60023]">SAKNID / Artist Portal</div>
       <h1 className="font-playfair font-semibold text-[#1B1C18] text-[34px]">Sign in with your wallet</h1>
       <p className="font-sora text-[13px] text-[#5A5B55] max-w-[360px] text-center">
         Use email, Google, or any Ethereum wallet. No seed phrase required — your smart wallet is created automatically.
@@ -55,7 +55,7 @@ function AuthHandler({ onSession }: { onSession: () => void }) {
         const res = await fetch("/api/auth/artist-login", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ accessToken, walletAddress }),
+          body: JSON.stringify({ accessToken }),
         });
         if (res.ok) {
           onSession();
@@ -127,13 +127,7 @@ export default function PrivyArtistGate({ appId }: Props) {
   return (
     <PrivyProvider
       appId={appId}
-      config={{
-        loginMethods: ["email", "google", "wallet"],
-        embeddedWallets: { createOnLogin: "all-users", requireUserPasswordOnCreate: false },
-        defaultChain: baseSepolia,
-        supportedChains: [baseSepolia],
-        appearance: { theme: "light", accentColor: "#E60023" },
-      }}
+      config={PRIVY_CONFIG}
     >
       <AuthHandler onSession={() => setSessionReady(true)} />
     </PrivyProvider>

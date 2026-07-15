@@ -159,7 +159,7 @@ test.describe("Home page (/)", () => {
     await expect(ctaButton).toBeVisible();
   });
 
-  test("shows page title 'SUKNID'", async ({ page }) => {
-    await expect(page).toHaveTitle(/SUKNID/);
+  test("shows page title 'SAKNID'", async ({ page }) => {
+    await expect(page).toHaveTitle(/SAKNID/);
   });
 });

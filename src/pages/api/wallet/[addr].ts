@@ -1,9 +1,9 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
-import { createPublicClient, fallback, http, parseAbiItem } from "viem";
-import { baseSepolia } from "viem/chains";
+import { parseAbiItem } from "viem";
 import { randomUUID } from "crypto";
+import { getChainClient } from "../../../lib/config/chain-client";
 
 // Resolved at build time; may not exist pre-deploy
 let deploymentInfo: { address: string; deployBlock: number; abi: unknown[] } | null = null;
@@ -38,13 +38,7 @@ export const GET: APIRoute = async ({ params, locals }) => {
     });
   }
 
-  const client = createPublicClient({
-    chain: baseSepolia,
-    transport: fallback([
-      http(env.BASE_RPC_PRIMARY),
-      http(env.BASE_RPC_FALLBACK),
-    ]),
-  });
+  const client = getChainClient(env);
 
   let chainMs = 0;
   let d1Ms = 0;

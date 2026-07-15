@@ -62,8 +62,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
   // Documentation: https://paysolution.com/docs/api
   // Required env vars: PAYSOLUTION_MERCHANT_ID, PAYSOLUTION_API_KEY
   const orderId = randomUUID();
-  const callbackUrl = `${env.SITE_URL ?? "https://suknid.com"}/api/paysolution/webhook`;
-  const returnUrl = `${env.SITE_URL ?? "https://suknid.com"}/checkout/${designId}?paysolution=1`;
+  const callbackUrl = `${env.SITE_URL ?? "https://saknid.com"}/api/paysolution/webhook`;
+  const returnUrl = `${env.SITE_URL ?? "https://saknid.com"}/checkout/${designId}?paysolution=1`;
 
   // Stub response — replace with actual API call when credentials are available
   const stubPaymentUrl = `https://pay.paysolution.com/order/${orderId}?amount=${amount}&currency=${currency}&callback=${encodeURIComponent(callbackUrl)}&return=${encodeURIComponent(returnUrl)}`;

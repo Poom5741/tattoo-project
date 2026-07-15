@@ -2,11 +2,12 @@ export const prerender = false;
 
 import type { APIRoute } from "astro";
 import { randomUUID } from "crypto";
-import { createPublicClient, createWalletClient, http, fallback, keccak256, toBytes, parseUnits, zeroAddress } from "viem";
+import { createWalletClient, http, keccak256, toBytes, parseUnits, zeroAddress } from "viem";
 import { privateKeyToAccount } from "viem/accounts";
-import { bscTestnet } from "wagmi/chains";
+import { bscTestnet } from "viem/chains";
 import { VoucherRequestSchema } from "../../lib/api/schemas";
 import { CONTRACT_ADDRESS, CHAIN_ID, CONTRACT_ABI } from "../../lib/config/contract";
+import { getChainClient } from "../../lib/config/chain-client";
 
 export const POST: APIRoute = async ({ request, locals }) => {
   const start = Date.now();
@@ -102,15 +103,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       });
     }
 
-    const transport = fallback([
-      http(env.BSC_RPC_PRIMARY),
-      http(env.BSC_RPC_FALLBACK),
-    ]);
-
-    const publicClient = createPublicClient({
-      chain: bscTestnet,
-      transport,
-    });
+    const publicClient = getChainClient(env);
 
     if (CONTRACT_ADDRESS !== "0x0000000000000000000000000000000000000000") {
       try {
@@ -185,7 +178,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const signature = await walletClient.signTypedData({
       domain: {
-        name: "SUKNID",
+        name: "SAKNID",
         version: "1",
         chainId: CHAIN_ID,
         verifyingContract: CONTRACT_ADDRESS,

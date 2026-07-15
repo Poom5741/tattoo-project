@@ -1,5 +1,4 @@
 ---
-export const prerender = true;
 
 import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav";
@@ -7,9 +6,9 @@ import Footer from "../components/Footer.astro";
 import Toast from "../components/Toast";
 import BookingForm from "../components/BookingForm";
 import { createT } from "../lib/i18n";
-
+import { DESIGNS, ARTISTS } from "../lib/catalog/seed";
 const locale = Astro.locals?.locale ?? "en";
-const t = typeof createT !== "undefined" ? createT(locale) : (s: string) => s;
+const t = createT(locale);
 ---
 <Base title="Book a session — SAKNID" description="Book a session with one of our resident artists. One-of-one tattoo plates, hand-drawn and inked once.">
   <div class="min-h-screen flex flex-col">
@@ -48,8 +47,7 @@ const t = typeof createT !== "undefined" ? createT(locale) : (s: string) => s;
             </div>
           </div>
         </div>
-      </section>
-    </main>
+      </main>
     <Footer />
   </div>
 
