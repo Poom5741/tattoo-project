@@ -8,4 +8,9 @@ SIGNER_PRIVATE_KEY=0x00000000000000000000000000000000000000000000000000000000000
 NFT_STORAGE_KEY=your_nft_storage_key_here
 
 # Email (Resend) — optional for local dev
-RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
+# Better Auth — generate a random string for secret
+BETTER_AUTH_SECRET=your-better-auth-secret-here
+
+# Google OAuth (create at https://console.cloud.google.com/apis/credentials)
+GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-client-secret
