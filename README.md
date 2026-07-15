@@ -1,95 +1,88 @@
-# SUKNID
+# INKNOIR (formerly SUKNID)
 
-One-of-one tattoo plates. Blockchain-verified ownership on Base Sepolia.
+One-of-one tattoo plate NFTs on BSC Testnet. Passkey wallet + Better Auth. No third-party auth provider.
 
-Built with Astro 5 + Cloudflare Pages + D1 + R2 + a Foundry ERC-721 lazy-mint contract.
+Built with Astro 5 + Cloudflare Pages + D1 + R2 + Foundry ERC-721 lazy-mint contract.
 
 ---
 
-## Deploy state (2026-06-08)
+## Auth Pivot (2026-07-15)
+
+Replaced Privy with a self-custodial auth stack:
+
+| Layer | Tech | Status |
+|-------|------|--------|
+| Wallet | dacc-js + WebAuthn PRF (biometric) | ✅ Live |
+| Auth | Better Auth (D1 + Google OAuth) | ✅ Live |
+| Artist login | Wallet signature (viem.verifyMessage) | ✅ Live |
+| Backup | PBKDF2 recovery + D1 storage | ✅ Live |
+
+### Key changes
+
+- **Passkey wallet**: Self-custodial EVM wallet via Face ID / Touch ID
+- **Better Auth**: User identity with D1 sessions and Google OAuth
+- **Wallet signature**: Artist portal login via signed challenge
+- **Cross-auth recovery**: Google + recovery password restores wallet on new device
+
+---
+
+## Deploy state
 
 **Provisioned via Cloudflare MCP:**
-
-- ✅ D1 database `suknid-catalog` — uuid `18219077-0bbb-4a1b-8c85-ff088df600d7` (wired in `wrangler.toml`)
-- ✅ R2 bucket `suknid-assets` (private by default — public toggle is manual, see below)
-- ✅ Schema migrations applied: `0001_init.sql` (5 tables) + 4 artists + 15 designs + 15 stub IPFS CIDs
+- ✅ D1 database `inknoir-catalog` — wired in `wrangler.toml`
+- ✅ R2 bucket `inknoir-assets`
+- ✅ Schema migrations applied
 - ✅ Code pushed to `main` on https://github.com/Poom5741/tattoo-project
 
-**Manual completion steps (require keys/auth not available to this session):**
-
-1. **Toggle R2 public access.** Cloudflare dashboard → R2 → `suknid-assets` → Settings → Public access → Allow access. Copy the `*.r2.dev` URL and put it into `wrangler.toml` `[vars] R2_PUBLIC_URL`.
-2. **Authenticate wrangler locally.** `pnpm dlx wrangler login` (OAuth) or `export CLOUDFLARE_API_TOKEN=...` + `CLOUDFLARE_ACCOUNT_ID=...`.
-3. **Generate a test signer wallet.** `cast wallet new` (Foundry) — note the private key + address.
-4. **Get a Base Sepolia funded deployer wallet.** Use the Coinbase faucet (https://www.coinbase.com/faucets/base-ethereum-sepolia-faucet) for testnet ETH.
-5. **Deploy contract** — set `SIGNER_ADDRESS`, `ARTIST_TREASURY`, `DEPLOYER_PRIVATE_KEY`, then `bash scripts/deploy-contract.sh`. Persists address + deployBlock to `contracts/deployments/base-sepolia.json` and `src/lib/config/contract.ts`.
-6. **Update `wrangler.toml`** with the deployed contract address (`PUBLIC_CONTRACT_ADDRESS`).
-7. **(Optional) Pin real IPFS metadata.** Get an NFT.Storage API key, set `NFT_STORAGE_KEY`, run `pnpm pin:metadata`, then `wrangler d1 execute suknid-catalog --remote --file migrations/0003_cids.sql` to overwrite the stub CIDs.
-8. **Create the Pages project + set secrets.**
-   ```bash
-   pnpm dlx wrangler pages project create suknid --production-branch main
-   pnpm dlx wrangler pages secret put SIGNER_PRIVATE_KEY --project-name suknid
-   pnpm dlx wrangler pages secret put NFT_STORAGE_KEY --project-name suknid
-   pnpm dlx wrangler pages secret put RESEND_API_KEY --project-name suknid   # optional
-   ```
-9. **Build + deploy.**
-   ```bash
-   pnpm build
-   pnpm dlx wrangler pages deploy dist --project-name suknid
-   ```
-10. **Smoke test.** `bash scripts/smoke.sh https://suknid.pages.dev`.
-
-**Pre-existing Cloudflare workers in this account (do NOT modify):** `tubc-ai-hack`, `kubchain-explorer`, `solnest`, `eggo-world-pb`, `aris-wallet`, `telegram-gaming-bot-staging`, `telegram-gaming-bot`, `cet-dex`, `myport`. Snapshot in `.omc/state/suknid-baseline-workers.json`. Verified unchanged post-deploy.
-
-**Source-of-truth artifacts (committed under `.omc/`):**
-- Deep-interview spec — `.omc/specs/deep-interview-suknid-astro-cloudflare.md` (18% ambiguity)
-- Consensus plan v2.2 — `.omc/plans/suknid-astro-cloudflare.md` (35 fixes applied across 3 iterations)
-- Team handoff — `.omc/handoffs/team-plan.md`
+**Current deploy:** https://inknoir.pages.dev
 
 ---
 
 ## Prerequisites
 
 - Node.js >= 20
-- [pnpm](https://pnpm.io/) >= 9 (`npm install -g pnpm`)
+- [pnpm](https://pnpm.io/) >= 9
 - [Foundry](https://getfoundry.sh/) — for smart contract work
 - A Cloudflare account with Workers/Pages/D1/R2 enabled
-
----
-
-## Install
-
-```bash
-pnpm install
-```
 
 ---
 
 ## Development
 
 ```bash
-# Start Astro dev server (http://localhost:4321)
-pnpm dev
-
-# Build for production
-pnpm build
-
-# Preview production build locally
-pnpm preview
+pnpm install
+pnpm dev          # http://localhost:4321
+pnpm build        # Production build
+pnpm test         # Unit tests
+pnpm test:e2e     # Playwright e2e
 ```
+
+## Secrets
+
+| Name | Where | Description |
+|------|-------|-------------|
+| `BETTER_AUTH_SECRET` | `wrangler pages secret put` | Better Auth cookie encryption |
+| `GOOGLE_CLIENT_ID` | `wrangler pages secret put` | Google OAuth client ID |
+| `GOOGLE_CLIENT_SECRET` | `wrangler pages secret put` | Google OAuth client secret |
+| `SIGNER_PRIVATE_KEY` | `wrangler pages secret put` | Test signer wallet key |
+| `NFT_STORAGE_KEY` | `wrangler pages secret put` | NFT.Storage API key |
+
+Public vars in `wrangler.toml` `[vars]`:
+- `PUBLIC_CONTRACT_ADDRESS` — deployed contract address
+- `PUBLIC_CHAIN_ID` — `97` (BSC Testnet)
+- `BETTER_AUTH_URL` — deployment URL for OAuth callbacks
+
+Copy `.env.example` → `.env` and `.dev.vars.example` → `.dev.vars` for local dev.
 
 ---
 
 ## Testing
 
 ```bash
-# Vitest unit + integration tests
-pnpm test
-
-# Foundry contract tests
-forge test -vv --root contracts
-
-# Playwright e2e
-pnpm exec playwright test
+pnpm test                    # Vitest unit tests (63 tests)
+pnpm test:e2e                # Playwright e2e
+pnpm exec playwright test    # Run with UI
+forge test -vv --root contracts  # Foundry contract tests
 ```
 
 ---
@@ -97,51 +90,6 @@ pnpm exec playwright test
 ## Deploy
 
 ```bash
-# Pin metadata to IPFS (requires NFT_STORAGE_KEY in .dev.vars)
-pnpm pin:metadata
-
-# Deploy to Cloudflare Pages via wrangler
-wrangler pages deploy dist --project-name suknid
+pnpm build
+pnpm wrangler pages deploy dist --branch main
 ```
-
----
-
-## Secrets
-
-| Name | Where | Description |
-|------|-------|-------------|
-| `SIGNER_PRIVATE_KEY` | `wrangler pages secret put` / `.dev.vars` (local only) | Test signer wallet key — never the production key |
-| `NFT_STORAGE_KEY` | `wrangler pages secret put` / `.dev.vars` | NFT.Storage API key for IPFS pinning |
-| `RESEND_API_KEY` | `wrangler pages secret put` / `.dev.vars` | Resend email API key (optional) |
-
-Public vars (non-secret, safe in `wrangler.toml` `[vars]`):
-- `PUBLIC_CONTRACT_ADDRESS` — deployed `SuknidPlates` address on Base Sepolia
-- `PUBLIC_CHAIN_ID` — `84532` (Base Sepolia)
-- `BASE_RPC_PRIMARY` / `BASE_RPC_FALLBACK` — RPC endpoints
-
-Copy `.env.example` → `.env` and `.dev.vars.example` → `.dev.vars` for local dev.
-
----
-
-## Contract Deploy
-
-```bash
-# Set required env vars
-export SIGNER_ADDRESS=<your-test-signer-address>
-export ARTIST_TREASURY=<treasury-address>
-export DEPLOYER_PRIVATE_KEY=<deployer-key>
-
-# Deploy and verify
-bash scripts/deploy-contract.sh
-```
-
-The deploy script writes the contract address to `contracts/deployments/base-sepolia.json` and `src/lib/config/contract.ts`.
-
----
-
-## Links
-
-- Spec: `.omc/specs/deep-interview-suknid-astro-cloudflare.md`
-- Plan: `.omc/plans/suknid-astro-cloudflare.md`
-- Basescan Sepolia: https://sepolia.basescan.org
-Updated: Thu Jul 16 02:53:49 +07 2026
