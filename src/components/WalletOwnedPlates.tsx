@@ -1,3 +1,4 @@
+import WalletProvider from "./WalletProvider";
 import { useState, useEffect } from "react";
 import { usePasskeyWallet } from "../contexts/PasskeyWalletContext";
 import Plate from "./Plate";
@@ -125,7 +126,10 @@ function WalletOwnedPlatesInner() {
     </div>
   );
 }
-
 export default function WalletOwnedPlates() {
-  return <WalletOwnedPlatesInner />;
+  return (
+    <WalletProvider>
+      <WalletOwnedPlatesInner />
+    </WalletProvider>
+  );
 }

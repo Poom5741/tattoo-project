@@ -43,6 +43,14 @@ export default function WalletManage({ open, onClose }: WalletManageProps) {
         )}
 
         {status === "none" && (
+          <div className="flex flex-col gap-4">
+            <p className="font-body text-body-md text-on-surface-variant">
+              Create a self-custodial wallet secured by your device's biometrics.
+            </p>
+            <button className="btn-primary w-full" onClick={createWallet}>
+              Create Wallet
+            </button>
+          </div>
         )}
 
         {status === "locked" && (
