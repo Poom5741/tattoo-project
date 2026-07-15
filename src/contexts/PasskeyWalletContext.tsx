@@ -83,7 +83,17 @@ export function PasskeyWalletProvider({ children }: { children: ReactNode }) {
 export function usePasskeyWallet(): PasskeyWalletState {
   const ctx = useContext(PasskeyWalletContext);
   if (!ctx) {
-    throw new Error("usePasskeyWallet must be used within PasskeyWalletProvider");
+    // Return a fallback state when used outside PasskeyWalletProvider
+    // (e.g. Nav component that renders on all pages)
+    return {
+      status: "none",
+      address: null,
+      daccPublickey: null,
+      createWallet: async () => {},
+      unlock: async () => {},
+      lock: () => {},
+      isReady: false,
+    };
   }
   return ctx;
 }
