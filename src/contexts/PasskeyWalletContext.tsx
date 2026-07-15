@@ -13,7 +13,6 @@ import {
   useRef,
   type ReactNode,
 } from "react";
-import { createDaccWallet } from "dacc-js";
 
 // ── Types ───────────────────────────────────────────────────────
 
@@ -42,6 +41,10 @@ export function PasskeyWalletProvider({ children }: { children: ReactNode }) {
   const createWallet = useCallback(async () => {
     if (walletRef.current) return;
     setStatus("loading");
+    // Dynamic import: dacc-js bundles libsodium WASM which cannot run
+    // in Cloudflare Workers (SSR). Only import when actually creating
+    // a wallet — always client-side.
+    const { createDaccWallet } = await import("dacc-js");
     const wallet = await createDaccWallet({
       passwordSecretkey: "passkey-derived-secret",
     });
@@ -50,7 +53,6 @@ export function PasskeyWalletProvider({ children }: { children: ReactNode }) {
     setDaccPublickey(wallet.daccPublickey);
     setStatus("unlocked");
   }, []);
-
   const unlock = useCallback(async () => {
     if (!walletRef.current || !address) return;
     setStatus("unlocked");

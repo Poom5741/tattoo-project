@@ -8,7 +8,6 @@
 
 import { useState, useEffect } from "react";
 import { usePasskeyWallet } from "../contexts/PasskeyWalletContext";
-import { daccSignMessage } from "dacc-js";
 import { bscTestnet } from "viem/chains";
 
 type Phase = "idle" | "fetching-challenge" | "signing" | "logging-in" | "done" | "error";
@@ -44,6 +43,8 @@ export default function WalletSignatureGate() {
       }
 
       setPhase("signing");
+      // Dynamic import: dacc-js uses libsodium WASM, blocked in Workers
+      const { daccSignMessage } = await import("dacc-js");
       const result = await daccSignMessage({
         address,
         daccPublickey,
