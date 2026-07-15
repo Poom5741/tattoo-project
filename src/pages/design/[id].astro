@@ -94,7 +94,6 @@ function fmtDate(ts: number) {
   });
 }
 
-const PRIVY_APP_ID = Astro.locals.runtime.env.PRIVY_APP_ID;
 const locale = Astro.locals?.locale ?? "en";
 const t = createT(locale);
 ---
@@ -135,9 +134,7 @@ const t = createT(locale);
                 client:load
                 designId={design.id}
                 tokenId={design.token_id}
-                appId={PRIVY_APP_ID}
               />
-            </div>
           )}
           <h1 class="font-display font-semibold text-on-surface text-display-lg-mobile md:text-[46px] leading-none">{design.title}</h1>
 

@@ -2,7 +2,7 @@ export const prerender = false;
 
 import type { APIRoute } from "astro";
 import { randomUUID } from "crypto";
-import { createRemoteJWKSet, jwtVerify } from "jose";
+import { verifyMessage } from "viem";
 
 interface ArtistRow {
   id: string;
@@ -23,67 +23,77 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 
-  const { accessToken } = body as {
-    accessToken?: string;
+  const { address, signature, nonce } = body as {
+    address?: string;
+    signature?: string;
+    nonce?: string;
   };
 
-  if (!accessToken) {
-    return new Response(JSON.stringify({ error: "Missing accessToken" }), {
+  if (!address || !signature || !nonce) {
+    return new Response(JSON.stringify({ error: "Missing address, signature, or nonce" }), {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
   }
 
-  const appId = env.PRIVY_APP_ID;
-  let walletAddress: string;
-  try {
-    const jwks = createRemoteJWKSet(
-      new URL(`https://auth.privy.io/api/v1/apps/${appId}/jwks.json`)
-    );
-    const { payload } = await jwtVerify(accessToken, jwks, { issuer: "privy.io", audience: appId });
-    const privyPayload = payload as { wallet?: { address?: string }[]; smart_wallet?: { address?: string }[] };
-    const smartWallet = privyPayload.smart_wallet?.[0]?.address;
-    const embeddedWallet = privyPayload.wallet?.[0]?.address;
-    const extractedWallet = smartWallet ?? embeddedWallet;
-    if (!extractedWallet) {
-      return new Response(JSON.stringify({ error: "No wallet found in Privy token" }), {
-        status: 401,
-        headers: { "Content-Type": "application/json" },
-      });
-    }
-    walletAddress = extractedWallet.toLowerCase();
-  } catch {
-    return new Response(JSON.stringify({ error: "Invalid Privy token" }), {
+  // Retrieve the challenge message from KV
+  const storedMessage = await env.SESSION.get(`challenge:${nonce}`);
+  if (!storedMessage) {
+    return new Response(JSON.stringify({ error: "Invalid or expired nonce" }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
     });
   }
 
+  // Delete nonce to prevent replay
+  await env.SESSION.delete(`challenge:${nonce}`);
+
+  // Verify the signature using viem
+  let valid: boolean;
+  try {
+    valid = await verifyMessage({
+      address: address as `0x${string}`,
+      message: storedMessage,
+      signature: signature as `0x${string}`,
+    });
+  } catch {
+    return new Response(JSON.stringify({ error: "Signature verification failed" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  if (!valid) {
+    return new Response(JSON.stringify({ error: "Signature does not match" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Look up artist by wallet address
   const artist = await env.DB.prepare(
     "SELECT id, name, wallet_address FROM artists WHERE lower(wallet_address) = ?"
   )
-    .bind(walletAddress)
+    .bind(address.toLowerCase())
     .first<ArtistRow>();
 
   if (!artist) {
     return new Response(
-      JSON.stringify({ error: "Wallet not linked to any artist profile", walletAddress }),
+      JSON.stringify({ error: "Wallet not linked to any artist profile", walletAddress: address }),
       { status: 403, headers: { "Content-Type": "application/json" } }
     );
   }
 
+  // Create session
   const token = randomUUID();
-  const session = { artistId: artist.id, walletAddress, name: artist.name };
+  const session = { artistId: artist.id, walletAddress: address.toLowerCase(), name: artist.name };
   await env.SESSION.put(`artist:${token}`, JSON.stringify(session), {
     expirationTtl: 60 * 60 * 8,
   });
 
   const headers = new Headers();
   headers.set("Content-Type", "application/json");
-  // Set new cookie at Path=/ so it reaches /api/* routes
   headers.append("Set-Cookie", `artist_token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=28800`);
-  // Expire stale cookie at old Path=/artist
-  headers.append("Set-Cookie", "artist_token=; Path=/artist; HttpOnly; SameSite=Lax; Max-Age=0");
 
   return new Response(JSON.stringify({ ok: true, artistId: artist.id }), {
     status: 200,

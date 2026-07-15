@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import PrivyNavButton from "./PrivyNavButton";
+import PasskeyNavButton from "./PasskeyNavButton";
 import LanguageSwitcher from "./LanguageSwitcher";
 
 interface NavProps {
@@ -85,7 +85,7 @@ export default function Nav({ currentPath = "/" }: NavProps) {
           {/* Right side — connect + burger */}
           <div className="flex items-center gap-4">
             <div className="hidden md:block">
-              <PrivyNavButton />
+              <PasskeyNavButton />
             </div>
             <button
               className="md:hidden flex items-center justify-center w-10 h-10 text-on-surface"
@@ -156,7 +156,7 @@ export default function Nav({ currentPath = "/" }: NavProps) {
           })}
         </nav>
         <div className="mt-6 px-3">
-          <PrivyNavButton />
+          <PasskeyNavButton />
         </div>
         <div className="mt-4 px-3">
           <LanguageSwitcher />

@@ -1,0 +1,33 @@
+/**
+ * Better Auth server configuration.
+ *
+ * Creates a Better Auth instance with D1 database adapter and Google OAuth.
+ * The handler is mounted at /api/auth/[...all] in the Astro catch-all route.
+ */
+
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "@better-auth/drizzle-adapter";
+import { drizzle } from "drizzle-orm/d1";
+
+export function createAuth(env: Env) {
+  const db = drizzle(env.DB);
+
+  return betterAuth({
+    secret: env.BETTER_AUTH_SECRET,
+    baseURL: env.BETTER_AUTH_URL,
+    database: drizzleAdapter(db, {
+      provider: "sqlite",
+    }),
+    socialProviders: {
+      google: {
+        clientId: env.GOOGLE_CLIENT_ID,
+        clientSecret: env.GOOGLE_CLIENT_SECRET,
+      },
+    },
+    passkey: {
+      enabled: true,
+      rpName: "SAKNID",
+      rpID: new URL(env.BETTER_AUTH_URL).hostname,
+    },
+  });
+}

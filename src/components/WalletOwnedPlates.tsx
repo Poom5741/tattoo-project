@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
-import { usePrivy } from "@privy-io/react-auth";
-import WalletProvider from "./WalletProvider";
+import { usePasskeyWallet } from "../contexts/PasskeyWalletContext";
 import Plate from "./Plate";
 
 interface OwnedPlate {
@@ -17,11 +15,12 @@ interface OwnedPlate {
 }
 
 function WalletOwnedPlatesInner() {
-  const { address, isConnected } = useAccount();
-  const { login } = usePrivy();
+  const { address, status } = usePasskeyWallet();
   const [plates, setPlates] = useState<OwnedPlate[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const isConnected = status === "unlocked" && address !== null;
 
   useEffect(() => {
     if (!isConnected || !address) {
@@ -46,9 +45,8 @@ function WalletOwnedPlatesInner() {
         <div className="w-[52px] h-[52px] rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-body font-bold text-lg mx-auto mb-5">⬡</div>
         <h3 className="font-display text-headline-md text-on-surface">Connect your wallet</h3>
         <p className="font-body text-body-md text-on-surface-variant mt-3 mx-auto mb-7 max-w-[38ch]">
-          Connect to see plates you own on-chain.
+          Create or unlock your passkey wallet to see plates you own on-chain.
         </p>
-        <button className="btn-primary disabled:opacity-40" onClick={login}>Connect &amp; Sign in</button>
       </div>
     );
   }
@@ -129,9 +127,5 @@ function WalletOwnedPlatesInner() {
 }
 
 export default function WalletOwnedPlates() {
-  return (
-    <WalletProvider>
-      <WalletOwnedPlatesInner />
-    </WalletProvider>
-  );
+  return <WalletOwnedPlatesInner />;
 }

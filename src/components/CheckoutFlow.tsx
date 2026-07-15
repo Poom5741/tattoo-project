@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useAccount, useSwitchChain, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { usePrivy } from "@privy-io/react-auth";
+import { usePasskeyWallet } from "../contexts/PasskeyWalletContext";
 import WalletProvider from "./WalletProvider";
 import { CHAIN_ID, CONTRACT_ADDRESS, CONTRACT_ABI, USDT_ADDRESS } from "../lib/config/contract";
 
@@ -42,7 +42,7 @@ function fmtUsdt(v: number | null | undefined) {
 
 function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
   const { address, isConnected, chain } = useAccount();
-  const { login } = usePrivy();
+  const { status, createWallet } = usePasskeyWallet();
   const { switchChain } = useSwitchChain();
   const { writeContract, data: txHash, isPending: isWriting, error: writeError } = useWriteContract();
   const { writeContract: writeApprove, data: approveTxHash, isPending: isApproving } = useWriteContract();
@@ -243,7 +243,8 @@ function CheckoutFlowInner({ design }: CheckoutFlowInnerProps) {
             {!isConnected ? (
               <div className="py-8">
                 <p className="text-on-surface-variant text-body-md mb-5">Connect your wallet to acquire this plate.</p>
-                <button className="btn-primary" onClick={login}>Connect & Sign in</button>
+                <button className="btn-primary" onClick={createWallet}>
+                  {status === "loading" ? "Creating wallet…" : "Create Wallet & Sign In"}</button>
               </div>
             ) : onWrongChain ? (
               <div className="py-6">

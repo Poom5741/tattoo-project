@@ -1,3 +1,4 @@
+import React from "react";
 import { useEffect, useRef } from "react";
 
 const STYLE_KIND: Record<string, number> = {

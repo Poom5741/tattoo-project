@@ -3,7 +3,7 @@ export const prerender = false;
 
 import Base from "../../layouts/Base.astro";
 import { getArtistSession } from "../../lib/artist/auth";
-import PrivyArtistGate from "../../components/PrivyArtistGate";
+import WalletSignatureGate from "../../components/WalletSignatureGate";
 import NewDesignForm from "../../components/NewDesignForm";
 import BookingCalendar from "../../components/BookingCalendar";
 import EarningsDashboard from "../../components/EarningsDashboard";
@@ -95,15 +95,11 @@ function fmtDate(ts: number) {
     hour: "2-digit", minute: "2-digit",
   });
 }
-
-const PRIVY_APP_ID = env.PRIVY_APP_ID;
 ---
 
 <Base title="Artist Portal — SAKNID">
-  
-
   {!session ? (
-    <PrivyArtistGate client:only="react" appId={PRIVY_APP_ID} />
+    <WalletSignatureGate client:load />
   ) : (
     <div class="max-w-[1000px] mx-auto px-7 py-10 pb-20">
       <div class="flex justify-between items-center pb-6 border-b border-[#E8E3D8] mb-10">
@@ -149,7 +145,7 @@ const PRIVY_APP_ID = env.PRIVY_APP_ID;
         <table class="w-full border border-[#E8E3D8] border-collapse mb-[52px]">
           <thead>
             <tr>
-              <th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Photo</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">№</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Title</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Style</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Mode</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Price (USDT)</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Status</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Actions</th>
+              <th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Photo</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">№</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Title</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Style</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Terms</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Price</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Status</th><th class="font-sora text-[10px] tracking-[0.14em] uppercase text-[#5A5B55]/60 px-4 py-3 text-left border-b border-[#E8E3D8] bg-[#F5F0E8] whitespace-nowrap">Actions</th>
             </tr>
           </thead>
           <tbody>

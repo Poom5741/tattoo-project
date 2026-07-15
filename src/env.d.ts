@@ -14,7 +14,6 @@ declare namespace App {
 interface ImportMetaEnv {
   readonly PUBLIC_TAWK_PROPERTY_ID: string;
   readonly PUBLIC_TAWK_WIDGET_ID: string;
-  readonly PUBLIC_PRIVY_APP_ID: string;
 }
 
 interface ImportMeta {
@@ -35,6 +34,8 @@ interface Env {
   RESEND_API_KEY: string;
   ADMIN_PASSWORD: string;
   R2_PUBLIC_URL: string;
-  PRIVY_APP_ID: string;
-  PRIVY_APP_SECRET: string;
+  GOOGLE_CLIENT_ID: string;
+  GOOGLE_CLIENT_SECRET: string;
+  BETTER_AUTH_SECRET: string;
+  BETTER_AUTH_URL: string;
 }
