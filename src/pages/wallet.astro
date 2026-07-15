@@ -16,8 +16,7 @@ const t = createT(locale);
   <section class="py-14 pb-[90px]">
     <div class="max-w-container-max mx-auto px-5 md:px-16">
       <div class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-4">{t("walletPage.kicker")}</div>
-      <h1 class="font-display text-display-lg-mobile md:text-display-lg text-on-surface mb-10">{t("walletPage.title")}</h1>
-      <WalletOwnedPlates client:only="react" />
+      <WalletOwnedPlates client:load />
     </div>
   </section>
 
