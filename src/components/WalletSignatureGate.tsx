@@ -43,8 +43,12 @@ export default function WalletSignatureGate() {
       }
 
       setPhase("signing");
-      // Dynamic import: dacc-js uses libsodium WASM, blocked in Workers
-      const { daccSignMessage } = await import("dacc-js");
+      // Dynamic imports: dacc-js (libsodium WASM) and viem chains
+      // are only needed client-side, not in Workers SSR.
+      const [{ daccSignMessage }, { bscTestnet }] = await Promise.all([
+        import("dacc-js"),
+        import("viem/chains"),
+      ]);
       const result = await daccSignMessage({
         address,
         daccPublickey,
