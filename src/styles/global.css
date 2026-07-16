@@ -86,7 +86,7 @@
     @apply block font-body font-semibold text-sm text-on-surface-variant mb-2;
   }
 
-  /* Nav wallet button — used by PrivyNavButton/PrivyNavButtonInner */
+  /* Nav wallet button — used by PasskeyNavButton */
   .nav__wallet {
     @apply inline-flex items-center gap-2 px-6 py-2.5 bg-primary-container text-on-primary-container font-body font-semibold text-label-md rounded-full transition-all duration-200 hover:opacity-90 active:scale-95;
   }
