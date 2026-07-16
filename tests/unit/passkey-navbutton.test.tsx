@@ -7,13 +7,12 @@
 import React from "react";
 import { describe, it, expect } from "vitest";
 import { render, screen } from "@testing-library/react";
-import { PasskeyWalletProvider, usePasskeyWallet } from "@/contexts/PasskeyWalletContext";
+import { PasskeyWalletProvider } from "@/contexts/PasskeyWalletContext";
 import PasskeyNavButton from "@/components/PasskeyNavButton";
-import type { ReactNode } from "react";
 
 // ── Test helper: renders PasskeyNavButton within context ────────
 
-function renderNavButton(initialAddress: string | null = null) {
+function renderNavButton() {
   return render(
     <PasskeyWalletProvider>
       <PasskeyNavButton />
