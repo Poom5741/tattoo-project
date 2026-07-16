@@ -91,25 +91,31 @@ export const GET: APIRoute = async ({ request, locals }) => {
       headers: { "Content-Type": "application/json" },
     });
   }
+  try {
+    const row = await env.DB.prepare(
+      "SELECT encrypted_blob, recovery_salt FROM wallet_backups WHERE lower(address) = ?"
+    )
+      .bind(address.toLowerCase())
+      .first<{ encrypted_blob: string; recovery_salt: string }>();
 
-  const row = await env.DB.prepare(
-    "SELECT encrypted_blob, recovery_salt FROM wallet_backups WHERE lower(address) = ?"
-  )
-    .bind(address.toLowerCase())
-    .first<{ encrypted_blob: string; recovery_salt: string }>();
+    if (!row) {
+      return new Response(JSON.stringify({ error: "No backup found" }), {
+        status: 404,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
 
-  if (!row) {
-    return new Response(JSON.stringify({ error: "No backup found" }), {
-      status: 404,
+    return new Response(JSON.stringify({
+      encryptedBlob: row.encrypted_blob,
+      recoverySalt: row.recovery_salt,
+    }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    console.error("Failed to read backup:", e);
+    return new Response(JSON.stringify({ error: "Failed to read backup" }), {
+      status: 500,
       headers: { "Content-Type": "application/json" },
     });
   }
-
-  return new Response(JSON.stringify({
-    encryptedBlob: row.encrypted_blob,
-    recoverySalt: row.recovery_salt,
-  }), {
-    status: 200,
-    headers: { "Content-Type": "application/json" },
-  });
-};
