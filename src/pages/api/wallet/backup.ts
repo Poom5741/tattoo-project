@@ -118,4 +118,5 @@ export const GET: APIRoute = async ({ request, locals }) => {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
-  };
+  }
+};
