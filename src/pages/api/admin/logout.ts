@@ -15,7 +15,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     status: 302,
     headers: {
       Location: "/admin",
-      "Set-Cookie": "admin_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0",
+      "Set-Cookie": "admin_token=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0",
     },
   });
 };
