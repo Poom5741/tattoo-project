@@ -14,9 +14,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const headers = new Headers();
   headers.set("Location", "/artist/portal");
   // Clear cookie at Path=/
-  headers.append("Set-Cookie", "artist_token=; Path=/; HttpOnly; SameSite=Lax; Max-Age=0");
-  // Also expire stale cookie at old Path=/artist
-  headers.append("Set-Cookie", "artist_token=; Path=/artist; HttpOnly; SameSite=Lax; Max-Age=0");
+  headers.append("Set-Cookie", "artist_token=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0");
+  headers.append("Set-Cookie", "artist_token=; Path=/artist; HttpOnly; Secure; SameSite=Lax; Max-Age=0");
 
   return new Response(null, { status: 302, headers });
 };

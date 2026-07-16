@@ -93,7 +93,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const headers = new Headers();
   headers.set("Content-Type", "application/json");
-  headers.append("Set-Cookie", `artist_token=${token}; Path=/; HttpOnly; SameSite=Lax; Max-Age=28800`);
+  headers.append("Set-Cookie", `artist_token=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800`);
 
   return new Response(JSON.stringify({ ok: true, artistId: artist.id }), {
     status: 200,
