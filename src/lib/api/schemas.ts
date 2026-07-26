@@ -93,6 +93,15 @@ export const ResaleListingSchema = z.object({
   sellerWallet: HexAddress,
 });
 
+// ChillPay order creation
+export const CreateOrderSchema = z.object({
+  designId: z.string().min(1),
+  customerId: z.string().optional(),
+  customerEmail: z.string().email().optional(),
+  customerPhone: z.string().max(20).optional(),
+  channelCode: z.string().optional(), // e.g., "qrpayment", "creditcard"
+});
+
 export const BookingActionSchema = z.object({
   action: z.enum(["accept", "decline"]),
   appointmentDate: z.number().int().optional(),
@@ -110,3 +119,4 @@ export type CreateDesign = z.infer<typeof CreateDesignSchema>;
 export type ReviewDesign = z.infer<typeof ReviewDesignSchema>;
 export type ResaleListing = z.infer<typeof ResaleListingSchema>;
 export type BookingAction = z.infer<typeof BookingActionSchema>;
+export type CreateOrder = z.infer<typeof CreateOrderSchema>;

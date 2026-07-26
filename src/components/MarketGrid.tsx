@@ -122,7 +122,7 @@ function DesignCard({ d }: { d: DesignData }) {
         )}
         <div className="flex justify-between items-baseline pt-3 border-t border-outline-variant/20">
           <span className="font-display text-headline-sm text-on-surface">
-            {d.price != null ? d.price.toFixed(2) + " USDT" : "—"}
+            {d.price != null ? `฿${d.price.toLocaleString("th-TH", { minimumFractionDigits: 2 })}` : "—"}
           </span>
           {d.drawn != null && (
             <span className="font-body text-[10px] tracking-[0.06em] text-on-surface-variant/60">{d.drawn} watching</span>
@@ -159,7 +159,7 @@ function ResaleCard({ r }: { r: ResaleListing }) {
         </div>
         <div className="flex justify-between items-baseline pt-3 border-t border-outline-variant/20">
           <span className="font-display text-headline-sm text-on-surface">
-            {r.asking_price.toFixed(2)} USDT
+            ฿{r.asking_price.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
           </span>
           <span className="font-body text-[10px] text-on-surface-variant/60">by {r.artist_name}</span>
         </div>

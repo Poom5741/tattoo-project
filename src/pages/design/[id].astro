@@ -83,9 +83,9 @@ if (!design) {
   return Astro.redirect("/market");
 }
 
-function fmtUsdt(v: number | null) {
+function fmtThb(v: number | null) {
   if (!v) return "—";
-  return v.toFixed(2) + " USDT";
+  return `฿${v.toLocaleString("th-TH", { minimumFractionDigits: 2 })}`;
 }
 
 function fmtDate(ts: number) {
@@ -152,7 +152,7 @@ const t = createT(locale);
           )}
 
           <div class="flex items-baseline gap-3.5 py-[22px] border-t border-outline-variant/20 border-b border-outline-variant/20 mb-[26px]">
-            <span class="font-display text-headline-sm text-on-surface">{fmtUsdt(design.price)}</span>
+            <span class="font-display text-headline-sm text-on-surface">{fmtThb(design.price)}</span>
             <span class="font-body text-on-surface-variant/60 text-xs tracking-wide">
               {design.selling_mode === "one-time" ? t("artistDetail.soulbound") : t("artistDetail.resellable").replace("{pct}", String(design.royalty_pct ?? 0))}
             </span>
@@ -226,7 +226,7 @@ const t = createT(locale);
                       {r.seller_wallet.slice(0, 6)}…{r.seller_wallet.slice(-4)}
                     </td>
                     <td class="font-display font-semibold text-on-surface text-base p-3 px-4 border-b border-outline-variant/20">
-                      {r.asking_price.toFixed(2)} USDT
+                      ฿{r.asking_price.toLocaleString("th-TH", { minimumFractionDigits: 2 })}
                     </td>
                     <td class="font-body text-xs p-3 px-4 border-b border-outline-variant/20 text-on-surface-variant">
                       {fmtDate(r.created_at)}
@@ -261,7 +261,7 @@ const t = createT(locale);
                 <div class="p-5">
                   <h3 class="font-display font-semibold text-on-surface text-xl mb-2 group-hover:text-primary transition-colors duration-200">{m.title}</h3>
                   <div class="font-body text-xs text-on-surface-variant">{m.style}</div>
-                  <div class="font-display font-semibold text-on-surface text-[22px] mt-3">{fmtUsdt(m.price)}</div>
+                  <div class="font-display font-semibold text-on-surface text-[22px] mt-3">{fmtThb(m.price)}</div>
                 </div>
               </a>
             ))}

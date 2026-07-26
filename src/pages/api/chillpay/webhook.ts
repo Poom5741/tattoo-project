@@ -1,0 +1,211 @@
+export const prerender = false;
+
+import type { APIRoute } from "astro";
+import { randomUUID } from "crypto";
+import { parseAmount, PAYMENT_STATUS } from "../../../lib/config/chillpay";
+import { getChillPayConfig, verifyWebhookCheckSum } from "../../../lib/server/chillpay";
+
+// POST /api/chillpay/webhook
+// ChillPay background callback - receives payment confirmation
+export const POST: APIRoute = async ({ request, locals }) => {
+  const env = locals.runtime.env;
+  const db = env.DB;
+
+  const config = getChillPayConfig(env);
+  if (!config.md5Secret) {
+    return new Response(JSON.stringify({ error: "Not configured" }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Parse webhook payload (x-www-form-urlencoded)
+  let payload: Record<string, string> = {};
+  try {
+    const formData = await request.text();
+    const params = new URLSearchParams(formData);
+    for (const [key, value] of params.entries()) {
+      payload[key] = value;
+    }
+  } catch {
+    return new Response(JSON.stringify({ error: "Invalid payload" }), {
+      status: 400,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Verify CheckSum
+  const isValidCheckSum = verifyWebhookCheckSum(
+    {
+      TransactionId: payload.TransactionId ?? "",
+      Amount: payload.Amount ?? "",
+      OrderNo: payload.OrderNo ?? "",
+      CustomerId: payload.CustomerId ?? "",
+      BankCode: payload.BankCode ?? "",
+      PaymentDate: payload.PaymentDate ?? "",
+      PaymentStatus: payload.PaymentStatus ?? "",
+      BankRefCode: payload.BankRefCode ?? "",
+      CurrentDate: payload.CurrentDate ?? "",
+      CurrentTime: payload.CurrentTime ?? "",
+      PaymentDescription: payload.PaymentDescription ?? "",
+      CreditCardToken: payload.CreditCardToken ?? "",
+      Currency: payload.Currency ?? "",
+      CustomerName: payload.CustomerName ?? "",
+      CheckSum: payload.CheckSum ?? "",
+    },
+    config.md5Secret
+  );
+
+  if (!isValidCheckSum) {
+    return new Response(JSON.stringify({ error: "Invalid checksum" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  const orderNo = payload.OrderNo;
+  const paymentStatus = payload.PaymentStatus;
+  const transactionId = payload.TransactionId;
+  const amount = parseAmount(payload.Amount);
+
+  // Find transaction
+  const transaction = await db
+    .prepare("SELECT * FROM chillpay_transactions WHERE order_no = ?")
+    .bind(orderNo)
+    .first<{
+      id: string;
+      design_id: string;
+      status: string;
+      amount: number;
+    }>();
+
+  if (!transaction) {
+    return new Response(JSON.stringify({ error: "Transaction not found" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Idempotency - already processed
+  if (transaction.status !== "pending") {
+    return new Response(JSON.stringify({ status: "already_processed" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Get design details
+  const design = await db
+    .prepare("SELECT id, artist_id, price, status FROM designs WHERE id = ?")
+    .bind(transaction.design_id)
+    .first<{ id: string; artist_id: string; price: number; status: string }>();
+
+  if (!design) {
+    return new Response(JSON.stringify({ error: "Design not found" }), {
+      status: 404,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
+  // Process based on payment status
+  if (paymentStatus === PAYMENT_STATUS.SUCCESS) {
+    // Payment successful
+    const platformFee = amount * 0.03;
+    const artistAmount = amount - platformFee;
+
+    // Mark design as sold
+    await db
+      .prepare("UPDATE designs SET status = 'sold', token_id = ?, reserved_until = NULL WHERE id = ?")
+      .bind(transactionId, design.id)
+      .run();
+
+    // Update transaction
+    await db
+      .prepare(
+        `UPDATE chillpay_transactions SET 
+          status = 'completed',
+          chillpay_tx_id = ?,
+          bank_ref_code = ?,
+          payment_status = ?,
+          payment_date = ?,
+          updated_at = ?
+        WHERE id = ?`
+      )
+      .bind(
+        transactionId,
+        payload.BankRefCode ?? "",
+        paymentStatus,
+        payload.PaymentDate ?? new Date().toISOString(),
+        new Date().toISOString(),
+        transaction.id
+      )
+      .run();
+
+    // Record earnings
+    if (design.artist_id) {
+      await db
+        .prepare(
+          `INSERT INTO earnings(
+            id, artist_id, design_id, type, amount, platform_fee, 
+            tx_hash, payment_method, created_at
+          ) VALUES (?, ?, ?, 'primary_sale', ?, ?, ?, 'chillpay', ?)`
+        )
+        .bind(
+          randomUUID(),
+          design.artist_id,
+          design.id,
+          artistAmount,
+          platformFee,
+          `chillpay:${transactionId}`,
+          new Date().toISOString()
+        )
+        .run();
+    }
+
+    return new Response(JSON.stringify({ status: "success" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+
+  } else if (paymentStatus === PAYMENT_STATUS.CANCEL || paymentStatus === PAYMENT_STATUS.FAIL) {
+    // Payment cancelled or failed
+    await db
+      .prepare(
+        `UPDATE chillpay_transactions SET 
+          status = 'failed',
+          payment_status = ?,
+          updated_at = ?
+        WHERE id = ?`
+      )
+      .bind(paymentStatus, new Date().toISOString(), transaction.id)
+      .run();
+
+    // Release reservation
+    await db
+      .prepare("UPDATE designs SET status = 'available', reserved_until = NULL WHERE id = ?")
+      .bind(design.id)
+      .run();
+
+    return new Response(JSON.stringify({ status: "failed" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+
+  } else {
+    // Pending or other status - just update
+    await db
+      .prepare(
+        `UPDATE chillpay_transactions SET 
+          payment_status = ?,
+          updated_at = ?
+        WHERE id = ?`
+      )
+      .bind(paymentStatus, new Date().toISOString(), transaction.id)
+      .run();
+
+    return new Response(JSON.stringify({ status: "received" }), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+};

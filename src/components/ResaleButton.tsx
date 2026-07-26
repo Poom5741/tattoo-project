@@ -93,7 +93,7 @@ export default function ResaleButton({ designId, tokenId }: ResaleButtonProps) {
             </div>
             <form onSubmit={handleSubmit} className="flex flex-col gap-4">
               <div className="field">
-                <label>Asking price (USDT) *</label>
+                <label>Asking price (THB) *</label>
                 <input
                   className="input"
                   type="number"
@@ -101,7 +101,7 @@ export default function ResaleButton({ designId, tokenId }: ResaleButtonProps) {
                   step="0.01"
                   value={price}
                   onChange={(e) => { setPrice(e.target.value); setError(null); }}
-                  placeholder="e.g. 350"
+                  placeholder="e.g. 3500"
                   autoFocus
                 />
               </div>

@@ -77,7 +77,7 @@ export default function AdminPendingReview() {
             <th className={thCls}>Photo</th>
             <th className={thCls}>Title</th>
             <th className={thCls}>Artist</th>
-            <th className={thCls}>Price (USDT)</th>
+            <th className={thCls}>Price (THB)</th>
             <th className={thCls}>Mode</th>
             <th className={thCls}>Royalty</th>
             <th className={thCls}>Actions</th>
@@ -100,7 +100,7 @@ export default function AdminPendingReview() {
                 <div className="font-body text-label-sm text-on-surface-variant/60">{d.style} · {d.placement}</div>
               </td>
               <td className={`${tdCls} text-body-md`}>{d.artist_name}</td>
-              <td className={`${tdCls} text-body-md`}>{d.price ?? "—"} USDT</td>
+              <td className={`${tdCls} text-body-md`}>{d.price != null ? `฿${d.price.toLocaleString("th-TH", { minimumFractionDigits: 2 })}` : "—"}</td>
               <td className={tdCls}>
                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-label-sm font-semibold border ${
                   d.selling_mode === "resellable"

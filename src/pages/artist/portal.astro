@@ -164,7 +164,7 @@ function fmtDate(ts: number) {
                 <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora text-[#5A5B55]/60" style="font-size:11px">
                   {p.selling_mode === "resellable" ? `Resellable (${p.royalty_pct}%)` : "Soulbound"}
                 </td>
-                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora" style="font-size:12px">{p.price != null ? p.price.toFixed(2) + " USDT" : "—"}</td>
+                <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm font-sora" style="font-size:12px">{p.price != null ? `฿${p.price.toLocaleString("th-TH", { minimumFractionDigits: 2 })}` : "—"}</td>
                 <td class="px-4 py-3 border-b border-[#E8E3D8] text-sm">
                   <span class={`inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border ${statusClass(p.status)}`}>
                     <span class="w-2 h-2 rounded-full bg-current"></span>{p.status}

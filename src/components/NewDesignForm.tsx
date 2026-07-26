@@ -188,7 +188,7 @@ export default function NewDesignForm() {
 
       {/* Price */}
       <div className="mb-5">
-        <label className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Price (USDT) *</label>
+        <label className="block font-sora font-semibold text-sm text-[#5A5B55] mb-2">Price (THB) *</label>
         <input
           className="w-full bg-[#F5F0E8] border border-[#E8E3D8] text-[#1B1C18] font-sora text-sm px-4 py-3 rounded-lg outline-none focus:border-[#E60023] transition-colors"
           type="number"
@@ -196,7 +196,7 @@ export default function NewDesignForm() {
           step="0.01"
           value={form.price_usdt}
           onChange={(e) => set("price_usdt", e.target.value)}
-          placeholder="e.g. 250"
+          placeholder="e.g. 2500"
         />
       </div>
 

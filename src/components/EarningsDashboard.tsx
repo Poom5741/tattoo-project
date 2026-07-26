@@ -25,8 +25,8 @@ function fmtDate(ts: number) {
   });
 }
 
-function fmtUsdt(n: number) {
-  return n.toFixed(2) + " USDT";
+function fmtThb(n: number) {
+  return `฿${n.toLocaleString("th-TH", { minimumFractionDigits: 2 })}`;
 }
 
 function shortHash(hash: string | null) {
@@ -68,15 +68,15 @@ export default function EarningsDashboard() {
       {/* Summary cards */}
       <div className="grid grid-cols-3 gap-px bg-[#E8E3D8] border border-[#E8E3D8] rounded-lg overflow-hidden mb-8">
         <div className="bg-[#F0EBE1] p-5 md:p-6">
-          <div className="font-playfair font-semibold text-[#1B1C18] text-2xl md:text-[28px] leading-none">{fmtUsdt(data.totalPrimary)}</div>
+          <div className="font-playfair font-semibold text-[#1B1C18] text-2xl md:text-[28px] leading-none">{fmtThb(data.totalPrimary)}</div>
           <div className="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-1.5">Primary Sales</div>
         </div>
         <div className="bg-[#F0EBE1] p-5 md:p-6">
-          <div className="font-playfair font-semibold text-[#1B1C18] text-2xl md:text-[28px] leading-none text-[#2E7D32]">{fmtUsdt(data.totalRoyalties)}</div>
+          <div className="font-playfair font-semibold text-[#1B1C18] text-2xl md:text-[28px] leading-none text-[#2E7D32]">{fmtThb(data.totalRoyalties)}</div>
           <div className="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-1.5">Royalties</div>
         </div>
         <div className="bg-[#F0EBE1] p-5 md:p-6">
-          <div className="font-playfair font-semibold text-[#1B1C18] text-2xl md:text-[28px] leading-none">{fmtUsdt(data.totalEarnings)}</div>
+          <div className="font-playfair font-semibold text-[#1B1C18] text-2xl md:text-[28px] leading-none">{fmtThb(data.totalEarnings)}</div>
           <div className="font-sora text-[9px] tracking-[0.2em] uppercase text-[#5A5B55]/60 mt-1.5">Total Earned</div>
         </div>
       </div>
@@ -110,10 +110,10 @@ export default function EarningsDashboard() {
                   </span>
                 </td>
                 <td className="px-4 py-3 border-b border-[#E8E3D8] text-sm font-playfair text-[#2E7D32]">
-                  +{fmtUsdt(e.amount)}
+                  +{fmtThb(e.amount)}
                 </td>
                 <td className="px-4 py-3 border-b border-[#E8E3D8] text-xs font-sora text-[#5A5B55]/60">
-                  {fmtUsdt(e.platform_fee)}
+                  {fmtThb(e.platform_fee)}
                 </td>
                 <td className="px-4 py-3 border-b border-[#E8E3D8] text-[11px] font-sora text-[#5A5B55]">
                   {e.payment_method === "on_chain" ? "On-chain" : "PaySolution"}

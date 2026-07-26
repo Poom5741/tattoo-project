@@ -14,3 +14,6 @@ BETTER_AUTH_SECRET=your-better-auth-secret-here
 # Google OAuth (create at https://console.cloud.google.com/apis/credentials)
 GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
 GOOGLE_CLIENT_SECRET=your-google-client-secret
+
+# ChillPay Payment Gateway — get from ChillPay console
+CHILLPAY_MD5_SECRET=your_md5_secret_here
