@@ -40,3 +40,7 @@ Thumbs.db
 tattoo project-handoff.zip
 .opencode
 .gstack/
+
+# Test artifacts
+playwright-report/
+test-results/

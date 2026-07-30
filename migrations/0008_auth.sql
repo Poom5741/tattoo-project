@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS "verification" (
 -- Additional table for user↔wallet linking
 CREATE TABLE IF NOT EXISTS wallet_backups (
   id             TEXT PRIMARY KEY,
-  user_id        TEXT NOT NULL,
+  user_id        TEXT NOT NULL REFERENCES "user"(id) ON DELETE CASCADE,
   address        TEXT NOT NULL,
   encrypted_blob TEXT NOT NULL,
   recovery_salt  TEXT NOT NULL,

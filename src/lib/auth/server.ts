@@ -14,8 +14,13 @@ export function createAuth(env: Env, origin: string) {
   const db = drizzle(env.DB);
   const baseURL = env.BETTER_AUTH_URL || origin;
 
+  const secret = env.BETTER_AUTH_SECRET;
+  if (!secret) {
+    throw new Error("BETTER_AUTH_SECRET environment variable is required");
+  }
+
   return betterAuth({
-    secret: env.BETTER_AUTH_SECRET || "dev-secret-do-not-use-in-production",
+    secret,
     baseURL,
     database: drizzleAdapter(db, {
       provider: "sqlite",
