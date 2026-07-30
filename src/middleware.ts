@@ -2,35 +2,6 @@ import { defineMiddleware } from "astro:middleware";
 import { detectLocale } from "@/lib/i18n";
 import { createAuth } from "@/lib/auth/server";
 
-type AuthUser = {
-  id: string;
-  name: string | null;
-  email: string;
-  emailVerified: boolean;
-  image: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-type AuthSession = {
-  id: string;
-  token: string;
-  userId: string;
-  expiresAt: Date;
-  ipAddress: string | null;
-  userAgent: string | null;
-  createdAt: Date;
-  updatedAt: Date;
-};
-
-declare namespace App {
-  interface Locals extends Runtime {
-    locale: string;
-    user: AuthUser | null;
-    session: AuthSession | null;
-  }
-}
-
 export const onRequest = defineMiddleware(async (context, next) => {
   const cookieHeader = context.request.headers.get("cookie") ?? "";
   const acceptLanguage = context.request.headers.get("accept-language") ?? "";

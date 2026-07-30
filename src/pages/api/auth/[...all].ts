@@ -1,7 +1,7 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
-import { createAuth } from "../../../lib/auth/server";
+import { createAuth } from "@/lib/auth/server";
 
 /**
  * Catch-all route for Better Auth API endpoints.
