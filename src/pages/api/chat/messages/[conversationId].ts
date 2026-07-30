@@ -3,8 +3,7 @@ export const prerender = false;
 import type { APIRoute } from "astro";
 import { z } from "zod";
 import { randomUUID } from "crypto";
-import { getArtistSession } from "../../../../lib/artist/auth";
-import { isAdminAuthed } from "../../../../lib/admin/auth";
+import { json, resolveSender } from "../../../../lib/chat/helpers";
 
 const QuerySchema = z.object({
   since: z.coerce.number().int().nonnegative().optional(),
@@ -12,22 +11,23 @@ const QuerySchema = z.object({
   offset: z.coerce.number().int().nonnegative().default(0),
 });
 
-interface ResolvedSender {
+interface MessageRow {
   id: string;
-  role: "client" | "artist" | "admin";
-}
-
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
+  conversation_id: string;
+  sender_id: string;
+  sender_role: string;
+  text: string;
+  booking_id: string | null;
+  booking_action: string | null;
+  flagged: number;
+  flag_reason: string | null;
+  created_at: number;
 }
 
 export const GET: APIRoute = async ({ request, locals, params }) => {
   const start = Date.now();
   const requestId = randomUUID();
-  const env = locals.runtime.env as Env;
+  const env = locals.runtime.env;
   const cookie = request.headers.get("cookie") ?? "";
   const conversationId = params.conversationId;
 
@@ -35,18 +35,7 @@ export const GET: APIRoute = async ({ request, locals, params }) => {
     return json({ error: "Conversation ID required" }, 400);
   }
 
-  let sender: ResolvedSender | null = null;
-  if (await isAdminAuthed(cookie, env.SESSION)) {
-    sender = { id: "admin", role: "admin" };
-  } else {
-    const artist = await getArtistSession(cookie, env.SESSION);
-    if (artist) {
-      sender = { id: artist.artistId, role: "artist" };
-    } else if (locals.user) {
-      sender = { id: locals.user.id, role: "client" };
-    }
-  }
-
+  const sender = await resolveSender(cookie, env.SESSION, locals.user);
   if (!sender) {
     const status = 401;
     console.log(JSON.stringify({ request_id: requestId, route: "/api/chat/messages", status, duration_ms: Date.now() - start }));
@@ -96,23 +85,12 @@ export const GET: APIRoute = async ({ request, locals, params }) => {
     sql += " ORDER BY created_at ASC LIMIT ? OFFSET ?";
     sqlParams.push(limit + 1, offset);
 
-    const { results } = await env.DB.prepare(sql).bind(...sqlParams).all<{
-      id: string;
-      conversation_id: string;
-      sender_id: string;
-      sender_role: string;
-      text: string;
-      booking_id: string | null;
-      booking_action: string | null;
-      flagged: number;
-      flag_reason: string | null;
-      created_at: number;
-    }>();
+    const { results } = await env.DB.prepare(sql).bind(...sqlParams).all<MessageRow>();
 
     const hasMore = results.length > limit;
     const rows = hasMore ? results.slice(0, -1) : results;
 
-    const messages = rows.map((m) => ({
+    const messages = rows.map((m: MessageRow) => ({
       id: m.id,
       conversationId: m.conversation_id,
       senderId: m.sender_id,

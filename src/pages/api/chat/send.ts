@@ -4,30 +4,17 @@ import type { APIRoute } from "astro";
 import { z } from "zod";
 import { randomUUID } from "crypto";
 import { filterMessage } from "../../../lib/chat/schema";
-import { getArtistSession } from "../../../lib/artist/auth";
-import { isAdminAuthed } from "../../../lib/admin/auth";
+import { json, resolveSender } from "../../../lib/chat/helpers";
 
 const SendSchema = z.object({
   conversationId: z.string(),
   text: z.string().min(1).max(2000),
 });
 
-function json(body: unknown, status = 200) {
-  return new Response(JSON.stringify(body), {
-    status,
-    headers: { "Content-Type": "application/json" },
-  });
-}
-
-interface ResolvedSender {
-  id: string;
-  role: "client" | "artist" | "admin";
-}
-
 export const POST: APIRoute = async ({ request, locals }) => {
   const start = Date.now();
   const requestId = randomUUID();
-  const env = locals.runtime.env as Env;
+  const env = locals.runtime.env;
   const cookie = request.headers.get("cookie") ?? "";
 
   let body: unknown;
@@ -48,19 +35,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const { conversationId, text } = parsed.data;
 
-  // Resolve auth in precedence: admin > artist > client
-  let sender: ResolvedSender | null = null;
-  if (await isAdminAuthed(cookie, env.SESSION)) {
-    sender = { id: "admin", role: "admin" };
-  } else {
-    const artist = await getArtistSession(cookie, env.SESSION);
-    if (artist) {
-      sender = { id: artist.artistId, role: "artist" };
-    } else if (locals.user) {
-      sender = { id: locals.user.id, role: "client" };
-    }
-  }
-
+  const sender = await resolveSender(cookie, env.SESSION, locals.user);
   if (!sender) {
     const status = 401;
     console.log(JSON.stringify({ request_id: requestId, route: "/api/chat/send", status, duration_ms: Date.now() - start }));

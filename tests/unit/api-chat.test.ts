@@ -346,8 +346,8 @@ describe("GET /api/chat/messages/:conversationId", () => {
 
   it("lists messages and resets unread", async () => {
     const messages: ChatMessage[] = [
-      { id: "msg_1", conversationId: "conv_1", senderId: "user_1", senderRole: "client", text: "first", createdAt: 1_700_000_100 },
-      { id: "msg_2", conversationId: "conv_1", senderId: "artist_1", senderRole: "artist", text: "second", createdAt: 1_700_000_200 },
+      { id: "msg_1", conversationId: "conv_1", senderId: "user_1", senderRole: "client", text: "first", flagged: false, createdAt: 1_700_000_100 },
+      { id: "msg_2", conversationId: "conv_1", senderId: "artist_1", senderRole: "artist", text: "second", flagged: false, createdAt: 1_700_000_200 },
     ];
     const db = mockDb({ conversations: [{ ...baseConversation, unread: 3 }], messages });
     const locals = { ...baseLocals(db), user: { id: "user_1" }, session: { id: "s1" } };
@@ -365,8 +365,8 @@ describe("GET /api/chat/messages/:conversationId", () => {
 
   it("supports since polling", async () => {
     const messages: ChatMessage[] = [
-      { id: "msg_1", conversationId: "conv_1", senderId: "user_1", senderRole: "client", text: "first", createdAt: 1_700_000_100 },
-      { id: "msg_2", conversationId: "conv_1", senderId: "artist_1", senderRole: "artist", text: "second", createdAt: 1_700_000_200 },
+      { id: "msg_1", conversationId: "conv_1", senderId: "user_1", senderRole: "client", text: "first", flagged: false, createdAt: 1_700_000_100 },
+      { id: "msg_2", conversationId: "conv_1", senderId: "artist_1", senderRole: "artist", text: "second", flagged: false, createdAt: 1_700_000_200 },
     ];
     const db = mockDb({ conversations: [{ ...baseConversation }], messages });
     const locals = { ...baseLocals(db), user: { id: "user_1" }, session: { id: "s1" } };
@@ -384,8 +384,9 @@ describe("GET /api/chat/messages/:conversationId", () => {
       id: `msg_${i}`,
       conversationId: "conv_1",
       senderId: "user_1",
-      senderRole: "client",
+      senderRole: "client" as const,
       text: String(i),
+      flagged: false,
       createdAt: 1_700_000_100 + i,
     }));
     const db = mockDb({ conversations: [{ ...baseConversation }], messages });
@@ -401,7 +402,7 @@ describe("GET /api/chat/messages/:conversationId", () => {
 
   it("allows admin access", async () => {
     const messages: ChatMessage[] = [
-      { id: "msg_1", conversationId: "conv_1", senderId: "user_1", senderRole: "client", text: "hello", createdAt: 1_700_000_100 },
+      { id: "msg_1", conversationId: "conv_1", senderId: "user_1", senderRole: "client", text: "hello", flagged: false, createdAt: 1_700_000_100 },
     ];
     const db = mockDb({ conversations: [{ ...baseConversation, clientId: "other_user" }], messages });
     const kv = mockKv();
