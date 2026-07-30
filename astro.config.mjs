@@ -11,4 +11,12 @@ export default defineConfig({
     },
   }),
   integrations: [react(), tailwind()],
+  vite: {
+    build: {
+      target: "es2022",
+    },
+    optimizeDeps: {
+      exclude: ["dacc-js"],
+    },
+  },
 });
