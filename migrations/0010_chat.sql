@@ -1,3 +1,6 @@
+-- Migration: Create chat tables (conversations + messages)
+-- For in-app messaging between clients and artists
+
 BEGIN;
 
 CREATE TABLE IF NOT EXISTS conversations (
