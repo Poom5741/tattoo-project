@@ -111,7 +111,7 @@ Build 5 interconnected features for the SUKNID tattoo platform that enable artis
 - **Framework:** Astro 5 + React 18 + Cloudflare Pages
 - **Database:** Cloudflare D1 (SQLite)
 - **Storage:** Cloudflare R2 (bound, available for image upload)
-- **Auth:** Privy OAuth with embedded wallets + KVNamespace sessions
+- **Auth:** Passkey wallet + Better Auth OAuth + KVNamespace sessions
 - **Smart Contract:** ERC-721 with lazy minting via EIP-712 vouchers
 - **Artist Portal:** `/src/pages/artist/portal.astro` — currently read-only (stats, design table, booking table)
 - **Marketplace:** `/market` with `MarketGrid` React component, reservation pattern with 15-min expiry

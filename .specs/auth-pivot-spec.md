@@ -1,16 +1,16 @@
-# Spec: Auth Pivot — Privy to Passkey Wallet + Better Auth + Wallet Signatures
+# Spec: Auth Pivot — Legacy Auth to Passkey Wallet + Better Auth + Wallet Signatures
 
 ## Problem Statement
 
-The app uses **Privy** for user authentication (email/Google/wallet login), embedded wallet creation, and artist JWT verification. Privy is a paid third-party service that creates a centralized dependency: the site cannot authenticate users or verify artist identities without Privy's API. Privy does not support passkey (biometric) wallet auth natively, and the current login flow forces users through Privy's modal rather than offering direct wallet-based auth. Artist login depends on verifying Privy JWTs, adding a network request to `auth.privy.io` on every login.
+The app uses a **legacy third-party authentication service** for user authentication (email/Google/wallet login), wallet creation, and artist verification. The third-party service creates a centralized dependency: the site cannot authenticate users or verify artist identities without the external API. The service does not support passkey (biometric) wallet auth natively, and the current login flow forces users through the third-party's modal rather than offering direct wallet-based auth. Artist login depends on verifying third-party JWTs, adding a network request on every login.
 
 ## Solution
 
-Replace Privy with three independent auth layers:
+Replace the legacy auth with three independent auth layers:
 
 1. **Passkey wallet** — Self-custodial EVM wallet using `dacc-js` + WebAuthn PRF (Face ID / Touch ID). No server needed for wallet operations. Wallet encryption key derived from biometrics.
-2. **Better Auth** — User identity layer with Google OAuth, session management via D1, and optional passkey/email auth. Replaces Privy's email/Google login and user management.
-3. **Wallet signature verification** — Artist portal login via `viem.verifyMessage` instead of Privy JWT verification.
+2. **Better Auth** — User identity layer with Google OAuth, session management via D1, and optional passkey/email auth. Handles user management.
+3. **Wallet signature verification** — Artist portal login via `viem.verifyMessage` instead of third-party JWT verification.
 
 Both passkey and Google auth provide access to the same wallet, bridged by a **recovery password** (PBKDF2-encrypted backup stored in D1).
 
@@ -32,7 +32,7 @@ Both passkey and Google auth provide access to the same wallet, bridged by a **r
 14. As an artist, I want to sign a login challenge with my wallet, so that I can access the artist portal without a third-party auth provider.
 15. As an artist, I want to automatically reconnect to my portal session on return visits, so that I don't need to sign in every time.
 16. As an artist, I want my wallet address to be the only credential needed for portal access, so that the login is simple and self-custodial.
-17. As a site operator, I want to remove the Privy dependency from the codebase, so that the site is simpler, cheaper, and fully self-hosted.
+17. As a site operator, I want to remove the third-party auth dependency from the codebase, so that the site is simpler, cheaper, and fully self-hosted.
 18. As a developer, I want web crypto and WebAuthn to run entirely on the client, so that no server-side key material exists.
 19. As a site operator, I want artist sessions stored in KV (as today) but authorized by wallet signature, so that the API change is minimal.
 20. As a user, I want Better Auth to use D1 for session storage, so that the auth system works within our existing Cloudflare stack.
@@ -118,7 +118,7 @@ Better Auth API routes mounted at `/api/auth/*` via an Astro catch-all route (`s
 | `/api/auth/artist-login` | POST | Wallet signature | Artist signs challenge → `viem.verifyMessage` → KV session |
 | `/api/auth/artist-logout` | POST | Artist session | Clear KV session |
 
-Artist login flow (replacing Privy JWT):
+Artist login flow (replacing third-party JWT):
 
 ```
 Client: GET /api/auth/challenge → { message, nonce }
@@ -129,18 +129,18 @@ Server: viem.verifyMessage({ address, message, signature }) → matches artist i
 
 ### 5. Component Changes
 
-WalletProvider wraps only `WagmiProvider` + `QueryClientProvider` + `PasskeyWalletProvider`. No more `PrivyProvider`.
+WalletProvider wraps only `WagmiProvider` + `QueryClientProvider` + `PasskeyWalletProvider`. No more legacy auth provider.
 
 New components:
 - `PasskeyNavButton` — Shows wallet status (connected address / "Connect Wallet") in the nav. Clicking opens WalletManage or triggers unlock.
 - `WalletManage` — Modal/sheet for create/unlock/import/backup wallet flows. Adapts from wallet-passkey's CreateWallet + UnlockWallet + Dashboard panels.
 
 Removed:
-- `PrivyNavButton`, `PrivyNavButtonInner`, `PrivyArtistGate`
+- Legacy auth components
 
 ### 6. Artist Portal
 
-`PrivyArtistGate` replaced with a `WalletSignatureGate` component:
+Legacy artist gate replaced with a `WalletSignatureGate` component:
 
 1. User clicks "Sign in with Wallet" → wallet prompts biometrics for signing
 2. A challenge message (`inknoir-artist-login-{nonce}`) is signed by the wallet
@@ -149,7 +149,7 @@ Removed:
 
 ### 7. Env Changes
 
-Remove: `PRIVY_APP_ID`, `PRIVY_APP_SECRET`, `PUBLIC_PRIVY_APP_ID` from wrangler.toml and env.d.ts
+Remove: Legacy third-party auth variables from wrangler.toml and env.d.ts
 Add: `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `BETTER_AUTH_SECRET` to wrangler.toml and env.d.ts
 
 KV `SESSION` binding reused for artist sessions.
@@ -202,8 +202,8 @@ The codebase has two test layers:
 | Test | Type | What it covers |
 |---|---|---|
 | `tests/e2e/api/artist-login.spec.ts` | API (request fixture) | POST `/api/auth/artist-login` with valid/invalid signatures, challenge, missing params |
-| `tests/e2e/wallet.spec.ts` (update) | E2E | Wallet page shows connect/unlock state after removal of Privy |
-| `tests/e2e/nav.spec.ts` (update) | E2E | Nav shows wallet button, not crashing from missing Privy |
+| `tests/e2e/wallet.spec.ts` (update) | E2E | Wallet page shows connect/unlock state after removal of legacy auth |
+| `tests/e2e/nav.spec.ts` (update) | E2E | Nav shows wallet button, not crashing from missing legacy auth |
 | `tests/unit/passkey-crypto.test.ts` | Vitest | Encrypt/decrypt round-trip, base64 encoding, HKDF derivation (pure functions, no DOM) |
 | `tests/unit/backup.test.ts` | Vitest | Backup file creation and parsing, recovery password encrypt/decrypt |
 
@@ -235,4 +235,4 @@ Passkey and WebAuthn cannot be tested in Playwright or Vitest without browser We
 - Better Auth's Google OAuth requires `http://localhost:4321/api/auth/callback/google` for dev and `https://inknoir.pages.dev/api/auth/callback/google` for production in the Google Cloud Console.
 - `dacc-js` wallet creation uses `passwordSecretKey` internally. The key derivation between passkey and recovery must produce the same `passwordSecretKey` — the PRF output and recovery password both decrypt to the same key.
 - KV namespace `SESSION` continues to be used for artist portal sessions. Better Auth uses D1 for its sessions.
-- The migration from Privy is a hard cutover: after deployment, existing Privy users will need to create or import a wallet via passkey. Privy-created wallets cannot be migrated (they were managed by Privy's infrastructure).
+- The migration from legacy auth is a hard cutover: after deployment, existing users will need to create or import a wallet via passkey. Legacy-created wallets cannot be migrated (they were managed by the third-party infrastructure).

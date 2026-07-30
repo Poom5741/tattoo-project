@@ -3,7 +3,7 @@
  *
  * Fetches a challenge from the server, prompts the user to sign it
  * with their passkey wallet, and submits the signature for verification.
- * Replaces the previous Privy-based artist gate.
+ * Replaces the previous legacy auth-based artist gate.
  */
 
 import { useState, useEffect } from "react";

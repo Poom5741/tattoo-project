@@ -101,7 +101,7 @@ Embed the free Tawk.to live-chat widget on all public client pages of the Astro/
 | Third-party script slows page / CLS | Tawk loads `async`, fixed-position float; AC-4 verifies no blocking/shift |
 | Missing config ships broken widget | `showTawk` guard renders nothing when IDs absent (AC-5) |
 | Invalid `crossorigin` attribute | Use `crossOrigin = "anonymous"` (AC-7) |
-| **Unpinned 3rd-party script on wallet/signing origin** | Site uses Privy + on-chain signing (`WalletProvider.tsx`, `CheckoutFlow.tsx`, `market.astro`, `wallet.astro`). SRI is infeasible for Tawk's rotating bootstrap, so this is inherent to Option A. Mitigation: guard is a prefix array — `/checkout`, `/wallet` can be added in one line; risk is explicitly accepted in the ADR. |
+| **Unpinned 3rd-party script on wallet/signing origin** | Site uses passkey wallet + on-chain signing (`WalletProvider.tsx`, `CheckoutFlow.tsx`, `market.astro`, `wallet.astro`). SRI is infeasible for Tawk's rotating bootstrap, so this is inherent to Option A. Mitigation: guard is a prefix array — `/checkout`, `/wallet` can be added in one line; risk is explicitly accepted in the ADR. |
 | Future CSP blocks Tawk | No CSP exists today (confirmed: none in `Base.astro`). If added, allowlist `*.tawk.to` across `script-src`, `connect-src`, `img-src`, `style-src`, `frame-src` (see ADR) |
 | PII export to US third party | Chat content + IP + (if pre-chat on) name/email go to Tawk.to. Pre-chat off by default; add privacy-policy note; accepted in ADR |
 

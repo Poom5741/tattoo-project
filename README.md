@@ -8,7 +8,7 @@ Built with Astro 5 + Cloudflare Pages + D1 + R2 + Foundry ERC-721 lazy-mint cont
 
 ## Auth Pivot (2026-07-15)
 
-Replaced Privy with a self-custodial auth stack:
+Replaced legacy auth with a self-custodial auth stack:
 
 | Layer | Tech | Status |
 |-------|------|--------|
