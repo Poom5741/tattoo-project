@@ -33,8 +33,8 @@ interface MockDb {
 
 function mockDb(artist?: { id: string; name: string; wallet_address: string | null }) {
   return {
-    prepare: vi.fn((sql: string) => ({
-      bind: vi.fn((...params: unknown[]) => ({
+    prepare: vi.fn((_sql: string) => ({
+      bind: vi.fn((..._params: unknown[]) => ({
         first: vi.fn(async () => artist ?? null),
         run: vi.fn(async () => ({ results: [] })),
         all: vi.fn(async () => ({ results: [] })),

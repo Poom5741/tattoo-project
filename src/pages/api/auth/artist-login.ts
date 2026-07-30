@@ -56,7 +56,8 @@ export const POST: APIRoute = async ({ request, locals }) => {
       message: storedMessage,
       signature: signature as `0x${string}`,
     });
-  } catch {
+  } catch (e) {
+    console.error("verifyMessage error:", e);
     return new Response(JSON.stringify({ error: "Signature verification failed" }), {
       status: 401,
       headers: { "Content-Type": "application/json" },
