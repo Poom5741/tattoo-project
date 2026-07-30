@@ -105,7 +105,7 @@ function isWalletBackupData(value: unknown): value is WalletBackupData {
  * Create a downloadable backup file from wallet data.
  * The data is serialized as versioned JSON and wrapped in a Blob.
  */
-export async function createBackupFile(wallet: WalletBackupData): Promise<Blob> {
+export function createBackupFile(wallet: WalletBackupData): Blob {
   const json = JSON.stringify(wallet, null, 2);
   return new Blob([json], { type: "application/json" });
 }
@@ -179,7 +179,12 @@ export async function downloadBackupFromD1(
     recoveryPassword,
     data.recoverySalt,
   );
-  const parsed = JSON.parse(decrypted);
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(decrypted);
+  } catch {
+    throw new Error("Decrypted backup is not valid JSON");
+  }
   if (!isWalletBackupData(parsed)) {
     throw new Error("Backup data is corrupted or invalid");
   }

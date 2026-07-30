@@ -70,7 +70,7 @@ describe("createBackupFile / parseBackupFile", () => {
   };
 
   it("creates a Blob and round-trips the wallet data", async () => {
-    const blob = await createBackupFile(testWallet);
+    const blob = createBackupFile(testWallet);
     expect(blob).toBeInstanceOf(Blob);
     expect(blob.type).toBe("application/json");
 
