@@ -5,7 +5,7 @@
  * and an in-memory D1-like binding.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { GET as listGet } from "@/pages/api/chat/conversations/index";
 import { GET as singleGet } from "@/pages/api/chat/conversations/[id]";
 
@@ -216,6 +216,46 @@ describe("GET /api/chat/conversations", () => {
     expect(body.conversations[0].id).toBe("conv_1");
   });
 
+  it("returns all conversations for admin without filter", async () => {
+    const artists = [
+      { id: "artist_1", name: "Alice", handle: "alice" },
+      { id: "artist_2", name: "Bob", handle: "bob" },
+    ];
+    const conversations = [
+      {
+        id: "conv_1",
+        client_id: "client_1",
+        artist_id: "artist_1",
+        design_id: null,
+        last_message: "hi",
+        last_message_at: 1000,
+        unread: 0,
+        status: "active",
+        created_at: 500,
+      },
+      {
+        id: "conv_2",
+        client_id: "client_1",
+        artist_id: "artist_2",
+        design_id: null,
+        last_message: "hello",
+        last_message_at: 2000,
+        unread: 1,
+        status: "active",
+        created_at: 600,
+      },
+    ];
+    const kv = mockKv();
+    const token = "admin-token-2";
+    await kv.put(`admin:${token}`, "1");
+    const env = { SESSION: kv, DB: createMockDb(artists, conversations) };
+    const ctx = buildListContext(env, { adminToken: token });
+    const res = await listGet(ctx as never);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { conversations: ConversationRow[] };
+    expect(body.conversations).toHaveLength(2);
+  });
+
   it("returns all conversations for admin and supports artistId filter", async () => {
     const artists = [
       { id: "artist_1", name: "Alice", handle: "alice" },
@@ -292,6 +332,61 @@ describe("GET /api/chat/conversations/[id]", () => {
     const ctx = buildSingleContext("conv_1", env, { user: { id: "other_client", email: "x@example.com" } });
     const res = await singleGet(ctx as never);
     expect(res.status).toBe(403);
+  });
+
+  it("returns conversation with artist info for artist participant", async () => {
+    const artists = [{ id: "artist_1", name: "Alice", handle: "alice" }];
+    const conversations = [
+      {
+        id: "conv_1",
+        client_id: "client_1",
+        artist_id: "artist_1",
+        design_id: null,
+        last_message: "hi",
+        last_message_at: 1000,
+        unread: 0,
+        status: "active",
+        created_at: 500,
+      },
+    ];
+    const kv = mockKv();
+    const token = "artist-token-2";
+    await kv.put(`artist:${token}`, JSON.stringify({ artistId: "artist_1", walletAddress: "0xabc", name: "Alice" }));
+    const env = { SESSION: kv, DB: createMockDb(artists, conversations) };
+    const ctx = buildSingleContext("conv_1", env, { artistToken: token });
+    const res = await singleGet(ctx as never);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as {
+      conversation: ConversationRow & { artist_name: string; artist_handle: string };
+    };
+    expect(body.conversation.id).toBe("conv_1");
+    expect(body.conversation.artist_name).toBe("Alice");
+  });
+
+  it("returns conversation for admin regardless of participation", async () => {
+    const artists = [{ id: "artist_1", name: "Alice", handle: "alice" }];
+    const conversations = [
+      {
+        id: "conv_1",
+        client_id: "client_1",
+        artist_id: "artist_1",
+        design_id: null,
+        last_message: "hi",
+        last_message_at: 1000,
+        unread: 0,
+        status: "active",
+        created_at: 500,
+      },
+    ];
+    const kv = mockKv();
+    const token = "admin-token-3";
+    await kv.put(`admin:${token}`, "1");
+    const env = { SESSION: kv, DB: createMockDb(artists, conversations) };
+    const ctx = buildSingleContext("conv_1", env, { adminToken: token });
+    const res = await singleGet(ctx as never);
+    expect(res.status).toBe(200);
+    const body = (await res.json()) as { conversation: Record<string, unknown> };
+    expect(body.conversation.id).toBe("conv_1");
   });
 
   it("returns conversation with artist info for participant", async () => {
