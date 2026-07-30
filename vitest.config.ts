@@ -5,6 +5,8 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    include: ["tests/unit/**/*.test.ts", "tests/unit/**/*.test.tsx"],
+    exclude: [".sandcastle/**", "contracts/**", "tests/e2e/**", "tests/load/**"],
   },
   esbuild: {
     jsx: "automatic",
