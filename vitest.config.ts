@@ -1,4 +1,5 @@
 import { defineConfig } from "vitest/config";
+import path from "node:path";
 
 export default defineConfig({
   test: {
@@ -11,7 +12,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": "/Users/poom-work/codingZone/business/tattoo-project/src",
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 });
