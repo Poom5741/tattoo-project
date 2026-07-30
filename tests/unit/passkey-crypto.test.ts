@@ -5,7 +5,7 @@
  * No DOM APIs required — runs in vitest + happy-dom.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, beforeAll } from "vitest";
 import {
   base64Encode,
   base64Decode,

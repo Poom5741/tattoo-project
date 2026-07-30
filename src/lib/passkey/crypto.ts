@@ -140,7 +140,7 @@ export async function aesGcmEncrypt(
   const ciphertext = await crypto.subtle.encrypt(
     { name: "AES-GCM", iv: iv as Uint8Array<ArrayBuffer> },
     key,
-    data,
+    data as Uint8Array<ArrayBuffer>,
   );
   const combined = new Uint8Array(iv.length + ciphertext.byteLength);
   combined.set(iv);
@@ -161,7 +161,7 @@ export async function aesGcmDecrypt(
   const plaintext = await crypto.subtle.decrypt(
     { name: "AES-GCM", iv: iv as Uint8Array<ArrayBuffer> },
     key,
-    data,
+    data as Uint8Array<ArrayBuffer>,
   );
   return new Uint8Array(plaintext);
 }
