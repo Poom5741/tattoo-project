@@ -37,21 +37,27 @@ function base64EncodeInternal(data: Uint8Array, chars: string): string {
 function base64DecodeInternal(str: string, chars: string): Uint8Array {
   // Strip padding for standard base64
   const cleaned = str.replace(/=+$/, "");
+  if (cleaned.length === 0) return new Uint8Array(0);
   // Build reverse lookup
   const lookup: Record<string, number> = {};
   for (let i = 0; i < chars.length; i++) lookup[chars[i]] = i;
-  // No cross-alphabet mappings — each decoder accepts only its own chars.
-  // Unknown characters produce 0 via the ?? 0 fallback in the decode loop.
+
+  // Validate — unknown characters corrupt output, so reject early.
+  for (let i = 0; i < cleaned.length; i++) {
+    if (lookup[cleaned[i]] === undefined) {
+      throw new Error(`Invalid base64 character at position ${i}: "${cleaned[i]}"`);
+    }
+  }
 
   const len = cleaned.length;
   const outLen = Math.floor((len * 3) / 4);
   const out = new Uint8Array(outLen);
   let j = 0;
   for (let i = 0; i < len; i += 4) {
-    const c0 = lookup[cleaned[i]] ?? 0;
-    const c1 = i + 1 < len ? lookup[cleaned[i + 1]] ?? 0 : 0;
-    const c2 = i + 2 < len ? lookup[cleaned[i + 2]] ?? 0 : 0;
-    const c3 = i + 3 < len ? lookup[cleaned[i + 3]] ?? 0 : 0;
+    const c0 = lookup[cleaned[i]];
+    const c1 = i + 1 < len ? lookup[cleaned[i + 1]] : 0;
+    const c2 = i + 2 < len ? lookup[cleaned[i + 2]] : 0;
+    const c3 = i + 3 < len ? lookup[cleaned[i + 3]] : 0;
     out[j++] = (c0 << 2) | (c1 >> 4);
     if (j < outLen) out[j++] = ((c1 & 0x0f) << 4) | (c2 >> 2);
     if (j < outLen) out[j++] = ((c2 & 0x03) << 6) | c3;
@@ -95,10 +101,10 @@ export function generateRandomSecret(): string {
 
 // ── HKDF ────────────────────────────────────────────────────────
 
-const HKDF_INFO = new Uint8Array([
+const HKDF_SALT = new Uint8Array([
   0x73, 0x61, 0x6b, 0x6e, 0x69, 0x64, 0x2d, 0x70, 0x61, 0x73, 0x73,
   0x6b, 0x65, 0x79, 0x2d, 0x61, 0x65, 0x73,
-]); // "saknid-passkey-aes" — domain separation label for HKDF
+]); // "saknid-passkey-aes"
 
 /**
  * Derive an AES-256-GCM key from a 32-byte PRF output using HKDF-SHA256.
@@ -115,7 +121,7 @@ export async function deriveAESKeyFromPRF(prfOutput: Uint8Array): Promise<Crypto
   return crypto.subtle.deriveKey(
     {
       name: "HKDF",
-      salt: HKDF_INFO as Uint8Array<ArrayBuffer>,
+      salt: HKDF_SALT as Uint8Array<ArrayBuffer>,
       info: new Uint8Array(0) as Uint8Array<ArrayBuffer>,
       hash: "SHA-256",
     },

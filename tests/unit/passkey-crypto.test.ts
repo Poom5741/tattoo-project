@@ -42,6 +42,11 @@ describe("base64Encode / base64Decode", () => {
     expect(base64Encode(new Uint8Array(0))).toBe("");
     expect([...base64Decode("")]).toEqual([]);
   });
+
+  it("rejects invalid base64 characters", () => {
+    expect(() => base64Decode("!!!!")).toThrow("Invalid base64 character");
+    expect(() => base64Decode("aGVs*G8=")).toThrow("Invalid base64 character");
+  });
 });
 
 describe("base64urlEncode / base64urlDecode", () => {
@@ -70,6 +75,12 @@ describe("base64urlEncode / base64urlDecode", () => {
   it("handles empty input", () => {
     expect(base64urlEncode(new Uint8Array(0))).toBe("");
     expect([...base64urlDecode("")]).toEqual([]);
+  });
+
+  it("rejects invalid base64url characters", () => {
+    expect(() => base64urlDecode("!!!!")).toThrow("Invalid base64 character");
+    // base64url encoder shouldn't produce + or /, but decoder rejects them
+    expect(() => base64urlDecode("a+b/c")).toThrow("Invalid base64 character");
   });
 });
 

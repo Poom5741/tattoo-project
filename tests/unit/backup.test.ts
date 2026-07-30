@@ -94,6 +94,12 @@ describe("createBackupFile / parseBackupFile", () => {
     await expect(parseBackupFile(badBlob)).rejects.toThrow();
   });
 
+  it("rejects valid JSON where address has no 0x prefix", async () => {
+    const badData = { ...testWallet, address: "1234567890abcdef1234567890abcdef12345678" };
+    const badBlob = new Blob([JSON.stringify(badData)], { type: "application/json" });
+    await expect(parseBackupFile(badBlob)).rejects.toThrow();
+  });
+
   it("rejects blob missing version field", async () => {
     const { version: _, ...noVersion } = testWallet;
     const badBlob = new Blob([JSON.stringify(noVersion)], { type: "application/json" });
