@@ -8,20 +8,15 @@
 
 import { useState, useEffect } from "react";
 import { usePasskeyWallet } from "../contexts/PasskeyWalletContext";
-import { bscTestnet } from "viem/chains";
 
 type Phase = "idle" | "fetching-challenge" | "signing" | "logging-in" | "done" | "error";
+
+const LS_SECRET = "saknid_wallet_secret";
 
 export default function WalletSignatureGate() {
   const { status, address, daccPublickey, createWallet } = usePasskeyWallet();
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
-
-  // Auto-start login when wallet is ready
-  useEffect(() => {
-    if (status !== "unlocked" || phase !== "idle") return;
-    doLogin();
-  }, [status]);
 
   const doLogin = async () => {
     setError(null);
@@ -31,7 +26,7 @@ export default function WalletSignatureGate() {
       const challengeRes = await fetch("/api/auth/challenge");
       if (!challengeRes.ok) {
         setPhase("error");
-        setError("Failed to fetch challenge. Server returned " + challengeRes.status);
+        setError(`Failed to fetch challenge. Server returned ${challengeRes.status}`);
         return;
       }
       const challenge = await challengeRes.json() as { message: string; nonce: string };
@@ -43,6 +38,13 @@ export default function WalletSignatureGate() {
       }
 
       setPhase("signing");
+      const secret = localStorage.getItem(LS_SECRET);
+      if (!secret) {
+        setPhase("error");
+        setError("Wallet secret not found. Please recreate your wallet.");
+        return;
+      }
+
       // Dynamic imports: dacc-js (libsodium WASM) and viem chains
       // are only needed client-side, not in Workers SSR.
       const [{ daccSignMessage }, { bscTestnet }] = await Promise.all([
@@ -52,7 +54,7 @@ export default function WalletSignatureGate() {
       const result = await daccSignMessage({
         address,
         daccPublickey,
-        passwordSecretkey: "passkey-derived-secret",
+        passwordSecretkey: secret,
         network: bscTestnet,
         message: challenge.message,
       });
@@ -69,9 +71,18 @@ export default function WalletSignatureGate() {
       });
 
       if (!loginRes.ok) {
-        const err = await loginRes.json() as { error: string };
+        let errMsg = "Login failed";
+        try {
+          const err = await loginRes.json() as unknown;
+          if (
+            typeof err === "object" && err !== null &&
+            "error" in err && typeof (err as Record<string, unknown>).error === "string"
+          ) {
+            errMsg = (err as Record<string, unknown>).error as string;
+          }
+        } catch { /* non-JSON body, use default */ }
         setPhase("error");
-        setError(err.error || "Login failed");
+        setError(errMsg);
         return;
       }
 
@@ -83,6 +94,12 @@ export default function WalletSignatureGate() {
       setError("Something went wrong. Please try again.");
     }
   };
+
+  // Auto-start login when wallet is ready
+  useEffect(() => {
+    if (status !== "unlocked" || phase !== "idle") return;
+    doLogin();
+  }, [status, phase]);
 
   if (status === "none") {
     return (

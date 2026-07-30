@@ -2,11 +2,12 @@ import React from "react";
 /**
  * PasskeyWalletContext — unit tests (TDD red→green).
  *
- * Tests wallet lifecycle: create, lock, unlock, status transitions.
+ * Tests wallet lifecycle: create, lock, unlock, status transitions,
+ * localStorage persistence, and importBackup.
  * dacc-js createDaccWallet is mocked at the module boundary.
  */
 
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { renderHook, act } from "@testing-library/react";
 import type { ReactNode } from "react";
 import {
@@ -15,10 +16,12 @@ import {
 } from "@/contexts/PasskeyWalletContext";
 
 // Mock dacc-js
+const mockAddr = "0x1234567890abcdef1234567890abcdef12345678" as const;
+const mockPub = "daccPublickey_test123";
 vi.mock("dacc-js", () => ({
   createDaccWallet: vi.fn().mockResolvedValue({
-    address: "0x1234567890abcdef1234567890abcdef12345678",
-    daccPublickey: "daccPublickey_test123",
+    address: mockAddr,
+    daccPublickey: mockPub,
   }),
 }));
 
@@ -30,15 +33,18 @@ function createWrapper() {
 
 describe("PasskeyWalletContext", () => {
   beforeEach(() => {
-    // Reset mock state between tests
     vi.clearAllMocks();
+    localStorage.clear();
+  });
+
+  afterEach(() => {
+    localStorage.clear();
   });
 
   it("starts with status='none' and no address", () => {
     const { result } = renderHook(() => usePasskeyWallet(), {
       wrapper: createWrapper(),
     });
-
     expect(result.current.status).toBe("none");
     expect(result.current.address).toBeNull();
   });
@@ -53,9 +59,32 @@ describe("PasskeyWalletContext", () => {
     });
 
     expect(result.current.status).toBe("unlocked");
-    expect(result.current.address).toBe(
-      "0x1234567890abcdef1234567890abcdef12345678",
-    );
+    expect(result.current.address).toBe(mockAddr);
+  });
+
+  it("persists wallet to localStorage after createWallet", async () => {
+    const { result } = renderHook(() => usePasskeyWallet(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      await result.current.createWallet();
+    });
+
+    expect(localStorage.getItem("saknid_wallet_daccPublickey")).toBe(mockPub);
+    expect(localStorage.getItem("saknid_wallet_address")).toBe(mockAddr);
+  });
+
+  it("restores wallet from localStorage on mount and starts locked", () => {
+    localStorage.setItem("saknid_wallet_daccPublickey", mockPub);
+    localStorage.setItem("saknid_wallet_address", mockAddr);
+
+    const { result } = renderHook(() => usePasskeyWallet(), {
+      wrapper: createWrapper(),
+    });
+
+    expect(result.current.status).toBe("locked");
+    expect(result.current.address).toBe(mockAddr);
   });
 
   it("lock transitions status to 'locked' but keeps address", async () => {
@@ -72,9 +101,7 @@ describe("PasskeyWalletContext", () => {
     });
 
     expect(result.current.status).toBe("locked");
-    expect(result.current.address).toBe(
-      "0x1234567890abcdef1234567890abcdef12345678",
-    );
+    expect(result.current.address).toBe(mockAddr);
   });
 
   it("unlock transitions status back to 'unlocked'", async () => {
@@ -90,8 +117,8 @@ describe("PasskeyWalletContext", () => {
       result.current.lock();
     });
 
-    await act(async () => {
-      await result.current.unlock();
+    act(() => {
+      result.current.unlock();
     });
 
     expect(result.current.status).toBe("unlocked");
@@ -105,14 +132,46 @@ describe("PasskeyWalletContext", () => {
     await act(async () => {
       await result.current.createWallet();
     });
-
     const address1 = result.current.address;
 
     await act(async () => {
       await result.current.createWallet();
     });
 
-    // Address should be the same (no re-creation)
     expect(result.current.address).toBe(address1);
+  });
+
+  it("importBackup sets wallet state and persists it", () => {
+    const { result } = renderHook(() => usePasskeyWallet(), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.importBackup({
+        daccPublickey: "imported_pub",
+        address: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+      });
+    });
+
+    expect(result.current.status).toBe("unlocked");
+    expect(result.current.daccPublickey).toBe("imported_pub");
+    expect(localStorage.getItem("saknid_wallet_daccPublickey")).toBe("imported_pub");
+  });
+
+  it("createWallet reverts to 'none' and throws on failure", async () => {
+    const mod = await import("dacc-js");
+    (mod.createDaccWallet as ReturnType<typeof vi.fn>).mockRejectedValueOnce(
+      new Error("User declined"),
+    );
+
+    const { result } = renderHook(() => usePasskeyWallet(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      await expect(result.current.createWallet()).rejects.toThrow("User declined");
+    });
+
+    expect(result.current.status).toBe("none");
   });
 });
