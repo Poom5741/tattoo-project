@@ -5,6 +5,7 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { generatePrivateKey, privateKeyToAccount } from "viem/accounts";
 
 test.describe("GET /api/auth/challenge", () => {
   test("returns a message and nonce", async ({ request }) => {
@@ -51,7 +52,6 @@ test.describe("POST /api/auth/artist-login", () => {
   });
 
   test("returns 401 for invalid signature", async ({ request }) => {
-    // Get a valid nonce first
     const challengeRes = await request.get("/api/auth/challenge");
     const { nonce } = await challengeRes.json();
 
@@ -74,5 +74,23 @@ test.describe("POST /api/auth/artist-login", () => {
       },
     });
     expect(res.status()).toBe(401);
+  });
+
+  test("returns 403 for a valid signature when the wallet is not linked to an artist", async ({ request }) => {
+    const challengeRes = await request.get("/api/auth/challenge");
+    const { message, nonce } = await challengeRes.json();
+
+    const privateKey = generatePrivateKey();
+    const account = privateKeyToAccount(privateKey);
+    const signature = await account.signMessage({ message });
+
+    const res = await request.post("/api/auth/artist-login", {
+      data: {
+        address: account.address,
+        signature,
+        nonce,
+      },
+    });
+    expect(res.status()).toBe(403);
   });
 });

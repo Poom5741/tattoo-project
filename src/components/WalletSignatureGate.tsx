@@ -7,14 +7,17 @@
  */
 
 import { useState, useEffect } from "react";
-import { usePasskeyWallet } from "../contexts/PasskeyWalletContext";
+import {
+  PasskeyWalletProvider,
+  usePasskeyWallet,
+} from "../contexts/PasskeyWalletContext";
 
 type Phase = "idle" | "fetching-challenge" | "signing" | "logging-in" | "done" | "error";
 
 const LS_SECRET = "saknid_wallet_secret";
 
-export default function WalletSignatureGate() {
-  const { status, address, daccPublickey, createWallet } = usePasskeyWallet();
+function WalletSignatureGateInner() {
+  const { status, address, daccPublickey, createWallet, unlock } = usePasskeyWallet();
   const [phase, setPhase] = useState<Phase>("idle");
   const [error, setError] = useState<string | null>(null);
 
@@ -29,7 +32,7 @@ export default function WalletSignatureGate() {
         setError(`Failed to fetch challenge. Server returned ${challengeRes.status}`);
         return;
       }
-      const challenge = await challengeRes.json() as { message: string; nonce: string };
+      const challenge = (await challengeRes.json()) as { message: string; nonce: string };
 
       if (!address || !daccPublickey) {
         setPhase("error");
@@ -73,7 +76,7 @@ export default function WalletSignatureGate() {
       if (!loginRes.ok) {
         let errMsg = "Login failed";
         try {
-          const err = await loginRes.json() as unknown;
+          const err = (await loginRes.json()) as unknown;
           if (
             typeof err === "object" && err !== null &&
             "error" in err && typeof (err as Record<string, unknown>).error === "string"
@@ -99,6 +102,7 @@ export default function WalletSignatureGate() {
   useEffect(() => {
     if (status !== "unlocked" || phase !== "idle") return;
     doLogin();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, phase]);
 
   if (status === "none") {
@@ -122,9 +126,9 @@ export default function WalletSignatureGate() {
         <p className="font-body text-body-md text-on-surface-variant mb-7">
           Unlock your wallet to sign in.
         </p>
-        <p className="font-body text-body-sm text-on-surface-variant/60">
-          Your wallet is locked. Unlock it from the navigation bar.
-        </p>
+        <button className="btn-primary" onClick={unlock}>
+          Unlock Wallet
+        </button>
       </div>
     );
   }
@@ -134,7 +138,7 @@ export default function WalletSignatureGate() {
       <div className="card-bb p-12 md:p-20 text-center bg-surface-container-low max-w-[480px] mx-auto mt-20">
         <h2 className="font-display text-headline-md text-on-surface mb-4">Sign In Failed</h2>
         <p className="font-body text-body-md text-error mb-7">{error}</p>
-        <button className="btn-primary" onClick={() => { setPhase("idle"); doLogin(); }}>
+        <button className="btn-primary" onClick={() => setPhase("idle")}>
           Try Again
         </button>
       </div>
@@ -158,5 +162,13 @@ export default function WalletSignatureGate() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function WalletSignatureGate() {
+  return (
+    <PasskeyWalletProvider>
+      <WalletSignatureGateInner />
+    </PasskeyWalletProvider>
   );
 }
