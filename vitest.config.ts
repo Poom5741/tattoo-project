@@ -1,12 +1,19 @@
 import { defineConfig } from "vitest/config";
-import { resolve } from "node:path";
+import path from "node:path";
 
 export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
-    include: ["tests/unit/**/*.test.ts", "tests/unit/**/*.test.tsx"],
-    exclude: [".sandcastle/**", "contracts/**", "tests/e2e/**", "tests/load/**"],
+    include: ["tests/**/*.{test,spec}.?(c|m)[jt]s?(x)"],
+    exclude: [
+      ".sandcastle/**",
+      "contracts/**",
+      "node_modules/**",
+      "**/node_modules/**",
+      "tests/e2e/**",
+      "tests/load/**",
+    ],
   },
   esbuild: {
     jsx: "automatic",
@@ -14,7 +21,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": resolve(__dirname, "src"),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 });
