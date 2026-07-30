@@ -113,7 +113,7 @@ const HKDF_SALT = new Uint8Array([
 export async function deriveAESKeyFromPRF(prfOutput: Uint8Array): Promise<CryptoKey> {
   const keyMaterial = await crypto.subtle.importKey(
     "raw",
-    prfOutput as Uint8Array<ArrayBuffer>,
+    prfOutput,
     { name: "HKDF" },
     false,
     ["deriveKey"],
@@ -121,8 +121,8 @@ export async function deriveAESKeyFromPRF(prfOutput: Uint8Array): Promise<Crypto
   return crypto.subtle.deriveKey(
     {
       name: "HKDF",
-      salt: HKDF_SALT as Uint8Array<ArrayBuffer>,
-      info: new Uint8Array(0) as Uint8Array<ArrayBuffer>,
+      salt: HKDF_SALT,
+      info: new Uint8Array(0),
       hash: "SHA-256",
     },
     keyMaterial,
@@ -144,9 +144,9 @@ export async function aesGcmEncrypt(
 ): Promise<Uint8Array> {
   const iv = generateRandomBytes(12);
   const ciphertext = await crypto.subtle.encrypt(
-    { name: "AES-GCM", iv: iv as Uint8Array<ArrayBuffer> },
+    { name: "AES-GCM", iv },
     key,
-    data as Uint8Array<ArrayBuffer>,
+    data,
   );
   const combined = new Uint8Array(iv.length + ciphertext.byteLength);
   combined.set(iv);
@@ -165,9 +165,9 @@ export async function aesGcmDecrypt(
   const iv = combined.slice(0, 12);
   const data = combined.slice(12);
   const plaintext = await crypto.subtle.decrypt(
-    { name: "AES-GCM", iv: iv as Uint8Array<ArrayBuffer> },
+    { name: "AES-GCM", iv },
     key,
-    data as Uint8Array<ArrayBuffer>,
+    data,
   );
   return new Uint8Array(plaintext);
 }

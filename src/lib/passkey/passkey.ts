@@ -31,10 +31,10 @@ export async function registerPasskey(
   try {
     return await navigator.credentials.create({
       publicKey: {
-        challenge: challenge as Uint8Array<ArrayBuffer>,
+        challenge,
         rp: { name: rpName, id: rpId },
         user: {
-          id: userId as Uint8Array<ArrayBuffer>,
+          id: userId,
           name: userName,
           displayName: userName,
         },
@@ -63,7 +63,7 @@ export async function authenticateWithPasskey(
   try {
     return await navigator.credentials.get({
       publicKey: {
-        challenge: challenge as Uint8Array<ArrayBuffer>,
+        challenge,
         rpId,
         userVerification: "required",
         extensions: { prf: {} },
