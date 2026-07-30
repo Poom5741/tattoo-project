@@ -44,7 +44,7 @@ async function deriveKeyFromPassword(
   return crypto.subtle.deriveKey(
     {
       name: "PBKDF2",
-      salt: salt as Uint8Array<ArrayBuffer>,
+      salt,
       iterations: PBKDF2_ITERATIONS,
       hash: "SHA-256",
     },
@@ -153,8 +153,17 @@ export async function uploadBackupToD1(
     }),
   });
   if (!res.ok) {
-    const err = await res.json() as { error: string };
-    throw new Error(err.error || "Failed to upload backup");
+    let errMsg = "Failed to upload backup";
+    try {
+      const err = await res.json() as unknown;
+      if (
+        typeof err === "object" && err !== null &&
+        "error" in err && typeof (err as Record<string, unknown>).error === "string"
+      ) {
+        errMsg = (err as Record<string, unknown>).error as string;
+      }
+    } catch { /* non-JSON response — use default message */ }
+    throw new Error(errMsg);
   }
 }
 
@@ -170,10 +179,15 @@ export async function downloadBackupFromD1(
     if (res.status === 404) throw new Error("No backup found");
     throw new Error("Failed to download backup");
   }
-  const data = await res.json() as {
-    encryptedBlob: string;
-    recoverySalt: string;
-  };
+  const raw = await res.json() as unknown;
+  if (
+    typeof raw !== "object" || raw === null ||
+    typeof (raw as Record<string, unknown>).encryptedBlob !== "string" ||
+    typeof (raw as Record<string, unknown>).recoverySalt !== "string"
+  ) {
+    throw new Error("Server returned invalid backup format");
+  }
+  const data = raw as { encryptedBlob: string; recoverySalt: string };
   const decrypted = await decryptWithRecoveryPassword(
     data.encryptedBlob,
     recoveryPassword,
