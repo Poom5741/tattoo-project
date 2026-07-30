@@ -20,6 +20,8 @@ import {
   type ReactNode,
 } from "react";
 import { generateRandomSecret } from "@/lib/passkey/crypto";
+import { authClient } from "@/lib/auth/client";
+import { uploadBackupToD1 } from "@/lib/passkey/backup";
 
 // ── localStorage helpers ─────────────────────────────────────────
 
@@ -27,18 +29,25 @@ const LS_DACC = "saknid_wallet_daccPublickey";
 const LS_ADDR = "saknid_wallet_address";
 const LS_SECRET = "saknid_wallet_secret";
 
-function readStorage(): { daccPublickey: string; address: `0x${string}` } | null {
+function readStorage(): { daccPublickey: string; address: `0x${string}`; secret?: string } | null {
   if (typeof window === "undefined") return null;
   const pk = localStorage.getItem(LS_DACC);
   const addr = localStorage.getItem(LS_ADDR) as `0x${string}` | null;
-  if (pk && addr) return { daccPublickey: pk, address: addr };
+  const secret = localStorage.getItem(LS_SECRET) ?? undefined;
+  if (pk && addr) return { daccPublickey: pk, address: addr, secret };
   return null;
 }
 
-function persistWallet(pk: string, addr: `0x${string}`): void {
+function persistWallet(pk: string, addr: `0x${string}`, secret?: string): void {
   if (typeof window === "undefined") return;
   localStorage.setItem(LS_DACC, pk);
   localStorage.setItem(LS_ADDR, addr);
+  if (secret) localStorage.setItem(LS_SECRET, secret);
+}
+
+function persistSecret(secret: string): void {
+  if (typeof window === "undefined") return;
+  localStorage.setItem(LS_SECRET, secret);
 }
 
 function getOrCreateSecret(): string {
@@ -62,7 +71,11 @@ export interface PasskeyWalletState {
   createWallet: () => Promise<void>;
   unlock: () => void;
   lock: () => void;
-  importBackup: (data: { daccPublickey: string; address: `0x${string}` }) => void;
+  importBackup: (data: {
+    daccPublickey: string;
+    address: `0x${string}`;
+    encryptedPasswordSecretKey?: string;
+  }) => void;
   isReady: boolean;
 }
 
@@ -92,6 +105,32 @@ export function PasskeyWalletProvider({ children }: { children: ReactNode }) {
       setDaccPublickey(wallet.daccPublickey);
       persistWallet(wallet.daccPublickey, wallet.address);
       setStatus("unlocked");
+
+      // If the user is signed in with Better Auth, upload encrypted backup
+      // to D1 so they can recover on another device via Google auth.
+      const session = await authClient.getSession();
+      if (session.data?.user) {
+        const recoveryPassword = window.prompt(
+          "Set a recovery password to back up your wallet to the cloud. You'll need it to restore on a new device."
+        );
+        if (recoveryPassword) {
+          try {
+            await uploadBackupToD1(
+              {
+                version: 1,
+                address: wallet.address,
+                daccPublicKey: wallet.daccPublickey,
+                encryptedPasswordSecretKey: secret,
+                prfSalt: "",
+                credentialId: "",
+              },
+              recoveryPassword
+            );
+          } catch (e) {
+            console.error("Failed to upload backup:", e);
+          }
+        }
+      }
     } catch (e) {
       setStatus("none");
       throw e;
@@ -109,11 +148,18 @@ export function PasskeyWalletProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const importBackup = useCallback(
-    (data: { daccPublickey: string; address: `0x${string}` }) => {
+    (data: {
+      daccPublickey: string;
+      address: `0x${string}`;
+      encryptedPasswordSecretKey?: string;
+    }) => {
       walletRef.current = data.daccPublickey;
       setAddress(data.address);
       setDaccPublickey(data.daccPublickey);
       persistWallet(data.daccPublickey, data.address);
+      if (data.encryptedPasswordSecretKey) {
+        persistSecret(data.encryptedPasswordSecretKey);
+      }
       setStatus("unlocked");
     },
     [],
