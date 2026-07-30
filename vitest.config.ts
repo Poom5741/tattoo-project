@@ -1,9 +1,11 @@
 import { defineConfig } from "vitest/config";
+import { resolve } from "node:path";
 
 export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    include: ["tests/unit/**/*.test.ts", "tests/unit/**/*.test.tsx"],
   },
   esbuild: {
     jsx: "automatic",
@@ -11,7 +13,7 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      "@": "/Users/poom-work/codingZone/business/tattoo-project/src",
+      "@": resolve(__dirname, "src"),
     },
   },
 });
