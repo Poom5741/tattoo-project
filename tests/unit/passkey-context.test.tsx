@@ -14,6 +14,8 @@ import {
   PasskeyWalletProvider,
   usePasskeyWallet,
 } from "@/contexts/PasskeyWalletContext";
+import { uploadBackupToD1 } from "@/lib/passkey/backup";
+import { authClient } from "@/lib/auth/client";
 
 // Mock dacc-js
 const mockAddr = "0x1234567890abcdef1234567890abcdef12345678" as const;
@@ -24,6 +26,22 @@ vi.mock("dacc-js", () => ({
     daccPublickey: mockPub,
   }),
 }));
+
+// Mock auth client so createWallet doesn't hit the network
+vi.mock("@/lib/auth/client", () => ({
+  authClient: {
+    getSession: vi.fn().mockResolvedValue({ data: null, error: null }),
+  },
+}));
+
+// Mock D1 backup upload
+vi.mock("@/lib/passkey/backup", async (importOriginal) => {
+  const original = await importOriginal<typeof import("@/lib/passkey/backup")>();
+  return {
+    ...original,
+    uploadBackupToD1: vi.fn().mockResolvedValue(undefined),
+  };
+});
 
 function createWrapper() {
   return function Wrapper({ children }: { children: ReactNode }) {
@@ -156,6 +174,46 @@ describe("PasskeyWalletContext", () => {
     expect(result.current.status).toBe("unlocked");
     expect(result.current.daccPublickey).toBe("imported_pub");
     expect(localStorage.getItem("saknid_wallet_daccPublickey")).toBe("imported_pub");
+  });
+
+  it("importBackup persists encryptedPasswordSecretKey when provided", () => {
+    const { result } = renderHook(() => usePasskeyWallet(), {
+      wrapper: createWrapper(),
+    });
+
+    act(() => {
+      result.current.importBackup({
+        daccPublickey: "imported_pub",
+        address: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+        encryptedPasswordSecretKey: "imported-secret",
+      });
+    });
+
+    expect(localStorage.getItem("saknid_wallet_secret")).toBe("imported-secret");
+  });
+
+  it("createWallet auto-uploads backup when Better Auth session exists", async () => {
+    (authClient.getSession as ReturnType<typeof vi.fn>).mockResolvedValueOnce({
+      data: { user: { id: "user_1", email: "test@example.com" } },
+      error: null,
+    });
+    const promptSpy = vi.spyOn(window, "prompt").mockReturnValueOnce("recovery-password");
+
+    const { result } = renderHook(() => usePasskeyWallet(), {
+      wrapper: createWrapper(),
+    });
+
+    await act(async () => {
+      await result.current.createWallet();
+    });
+
+    expect(uploadBackupToD1).toHaveBeenCalledTimes(1);
+    const [backup, password] = (uploadBackupToD1 as ReturnType<typeof vi.fn>).mock.calls[0];
+    expect(backup.address).toBe(mockAddr);
+    expect(backup.encryptedPasswordSecretKey).toBeTruthy();
+    expect(password).toBe("recovery-password");
+
+    promptSpy.mockRestore();
   });
 
   it("createWallet reverts to 'none' and throws on failure", async () => {

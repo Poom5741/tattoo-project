@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-const HexAddress = z.string().regex(/^0x[0-9a-fA-F]{40}$/, "Must be a 0x Ethereum address");
+export const HexAddress = z.string().regex(/^0x[0-9a-fA-F]{40}$/, "Must be a 0x Ethereum address");
 const HexTxHash = z.string().regex(/^0x[0-9a-fA-F]{64}$/, "Must be a 0x transaction hash");
 
 export const DesignSchema = z.object({

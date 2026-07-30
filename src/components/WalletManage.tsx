@@ -2,13 +2,15 @@
  * WalletManage — modal for creating, unlocking, and managing the passkey wallet.
  *
  * Content adapts to wallet status:
- * - none: "Create Wallet" button + import from backup
+ * - none: "Create Wallet" button + import from backup + restore from cloud
  * - locked: "Unlock" button
  * - unlocked: address display + "Lock" button
  */
 
 import React, { useRef } from "react";
 import { usePasskeyWallet } from "../contexts/PasskeyWalletContext";
+import { authClient } from "@/lib/auth/client";
+import { downloadBackupFromD1 } from "@/lib/passkey/backup";
 
 interface WalletManageProps {
   open: boolean;
@@ -20,6 +22,8 @@ export default function WalletManage({ open, onClose }: WalletManageProps) {
     usePasskeyWallet();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [importError, setImportError] = React.useState<string | null>(null);
+  const [restoreError, setRestoreError] = React.useState<string | null>(null);
+  const [restoreLoading, setRestoreLoading] = React.useState(false);
 
   if (!open) return null;
 
@@ -43,6 +47,32 @@ export default function WalletManage({ open, onClose }: WalletManageProps) {
       onClose();
     } catch {
       setImportError("Could not read backup file. Ensure it is a valid JSON file.");
+    }
+  };
+
+  const handleRestoreFromCloud = async () => {
+    setRestoreError(null);
+    setRestoreLoading(true);
+    try {
+      const session = await authClient.getSession();
+      if (!session.data?.user) {
+        setRestoreError("Sign in with Google first to restore from cloud.");
+        return;
+      }
+      const password = window.prompt("Enter your recovery password:");
+      if (!password) return;
+      const backup = await downloadBackupFromD1(password);
+      importBackup({
+        daccPublickey: backup.daccPublicKey,
+        address: backup.address,
+        encryptedPasswordSecretKey: backup.encryptedPasswordSecretKey,
+      });
+      onClose();
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Restore failed";
+      setRestoreError(message);
+    } finally {
+      setRestoreLoading(false);
     }
   };
 
@@ -108,8 +138,20 @@ export default function WalletManage({ open, onClose }: WalletManageProps) {
             >
               Import from Backup
             </button>
+
+            <button
+              className="btn-secondary w-full"
+              onClick={handleRestoreFromCloud}
+              disabled={restoreLoading}
+            >
+              {restoreLoading ? "Restoring…" : "Restore from Cloud"}
+            </button>
+
             {importError && (
               <p className="font-body text-sm text-error">{importError}</p>
+            )}
+            {restoreError && (
+              <p className="font-body text-sm text-error">{restoreError}</p>
             )}
           </div>
         )}
