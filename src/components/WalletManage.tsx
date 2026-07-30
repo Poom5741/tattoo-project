@@ -7,10 +7,10 @@
  * - unlocked: address display + "Lock" button
  */
 
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import { usePasskeyWallet } from "../contexts/PasskeyWalletContext";
 import { authClient } from "@/lib/auth/client";
-import { downloadBackupFromD1 } from "@/lib/passkey/backup";
+import { downloadBackupFromD1, parseBackupFile } from "@/lib/passkey/backup";
 
 interface WalletManageProps {
   open: boolean;
@@ -21,9 +21,9 @@ export default function WalletManage({ open, onClose }: WalletManageProps) {
   const { status, address, createWallet, unlock, lock, importBackup } =
     usePasskeyWallet();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [importError, setImportError] = React.useState<string | null>(null);
-  const [restoreError, setRestoreError] = React.useState<string | null>(null);
-  const [restoreLoading, setRestoreLoading] = React.useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [restoreError, setRestoreError] = useState<string | null>(null);
+  const [restoreLoading, setRestoreLoading] = useState(false);
 
   if (!open) return null;
 
@@ -32,21 +32,16 @@ export default function WalletManage({ open, onClose }: WalletManageProps) {
     try {
       const file = fileInputRef.current?.files?.[0];
       if (!file) return;
-      const text = await file.text();
-      const parsed: unknown = JSON.parse(text);
-      if (
-        typeof parsed !== "object" || parsed === null ||
-        typeof (parsed as Record<string, unknown>).daccPublickey !== "string" ||
-        typeof (parsed as Record<string, unknown>).address !== "string"
-      ) {
-        setImportError("Invalid backup file format.");
-        return;
-      }
-      const data = parsed as { daccPublickey: string; address: `0x${string}` };
-      importBackup(data);
+      const backup = await parseBackupFile(file);
+      importBackup({
+        daccPublickey: backup.daccPublicKey,
+        address: backup.address as `0x${string}`,
+        encryptedPasswordSecretKey: backup.encryptedPasswordSecretKey,
+      });
       onClose();
-    } catch {
-      setImportError("Could not read backup file. Ensure it is a valid JSON file.");
+    } catch (e) {
+      const message = e instanceof Error ? e.message : "Could not read backup file.";
+      setImportError(message);
     }
   };
 
@@ -64,7 +59,7 @@ export default function WalletManage({ open, onClose }: WalletManageProps) {
       const backup = await downloadBackupFromD1(password);
       importBackup({
         daccPublickey: backup.daccPublicKey,
-        address: backup.address,
+        address: backup.address as `0x${string}`,
         encryptedPasswordSecretKey: backup.encryptedPasswordSecretKey,
       });
       onClose();
