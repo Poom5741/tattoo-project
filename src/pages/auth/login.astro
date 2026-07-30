@@ -16,8 +16,8 @@ import Footer from "../../components/Footer.astro";
         Sign in with Google to manage your collection and wallet.
       </p>
 
-      <a
-        href="/api/auth/sign-in/google"
+      <button
+        id="google-signin"
         class="inline-flex items-center justify-center gap-3 w-full px-7 py-3 rounded-full font-body font-semibold text-sm transition-all bg-on-surface text-surface hover:opacity-85"
       >
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
@@ -27,7 +27,33 @@ import Footer from "../../components/Footer.astro";
           <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
         </svg>
         Sign in with Google
-      </a>
+      </button>
+
+      <script>
+        const btn = document.getElementById("google-signin");
+        if (btn) {
+          btn.addEventListener("click", async () => {
+            btn.setAttribute("disabled", "true");
+            try {
+              const res = await fetch("/api/auth/sign-in/social", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ provider: "google", callbackURL: "/" }),
+              });
+              if (!res.ok) throw new Error("Auth request failed");
+              const data = await res.json();
+              if (data.url && data.redirect) {
+                window.location.href = data.url;
+              } else {
+                throw new Error("Unexpected auth response");
+              }
+            } catch (e) {
+              alert("Could not start Google sign-in. Please try again.");
+              btn.removeAttribute("disabled");
+            }
+          });
+        }
+      </script>
     </div>
   </main>
   <Footer />

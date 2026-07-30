@@ -38,8 +38,6 @@ interface Env {
   GOOGLE_CLIENT_SECRET: string;
   BETTER_AUTH_SECRET: string;
   BETTER_AUTH_URL: string;
-  
-  // ChillPay Payment Gateway
   CHILLPAY_MERCHANT_CODE: string;
   CHILLPAY_API_KEY: string;
   CHILLPAY_MD5_SECRET: string;
