@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ChatBox } from "./ChatBox";
+import ChatBox from "./ChatBox";
 
 const FLAGGED_CONVERSATIONS = [
   { id: "flag-1", clientName: "Alex R.", artistName: "Artist One", reason: "URL detected in message", flaggedAt: "2026-07-14", status: "flagged" },

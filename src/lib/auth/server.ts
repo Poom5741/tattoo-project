@@ -8,15 +8,18 @@
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "@better-auth/drizzle-adapter";
 import { drizzle } from "drizzle-orm/d1";
+import * as schema from "./schema";
 
-export function createAuth(env: Env) {
+export function createAuth(env: Env, origin: string) {
   const db = drizzle(env.DB);
+  const baseURL = env.BETTER_AUTH_URL || origin;
 
   return betterAuth({
-    secret: env.BETTER_AUTH_SECRET,
-    baseURL: env.BETTER_AUTH_URL,
+    secret: env.BETTER_AUTH_SECRET || "dev-secret-do-not-use-in-production",
+    baseURL,
     database: drizzleAdapter(db, {
       provider: "sqlite",
+      schema,
     }),
     socialProviders: {
       google: {
@@ -27,7 +30,9 @@ export function createAuth(env: Env) {
     passkey: {
       enabled: true,
       rpName: "SAKNID",
-      rpID: new URL(env.BETTER_AUTH_URL).hostname,
+      rpID: new URL(baseURL).hostname,
     },
+    // ponytail: disabling email+password keeps initial auth surface small;
+    // enable when onboarding requires password fallback.
   });
 }
