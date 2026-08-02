@@ -44,3 +44,5 @@ tattoo project-handoff.zip
 # Test artifacts
 playwright-report/
 test-results/
+# Local Pi runtime state
+.atl/

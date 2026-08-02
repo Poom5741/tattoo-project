@@ -1,0 +1,1 @@
+Now I have all four files. Let me analyze them and produce the research.
