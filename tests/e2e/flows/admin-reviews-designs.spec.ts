@@ -1,0 +1,194 @@
+/**
+ * Admin login and dashboard — end-to-end user flow.
+ *
+ * Drives the full admin journey: unauthed /admin shows the login
+ * form; submit the password; the dashboard renders; the embedded
+ * AdminPendingReview component fetches pending designs; click
+ * "Approve" on one; the design disappears from the table; click
+ * "Sign out"; the cookie is cleared and the page returns to the
+ * login form. Reads the D1 directly via node:sqlite to assert the
+ * design row's status changed from 'pending' to 'available'.
+ *
+ * The dev env seed has 0 designs with status='pending' (see
+ * migrations/0002_seed.sql). The spec inserts a known pending row in
+ * beforeEach and removes it in afterEach, so the test is repeatable
+ * and does not collide with F1 (which assumes d1 is 'available').
+ *
+ * Covers closed issues:
+ *   #16 (Fix hardcoded admin password with typo - ignore env var) -
+ *        the dev-env flow uses the hard-coded 'saknid2026' as the
+ *        password, and the spec asserts that path works.
+ *   #22 (Codebase Health Improvements) - admin auth exercised.
+ *
+ * Prerequisite: `pnpm db:seed:dev` must have run so the dev D1 has
+ * the artists + the 15 seeded designs.
+ *
+ * Env: this spec is a real Playwright UI spec. On this dev box the
+ * chromium binary cannot find its system libraries (see #67). The
+ * spec is runnable in a working env or in CI (#70).
+ */
+
+import { test, expect } from "@playwright/test";
+import { DatabaseSync } from "node:sqlite";
+import { readdirSync, statSync, existsSync } from "node:fs";
+import { join } from "node:path";
+
+/** Locate the local wrangler D1 file. Same logic as the seed script. */
+function findD1Path(): string | null {
+  const d1Dir = ".wrangler/state/v3/d1/miniflare-D1DatabaseObject";
+  if (!existsSync(d1Dir)) return null;
+  const files = readdirSync(d1Dir)
+    .filter((f: string) => f.endsWith(".sqlite") && !f.endsWith("-wal") && !f.endsWith("-shm"))
+    .map((f: string) => ({ f, mtime: statSync(join(d1Dir, f)).mtimeMs }))
+    .sort((a, b) => b.mtime - a.mtime);
+  if (files.length === 0) return null;
+  return join(d1Dir, files[0].f);
+}
+
+const PENDING_DESIGN_ID = "d-test-pending-001";
+
+interface DesignRow {
+  id: string;
+  status: string;
+}
+
+/** Insert a known pending design row so the dashboard has something to show. */
+function insertPendingDesign(): void {
+  const dbPath = findD1Path();
+  if (!dbPath) {
+    throw new Error(
+      "Local D1 not found. Run `pnpm dev` once and then `pnpm db:seed:dev`.",
+    );
+  }
+  const con = new DatabaseSync(dbPath);
+  try {
+    con.exec("BEGIN");
+    con
+      .prepare(
+        `INSERT OR REPLACE INTO designs (
+          id, n, title, artist_id, style, price, placement, medium,
+          status, selling_mode, royalty_pct, image_url
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
+      )
+      .run(
+        PENDING_DESIGN_ID,
+        "999",
+        "Admin Smoke Test Plate",
+        "mara",
+        "Fine Line",
+        1.0,
+        "Test placement",
+        "Test medium",
+        "one-time",
+        null,
+        null,
+      );
+    con.exec("COMMIT");
+  } catch (err) {
+    con.exec("ROLLBACK");
+    throw err;
+  } finally {
+    con.close();
+  }
+}
+
+/** Read a design row by id. */
+function readDesign(id: string): DesignRow | null {
+  const dbPath = findD1Path();
+  if (!dbPath) return null;
+  const con = new DatabaseSync(dbPath, { readOnly: true });
+  try {
+    return con
+      .prepare("SELECT id, status FROM designs WHERE id = ?")
+      .get(id) as unknown as DesignRow | undefined ?? null;
+  } finally {
+    con.close();
+  }
+}
+
+/** Remove the test pending design. Safe to call multiple times. */
+function removePendingDesign(): void {
+  const dbPath = findD1Path();
+  if (!dbPath) return;
+  const con = new DatabaseSync(dbPath);
+  try {
+    con.prepare("DELETE FROM designs WHERE id = ?").run(PENDING_DESIGN_ID);
+  } finally {
+    con.close();
+  }
+}
+
+test.describe("Admin login and dashboard - end-to-end user flow", () => {
+  test.beforeEach(() => {
+    // Make the test deterministic: start with our pending design
+    // inserted and no other lingering state.
+    removePendingDesign();
+    insertPendingDesign();
+  });
+
+  test.afterAll(() => {
+    // Hygiene: ensure the test design is gone so F1 (#73) and F2
+    // (#74) don't see it.
+    removePendingDesign();
+  });
+
+  test("/admin login -> dashboard -> approve pending -> sign out", async ({ page }) => {
+    // 1. Land on /admin (unauthed).
+    await page.goto("/admin");
+    // 2. Assert: login form is visible.
+    await expect(page.locator("h1", { hasText: "Sign in" })).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator("#pw")).toBeVisible();
+    await expect(page.locator("button", { hasText: "Enter dashboard" })).toBeVisible();
+
+    // 3. Fill the password and submit.
+    await page.fill("#pw", "saknid2026");
+    // The form does a fetch then `location.reload()`. We don't need to
+    // wait for the fetch directly; we wait for the dashboard to render
+    // after the reload.
+    await page.click("button[type='submit']");
+
+    // 4. Wait for the dashboard to render.
+    await expect(page.locator("h1", { hasText: "Dashboard" })).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator("button", { hasText: "Sign out" })).toBeVisible();
+
+    // 5. Wait for the React AdminPendingReview to fetch and render
+    //    the pending list. The table row should show our test design.
+    const designRow = page.locator("tr", { hasText: "Admin Smoke Test Plate" });
+    await expect(designRow).toBeVisible({ timeout: 10_000 });
+
+    // 6. The stats section shows pending count >= 1.
+    const stats = page.locator(".stats");
+    await expect(stats).toContainText("Pending review");
+
+    // 7. Click "Approve" on our test design.
+    const approveButton = designRow.locator("button", { hasText: "Approve" });
+    await expect(approveButton).toBeVisible();
+    await approveButton.click();
+
+    // 8. The component optimistically removes the row from the table
+    //    on success. Wait for the row to disappear.
+    await expect(designRow).toHaveCount(0, { timeout: 10_000 });
+
+    // 9. D1 assertion: the design row's status is now 'available'.
+    const dbPath = findD1Path();
+    if (!dbPath) {
+      test.skip(
+        true,
+        "Local D1 not found. Run `pnpm dev` once and then `pnpm db:seed:dev`.",
+      );
+    }
+    const updated = readDesign(PENDING_DESIGN_ID);
+    expect(updated).not.toBeNull();
+    expect(updated!.status).toBe("available");
+
+    // 10. Sign out. The Sign out button is a form submit to
+    //     /api/admin/logout which sets a 302 + clears the cookie.
+    const signOutButton = page.locator("button", { hasText: "Sign out" });
+    await signOutButton.click();
+    // After sign-out the page navigates back to /admin and the
+    // login form should re-render (the cookie is gone, so the
+    // unauthed branch shows).
+    await expect(page.locator("h1", { hasText: "Sign in" })).toBeVisible({ timeout: 10_000 });
+    await expect(page.locator("#pw")).toBeVisible();
+  });
+});
