@@ -143,9 +143,9 @@ Notes on the gap list:
 
 ### 3.2 Wait / sleep anti-patterns
 
-| Spec | Pattern | Concern |
-|---|---|---|
-| `tests/e2e/nav.spec.ts` | `waitForTimeout` (1 occurrence) | Classic flake source. Likely a fallback for a missing `expect(locator).toBeVisible()` assertion. Ticket #67 should replace with a locator-based wait. |
+| Spec | Pattern | Status | Concern / fix |
+|---|---|---|---|
+| `tests/e2e/nav.spec.ts` | `waitForTimeout` (1 occurrence) | **Fixed in #67** | Was a 500ms sleep waiting for the slide-out animation. Replaced with `expect(panel).toHaveCSS('transform', 'matrix(1, 0, 0, 1, 300, 0)')` — Playwright retries until the closed-state transform matches (default 10s timeout). |
 
 ### 3.3 Skipped / fixme tests
 
