@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
+    "db:seed:dev": "tsx scripts/seed-dev-d1.ts",
     "pin:metadata": "tsx scripts/pin-metadata.ts",
     "baseline:capture": "tsx scripts/baseline-capture.ts",
     "loop": "tsx .sandcastle/main.mts",

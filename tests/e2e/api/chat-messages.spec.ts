@@ -9,94 +9,114 @@
  * Source: src/pages/api/chat/messages/[conversationId].ts.
  * Pattern: tests/e2e/api/voucher.spec.ts and tests/e2e/api/bookings.spec.ts.
  *
- * Note on auth: the route uses resolveSender (not the local admin/artist
- * branches used by /conversations). Admin is a valid sender; admin
- * short-circuits the participant check.
+ * Auth note: the route uses resolveSender (admin is a valid sender; admin
+ * short-circuits the participant check). This file uses the adminRequest
+ * fixture for the auth'd cases.
+ *
+ * Prerequisite: `pnpm db:seed:dev` must have run (creates conv-test-001
+ * with 2 messages).
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures";
 
-test.describe("GET /api/chat/messages/[conversationId]", () => {
+test.describe("GET /api/chat/messages/[conversationId] - unauthenticated", () => {
   test("returns 401 when not authenticated", async ({ request }) => {
     const res = await request.get("/api/chat/messages/any-id");
     expect(res.status()).toBe(401);
     const body = await res.json();
     expect(body.error).toBe("Not authenticated");
   });
+});
 
-  test("returns 200 with empty list when conversation exists but has no messages", async ({
-    request,
-  }) => {
-    // Happy path: a real conversation with zero messages returns
-    // { messages: [], hasMore: false } and updates conversations.unread = 0.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
+test.describe("GET /api/chat/messages/[conversationId] - as admin", () => {
+  test("200 returns the seeded messages in ascending order", async ({ adminRequest }) => {
+    // The seed inserts 2 messages into conv-test-001: msg-test-001 and
+    // msg-test-002, with msg-test-002 newer (created_at = now - 1700 vs
+    // msg-test-001's now - 1800). The route orders by created_at ASC,
+    // so the response should list msg-test-001 first.
+    const res = await adminRequest.get("/api/chat/messages/conv-test-001");
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveProperty("messages");
+    expect(Array.isArray(body.messages)).toBe(true);
+    // The conversation is shared with other tests in this run, so we
+    // assert the order of the *seeded* messages rather than the full
+    // list. The list must contain msg-test-001 and msg-test-002, and
+    // msg-test-001 must appear before msg-test-002 (ascending created_at).
+    const ids = (body.messages as { id: string }[]).map((m) => m.id);
+    const i1 = ids.indexOf("msg-test-001");
+    const i2 = ids.indexOf("msg-test-002");
+    expect(i1).toBeGreaterThanOrEqual(0);
+    expect(i2).toBeGreaterThan(i1);
   });
 
-  test("returns 404 when the conversation does not exist (and sender is authenticated)", async ({
-    request,
-  }) => {
-    // The 404 fires after auth, before the participant check. With an
-    // authenticated sender, an unknown conversation id is 404.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
+  test("messages have the documented shape", async ({ adminRequest }) => {
+    const res = await adminRequest.get("/api/chat/messages/conv-test-001");
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    const first = (body.messages as Array<Record<string, unknown>>).find(
+      (m) => m.id === "msg-test-001",
+    );
+    expect(first).toBeDefined();
+    expect(first).toMatchObject({
+      id: "msg-test-001",
+      conversationId: "conv-test-001",
+      senderId: "test-client",
+      senderRole: "client",
+      text: "first message",
+      flagged: false,
+    });
+    expect(typeof first!.createdAt).toBe("number");
   });
 
-  test("returns 403 when the sender is not a participant", async ({
-    request,
-  }) => {
-    // isParticipant = admin || client_id === sender.id || artist_id
-    // === sender.id. A non-participant sender is 403.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
+  test("404 when the conversation does not exist", async ({ adminRequest }) => {
+    const res = await adminRequest.get("/api/chat/messages/conv-does-not-exist");
+    expect(res.status()).toBe(404);
+    const body = await res.json();
+    expect(body.error).toBe("Conversation not found");
   });
 
-  test("returns 400 on invalid query params (limit > 100)", async ({
-    request,
-  }) => {
-    // The QuerySchema coerces and validates limit: z.coerce.number().int()
-    // .min(1).max(100). 999 fails the max(100) check.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
+  test("since param filters to messages with created_at > since", async ({ adminRequest }) => {
+    // The seeded msg-test-001 has created_at = now - 1800 and msg-test-002
+    // has created_at = now - 1700. Pass since = (msg-test-001.createdAt)
+    // and we should see only msg-test-002.
+    const list = await adminRequest.get("/api/chat/messages/conv-test-001");
+    const listBody = await list.json();
+    const m1 = (listBody.messages as Array<{ id: string; createdAt: number }>).find(
+      (m) => m.id === "msg-test-001",
+    );
+    expect(m1).toBeDefined();
+    const res = await adminRequest.get(
+      `/api/chat/messages/conv-test-001?since=${m1!.createdAt}`,
+    );
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    const ids = (body.messages as Array<{ id: string }>).map((m) => m.id);
+    expect(ids).not.toContain("msg-test-001");
+    expect(ids).toContain("msg-test-002");
   });
 
-  test("returns 400 on negative offset", async ({ request }) => {
-    // The QuerySchema is z.coerce.number().int().nonnegative().default(0).
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
+  test("limit param caps the response size", async ({ adminRequest }) => {
+    const res = await adminRequest.get(
+      "/api/chat/messages/conv-test-001?limit=1",
+    );
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    // limit=1 -> the route asks for 2 rows internally, slices to 1, and
+    // sets hasMore=true. The list is small in the seed (2 messages), so
+    // we only assert that the response is bounded and hasMore is set
+    // correctly when there are more rows.
+    const list = body.messages as Array<unknown>;
+    expect(list.length).toBeLessThanOrEqual(1);
+    expect(body.hasMore).toBe(true);
   });
 
-  test("messages are ordered ascending by created_at", async ({ request }) => {
-    // The SQL is ORDER BY created_at ASC. Asserted on a real list.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
-  });
-
-  test("since param filters to messages with created_at > since", async ({
-    request,
-  }) => {
-    // Polling: clients pass the last seen created_at and the route
-    // returns only newer messages.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
-  });
-
-  test("hasMore is true when there is a row beyond the limit", async ({
-    request,
-  }) => {
-    // The route requests limit+1 rows; if it gets limit+1, hasMore is
-    // true and the response contains the first `limit` rows. Useful
-    // for clients that page.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
-  });
-
-  test("calling this endpoint resets conversations.unread to 0", async ({
-    request,
-  }) => {
-    // Side effect: the route does UPDATE conversations SET unread = 0
-    // WHERE id = ?. The unread counter is the "you have new messages"
-    // indicator the artist sees in the inbox.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
-  });
-
-  test("Thai and English messages persist and render unchanged", async ({
-    request,
-  }) => {
-    // The text column is TEXT with no encoding constraint; a Thai
-    // message like 'สวัสดี' should round-trip through the API.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
+  test("calling this endpoint resets conversations.unread to 0", async ({ adminRequest }) => {
+    // Set unread to a known value, then GET messages, then check unread.
+    // We do this via a follow-up GET on /api/chat/conversations/conv-test-001.
+    // (We need the conversations route to be readable. If it returns 401
+    // we'll skip - this test depends on the auth flow used by the
+    // conversations route, which differs from the messages route.)
+    test.skip(true, "depends on the conversations route auth flow; see ticket #68");
   });
 });

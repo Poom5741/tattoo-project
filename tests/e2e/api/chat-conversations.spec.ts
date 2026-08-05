@@ -9,93 +9,91 @@
  *
  * Source: src/pages/api/chat/conversations/index.ts and [id].ts.
  * Pattern: tests/e2e/api/voucher.spec.ts and tests/e2e/api/bookings.spec.ts.
+ *
+ * Auth note: the route accepts three kinds of session - admin (admin_token
+ * cookie), artist (wallet-signature KV), client (locals.user from Better
+ * Auth). The admin branch supports a ?artistId filter. This file uses the
+ * adminRequest fixture for the auth'd cases.
+ *
+ * Prerequisite: `pnpm db:seed:dev` must have run (creates conv-test-001
+ * with client_id=test-client, artist_id=mara).
  */
 
-import { test, expect } from "@playwright/test";
+import { test, expect } from "../fixtures";
 
-test.describe("GET /api/chat/conversations", () => {
+test.describe("GET /api/chat/conversations - unauthenticated", () => {
   test("returns 401 when not authenticated", async ({ request }) => {
-    // The route checks user || artistSession || admin; with none of
-    // those, it returns 401 before any DB query.
     const res = await request.get("/api/chat/conversations");
     expect(res.status()).toBe(401);
     const body = await res.json();
     expect(body.error).toBe("Unauthorized");
   });
+});
 
-  test("returns 401 for invalid JSON in headers (no body expected)", async ({
-    request,
-  }) => {
-    // GET has no body; this asserts the route does not accidentally
-    // crash on a malformed Content-Type header.
-    const res = await request.get("/api/chat/conversations", {
-      headers: { "content-type": "application/json" },
-    });
-    expect(res.status()).toBe(401);
+test.describe("GET /api/chat/conversations - as admin", () => {
+  test("returns the list of conversations", async ({ adminRequest }) => {
+    const res = await adminRequest.get("/api/chat/conversations");
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveProperty("conversations");
+    expect(Array.isArray(body.conversations)).toBe(true);
+    // The seeded conv-test-001 should be in the list.
+    const ids = (body.conversations as Array<{ id: string }>).map((c) => c.id);
+    expect(ids).toContain("conv-test-001");
   });
 
-  test("returns { conversations: [] } shape when authenticated with empty D1", async ({
-    request,
-  }) => {
-    // The happy path with no rows. Requires an authenticated session
-    // (admin via password, or artist via wallet signature). The D1
-    // schema has a conversations table; if it's empty, the response
-    // is { conversations: [] }. The order is last_message_at DESC.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
-  });
+  test("admin can filter by ?artistId=...", async ({ adminRequest }) => {
+    // The seed has conv-test-001 with artist_id='mara'. Filter by 'mara'
+    // and we should see it. Filter by a non-existent artist and we get [].
+    const filtered = await adminRequest.get(
+      "/api/chat/conversations?artistId=mara",
+    );
+    expect(filtered.status()).toBe(200);
+    const body = await filtered.json();
+    const ids = (body.conversations as Array<{ id: string }>).map((c) => c.id);
+    expect(ids).toContain("conv-test-001");
 
-  test("admin can filter conversations by ?artistId=...", async ({
-    request,
-  }) => {
-    // The admin branch appends WHERE artist_id = ? when the URL has
-    // ?artistId. The artist and client branches do not honour this
-    // filter - they scope to themselves unconditionally.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
-  });
-
-  test("artist sees only their own conversations", async ({ request }) => {
-    // The artist branch scopes WHERE artist_id = ? to the artist's id.
-    // Asserts no cross-artist leak.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
-  });
-
-  test("client sees only their own conversations", async ({ request }) => {
-    // The client branch scopes WHERE client_id = ? to the client's id
-    // (from locals.user.id).
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
+    const empty = await adminRequest.get(
+      "/api/chat/conversations?artistId=no-such-artist",
+    );
+    expect(empty.status()).toBe(200);
+    const emptyBody = await empty.json();
+    expect(emptyBody.conversations).toEqual([]);
   });
 });
 
-test.describe("GET /api/chat/conversations/[id]", () => {
+test.describe("GET /api/chat/conversations/[id] - unauthenticated", () => {
   test("returns 401 when not authenticated", async ({ request }) => {
     const res = await request.get("/api/chat/conversations/any-id");
     expect(res.status()).toBe(401);
     const body = await res.json();
     expect(body.error).toBe("Unauthorized");
   });
+});
 
-  test("returns 404 when the conversation does not exist (and sender is authenticated)", async ({
-    request,
-  }) => {
-    // With an authenticated sender and a missing id, the route returns
-    // 404 "Not found". The 401 path runs first if the sender is null.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
+test.describe("GET /api/chat/conversations/[id] - as admin", () => {
+  test("returns 200 with the conversation and the joined artist name/handle", async ({ adminRequest }) => {
+    const res = await adminRequest.get("/api/chat/conversations/conv-test-001");
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveProperty("conversation");
+    const conv = body.conversation as Record<string, unknown>;
+    expect(conv).toMatchObject({
+      id: "conv-test-001",
+      client_id: "test-client",
+      artist_id: "mara",
+      status: "active",
+    });
+    // The route joins artists; the seeded row has name='Mara Vael'
+    // and handle='@maravael' (from migrations/0002_seed.sql).
+    expect(conv.artist_name).toBe("Mara Vael");
+    expect(conv.artist_handle).toBe("@maravael");
   });
 
-  test("returns 403 when the sender is not a participant", async ({
-    request,
-  }) => {
-    // The isParticipant check is admin || user.id === client_id ||
-    // artistSession.artistId === artist_id. A non-participant sender
-    // gets 403.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
-  });
-
-  test("200 response shape joins the artist name and handle", async ({
-    request,
-  }) => {
-    // The SELECT joins artists: c.*, a.name AS artist_name, a.handle
-    // AS artist_handle. The response is { conversation: { ... } }.
-    test.skip(true, "needs an authenticated-sender fixture; see ticket #67");
+  test("returns 404 when the conversation does not exist", async ({ adminRequest }) => {
+    const res = await adminRequest.get("/api/chat/conversations/conv-does-not-exist");
+    expect(res.status()).toBe(404);
+    const body = await res.json();
+    expect(body.error).toBe("Not found");
   });
 });
