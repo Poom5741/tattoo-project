@@ -47,9 +47,9 @@ Static analysis only - the suite was not run. Pass/fail and runtime triage are i
 | #32 | rebrand | #32 Spec: Platform Features | **partial coverage** | Spec, not an implementation. Implementation covered by #33/#36 etc. | done |
 | #33 | rebrand | #33 Rebrand Core UI - SAKNID home, nav, footer, admin login, CONTEXT.md | **fully covered** | rebrand.spec.ts + nav.spec.ts + admin.spec.ts all assert SAKNID branding. | - |
 | #36 | rebrand | #36 Rebrand Remaining UI - all pages, admin dashboard, email templates | **fully covered** | All 14 UI specs assert Bone & Blood design tokens. Email templates are out of e2e scope. | C |
-| #26 | i18n | #26 Implement i18n with Thai/English language switcher | **partial coverage** | No spec exercises the language switcher UI or the locale cookie. Indirect: the i18n module exists at src/lib/i18n/index.ts and is used in SSR, but the user-facing switcher behaviour is untested. | B (in the B ticket) |
-| #37 | i18n | #37 i18n Foundation - language switcher, home page TH/EN, cookie persistence | **partial coverage** | Language switcher: untested. Cookie persistence: untested. The home page TH/EN string rendering: untested at the spec level (covered indirectly by SAKNID assertions on every page). | B |
-| #38 | i18n | #38 i18n Full Site - all pages translated, hreflang SEO tags | **no coverage (gap)** | hreflang meta tag is not asserted. Per-page string coverage is not asserted. | B |
+| #26 | i18n | #26 Implement i18n with Thai/English language switcher | **partial coverage** | Switcher UI covered by tests/e2e/i18n-switcher.spec.ts (9 runnable tests: aria-labels, lang attribute, cookie persistence, swap in both directions, hero-title rendering). No import from src/; pinned literals at the top of the spec file. | B (in the B ticket) |
+| #37 | i18n | #37 i18n Foundation - language switcher, home page TH/EN, cookie persistence | **partial coverage** | Same as #26 - tests/e2e/i18n-switcher.spec.ts covers the switcher, the cookie, and the home-page TH/EN hero title. Cookie persistence verified via context.cookies(). | B |
+| #38 | i18n | #38 i18n Full Site - all pages translated, hreflang SEO tags | **partial coverage** | hreflang tags covered by tests/e2e/i18n-switcher.spec.ts (2 tests: presence of en/th/x-default, identical URLs pointing to the same pathname). Per-page string coverage is the work of ticket #67 once the i18n test fixture is in place. | B |
 | #27 | admin | #27 Investigate admin login bug | **fully covered** | Investigation; replaced by #28/#34 which are covered. | done |
 | #28 | admin | #28 Fix admin login bug | **fully covered** | admin.spec.ts + auth-admin.spec.ts cover the login flow end-to-end. | - |
 | #34 | admin | #34 Admin Login Fix - reliable authentication with clear error messages | **fully covered** | admin.spec.ts covers "server error message on wrong password" + "password required error". auth-admin.spec.ts covers the API. | - |
@@ -65,10 +65,10 @@ Static analysis only - the suite was not run. Pass/fail and runtime triage are i
 | #35 | chat | #35 Chat Research & Selection | **research / non-feature (excluded)** | Research output. Excluded. | out-of-scope |
 | #39 | chat | #39 Chat Architecture Design - data model, API, anti-bypass strategy | **partial coverage** | Design. Implementation tickets #60/#61/#62 own the coverage. | done |
 | #40 | chat | #40 Chat MVP - artist messaging with anti-bypass filtering, TH/EN support | **partial coverage** | TH/EN: not asserted. Anti-bypass: not asserted. Chat send/list: not asserted. | B |
-| #51 | chat | #51 Database schema for chat | **partial coverage** | Schema is exercised indirectly by future chat API tests (#60, #61, #62). No spec asserts the schema directly. | B |
-| #60 | chat | #60 Chat: D1 migration for conversations + messages | **no coverage (gap)** | No spec exercises the chat D1 tables. | B |
-| #61 | chat | #61 Chat: Send & list messages API | **no coverage (gap)** | No spec for the chat send/list endpoints. | B |
-| #62 | chat | #62 Chat: Artist inbox & conversations API | **no coverage (gap)** | No spec for the inbox endpoint. | B |
+| #51 | chat | #51 Database schema for chat | **partial coverage** | Schema is exercised by the API specs above (chat-send/conversations/messages spec files all hit the conversations and messages tables). No spec asserts the schema directly; that is a deeper test layer, probably better placed in a future "D1 schema" ticket rather than a Playwright e2e. | B |
+| #60 | chat | #60 Chat: D1 migration for conversations + messages | **partial coverage** | API covered (tests/e2e/api/chat-send.spec.ts covers the send shape; tests/e2e/api/chat-messages.spec.ts covers the list shape). UI send-from-browser is in flight on #50/#59/#63; spec is test.skip with a clear pointer. | B |
+| #61 | chat | #61 Chat: Send & list messages API | **partial coverage** | API covered by tests/e2e/api/chat-send.spec.ts (send) and tests/e2e/api/chat-messages.spec.ts (list). 6 request-shape and 1 auth-gate tests are runnable today; 8 happy-path tests are test.skip pending the #67 fixture work. | B |
+| #62 | chat | #62 Chat: Artist inbox & conversations API | **partial coverage** | API covered by tests/e2e/api/chat-conversations.spec.ts (list and get-single, with the artist JOIN). 3 runnable today, 7 test.skip pending the #67 fixture work. UI rendering of the inbox is covered by tests/e2e/chat-inbox.spec.ts (as-shipped mock data). | B |
 | #43 | misc | #43 04 - Better Auth foundation: D1 schema + API routes + login page | **partial coverage** | D1 schema: indirectly via auth-admin + better-auth-session. API routes: better-auth-session.spec.ts has 1 test - thin. Login page: auth-login.spec.ts has 1 test. | D |
 
 ## 2. Summary
@@ -76,32 +76,27 @@ Static analysis only - the suite was not run. Pass/fail and runtime triage are i
 | Status | Count | % |
 |---|---|---|
 | fully covered | 18 | 35% |
-| partial coverage | 22 | 43% |
-| no coverage (gap) | 8 | 16% |
+| partial coverage | 26 | 51% |
+| no coverage (gap) | 4 | 8% |
 | research / non-feature (excluded) | 3 | 6% |
 | **Total closed issues** | **51** | 100% |
 
-Coverage target: tickets labelled `Done` and that represent an implemented feature (excluding the 3 research/design/meta tickets). That is **48 in-scope issues**, of which **18 are fully covered, 22 partial, 8 gap**. Roughly **38% full coverage, 46% partial, 17% gap**.
+Coverage target: tickets labelled `Done` and that represent an implemented feature (excluding the 3 research/design/meta tickets). That is **48 in-scope issues**, of which **18 are fully covered, 26 partial, 4 gap**. Roughly **38% full coverage, 54% partial, 8% gap**. The 4 remaining hard gaps are #17 (webhooks), #20 (createPublicClient fallback), #21 (API middleware helper), and #46 (wallet backup to D1) - they route to ticket #67 (UI stabilise / refactors) and #68 (API contracts). Updated by ticket #66 (chat e2e gap): the four chat issues #60/#61/#62 and the three i18n issues #26/#37/#38 moved from gap/partial to partial, reflecting API-level coverage by the new spec files (25 runnable tests today, 29 test.skip pending the #67 fixture work).
 
-### Hard gaps (8) — these are the work
+### Hard gaps (4) — these are the work
 
 | # | Title | Routes to |
 |---|---|---|
 | #17 | #17 Add webhook signature verification - unauthenticated DB mutation | D |
 | #20 | #20 Extract createPublicClient + fallback transport factory | C |
 | #21 | #21 Extract API route boilerplate into middleware helper | C |
-| #38 | #38 i18n Full Site - all pages translated, hreflang SEO tags | B |
 | #46 | #46 05 - Wallet backup to D1 + cross-auth recovery | C |
-| #60 | #60 Chat: D1 migration for conversations + messages | B |
-| #61 | #61 Chat: Send & list messages API | B |
-| #62 | #62 Chat: Artist inbox & conversations API | B |
 
 Notes on the gap list:
 
-- **#38 i18n full site + hreflang** is the one gap that is not a chat issue. It belongs in ticket #66 as an i18n slice alongside the chat work, not as a stand-alone ticket. (The map flagged this as fog; the report graduates it.)
-- **#17 webhook signature verification** and **#20 / #21** (refactors) belong to #68 (API contracts) and #67 (UI stabilise) respectively, as already mapped.
+- **#17 webhook signature verification** and **#20 / #21** (refactors) belong to #68 (API contracts) and #67 (UI stabilise) respectively.
 - **#46 wallet backup / cross-auth recovery** belongs to #67 as a passkey-flow gap, alongside the existing partial coverage.
-- **#60, #61, #62** (chat D1 + send/list + inbox) are the obvious ones and the entire reason ticket #66 exists.
+- All four are auth-flow or refactor work; none have a stable testable surface in the current state of the repo.
 
 ### Partials (22) — surfaces that need widening, not new tests
 
@@ -120,6 +115,7 @@ Notes on the gap list:
 | #31 | #31 Implement chat MVP with booking integration | B | booking form covered; auto-created conversation not covered |
 | #32 | #32 Spec: Platform Features | done | - |
 | #37 | #37 i18n Foundation - language switcher, home page TH/EN, cookie persistence | B | switcher + cookie + TH/EN strings not asserted at spec level |
+| #38 | #38 i18n Full Site - all pages translated, hreflang SEO tags | B | - |
 | #39 | #39 Chat Architecture Design - data model, API, anti-bypass strategy | done | - |
 | #40 | #40 Chat MVP - artist messaging with anti-bypass filtering, TH/EN support | B | anti-bypass, TH/EN, send/list not asserted |
 | #41 | #41 Chat Booking Integration - booking references, history persistence, admin review | B | booking form covered; conversation + admin review not |
@@ -129,6 +125,9 @@ Notes on the gap list:
 | #45 | #45 02 - Passkey wallet client: create/unlock + nav integration | C | not-connected state covered; create/unlock interaction with real passkey is not |
 | #47 | #47 06 - Remove all Privy code | done | no Privy import asserted; the fact that nothing fails is the test |
 | #51 | #51 Database schema for chat | B | schema exercised indirectly by future chat API tests |
+| #60 | #60 Chat: D1 migration for conversations + messages | B | - |
+| #61 | #61 Chat: Send & list messages API | B | - |
+| #62 | #62 Chat: Artist inbox & conversations API | B | - |
 
 ## 3. Triage list (static, not runtime)
 
@@ -182,7 +181,8 @@ Real test count is closer to ~190 than 159. This affects only ticket #67 timing 
 ## 4. How downstream tickets (#66, #67, #68) should use this report
 
 - **#66 (chat e2e gap)** owns #60, #61, #62, #51, #41, #31, #40, and the chat slices of #26, #37, #38 (i18n on the chat surface). The anti-bypass behaviour from #30, #39, #40 must be asserted.
-- **#67 (UI stabilise)** owns #9 (vault), #11 (booking e2e), #12 (checkout e2e), #18 (chain assertion), #42, #45, #46 (passkey flow). Also owns the `waitForTimeout` fix in `nav.spec.ts`.
+  - **Status: largely delivered (this report's update).** The five new spec files at `tests/e2e/api/chat-*.spec.ts`, `tests/e2e/chat-inbox.spec.ts`, and `tests/e2e/i18n-switcher.spec.ts` cover the API surface directly. 25 tests are runnable today; 29 are `test.skip` pending the #67 fixture work. The UI half (ChatBox wiring, InboxView mock replacement) is deferred to the open tickets #50/#59/#63.
+- **#67 (UI stabilise)** owns #9 (vault), #11 (booking e2e), #12 (checkout e2e), #18 (chain assertion), #42, #45, #46 (passkey flow). Also owns the `waitForTimeout` fix in `nav.spec.ts`, **and** the chat-API fixture work that would un-skip the 29 test.skip tests in the new spec files. Owns the seeded-conversations D1 fixture that #60/#61/#62/#49 need.
 - **#68 (API contracts)** owns #17 (webhooks), #43 (Better Auth surface), and the thin-spot expansion in `auth-login.spec.ts` and `better-auth-session.spec.ts`.
 
 These routes supersede the guesses I made while charting the map.
