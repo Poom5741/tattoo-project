@@ -93,9 +93,14 @@ test.describe("Navigation", () => {
 
     const closeButton = page.locator("button[aria-label='Close menu']").first();
     await closeButton.click();
-    await page.waitForTimeout(500);
-    const transform = await panel.evaluate((el) => getComputedStyle(el).transform);
-    expect(transform).toContain("matrix(1, 0, 0, 1, 300, 0)");
+    // Wait for the slide-out transition to complete (was waitForTimeout(500)).
+    // The panel uses transition-transform duration-300 ease-out; assert the
+    // computed transform directly and let Playwright retry until it matches.
+    // Default expect timeout is 10s.
+    await expect(panel).toHaveCSS(
+      "transform",
+      "matrix(1, 0, 0, 1, 300, 0)"
+    );
   });
 
   test("Connect Wallet button text is correct", async ({ page }) => {
