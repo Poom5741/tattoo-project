@@ -38,16 +38,15 @@ import { DatabaseSync } from "node:sqlite";
 import { readdirSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
-/** Locate the local wrangler D1 file. Same logic as scripts/seed-dev-d1.ts. */
-function findD1Path(): string | null {
+/** Locate all local wrangler D1 files. Same logic as scripts/seed-dev-d1.ts. */
+function findD1Paths(): string[] {
   const d1Dir = ".wrangler/state/v3/d1/miniflare-D1DatabaseObject";
-  if (!existsSync(d1Dir)) return null;
+  if (!existsSync(d1Dir)) return [];
   const files = readdirSync(d1Dir)
     .filter((f: string) => f.endsWith(".sqlite") && !f.endsWith("-wal") && !f.endsWith("-shm"))
     .map((f: string) => ({ f, mtime: statSync(join(d1Dir, f)).mtimeMs }))
     .sort((a, b) => b.mtime - a.mtime);
-  if (files.length === 0) return null;
-  return join(d1Dir, files[0].f);
+  return files.map((f: { f: string }) => join(d1Dir, f.f));
 }
 
 /** Read the booking_inquiries rows created since `sinceMs` ago. */
@@ -61,37 +60,26 @@ function readBookingsSince(_epochMs: number): Array<{
   booking_type: string | null;
   status: string | null;
 }> {
-  const dbPath = findD1Path();
-  if (!dbPath) {
-    throw new Error(
-      `Local D1 not found. Run \`pnpm dev\` once and then \`pnpm db:seed:dev\`.`,
-    );
+  const dbPaths = findD1Paths();
+  const allRows: any[] = [];
+  for (const dbPath of dbPaths) {
+    const con = new DatabaseSync(dbPath, { readOnly: true });
+    try {
+      const rows = con
+        .prepare(
+          `SELECT id, artist_id, design_id, name, contact, message, booking_type, status
+           FROM booking_inquiries
+           WHERE name = ? AND contact = ?`,
+        )
+        .all("Smoke Buyer", "smoke-buyer@example.com");
+      allRows.push(...rows);
+    } catch {
+      // ignore
+    } finally {
+      con.close();
+    }
   }
-  const con = new DatabaseSync(dbPath, { readOnly: true });
-  try {
-    // The booking_inquiries table has no created_at column per the migration
-    // and the route INSERTs (no `created_at` in the column list). We filter
-    // by name+contact so the test only sees its own rows, not rows from
-    // prior runs or other tests.
-    return con
-      .prepare(
-        `SELECT id, artist_id, design_id, name, contact, message, booking_type, status
-         FROM booking_inquiries
-         WHERE name = ? AND contact = ?`,
-      )
-      .all("Smoke Buyer", "smoke-buyer@example.com") as Array<{
-        id: string;
-        artist_id: string;
-        design_id: string | null;
-        name: string;
-        contact: string;
-        message: string | null;
-        booking_type: string | null;
-        status: string | null;
-      }>;
-  } finally {
-    con.close();
-  }
+  return allRows;
 }
 
 test.describe("Buyer books a plate - end-to-end user flow", () => {

@@ -33,16 +33,15 @@ import { DatabaseSync } from "node:sqlite";
 import { readdirSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
-/** Locate the local wrangler D1 file. Same logic as the seed script. */
-function findD1Path(): string | null {
+/** Locate all local wrangler D1 files. Same logic as the seed script. */
+function findD1Paths(): string[] {
   const d1Dir = ".wrangler/state/v3/d1/miniflare-D1DatabaseObject";
-  if (!existsSync(d1Dir)) return null;
+  if (!existsSync(d1Dir)) return [];
   const files = readdirSync(d1Dir)
     .filter((f: string) => f.endsWith(".sqlite") && !f.endsWith("-wal") && !f.endsWith("-shm"))
     .map((f: string) => ({ f, mtime: statSync(join(d1Dir, f)).mtimeMs }))
     .sort((a, b) => b.mtime - a.mtime);
-  if (files.length === 0) return null;
-  return join(d1Dir, files[0].f);
+  return files.map((f: { f: string }) => join(d1Dir, f.f));
 }
 
 const PENDING_DESIGN_ID = "d-test-pending-001";
@@ -54,67 +53,71 @@ interface DesignRow {
 
 /** Insert a known pending design row so the dashboard has something to show. */
 function insertPendingDesign(): void {
-  const dbPath = findD1Path();
-  if (!dbPath) {
-    throw new Error(
-      "Local D1 not found. Run `pnpm dev` once and then `pnpm db:seed:dev`.",
-    );
-  }
-  const con = new DatabaseSync(dbPath);
-  try {
-    con.exec("BEGIN");
-    con
-      .prepare(
-        `INSERT OR REPLACE INTO designs (
-          id, n, title, artist_id, style, price, placement, medium,
-          status, selling_mode, royalty_pct, image_url
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
-      )
-      .run(
-        PENDING_DESIGN_ID,
-        "999",
-        "Admin Smoke Test Plate",
-        "mara",
-        "Fine Line",
-        1.0,
-        "Test placement",
-        "Test medium",
-        "one-time",
-        null,
-        null,
-      );
-    con.exec("COMMIT");
-  } catch (err) {
-    con.exec("ROLLBACK");
-    throw err;
-  } finally {
-    con.close();
+  const dbPaths = findD1Paths();
+  for (const dbPath of dbPaths) {
+    const con = new DatabaseSync(dbPath);
+    try {
+      con.exec("BEGIN");
+      con
+        .prepare(
+          `INSERT OR REPLACE INTO designs (
+            id, n, title, artist_id, style, price, placement, medium,
+            status, selling_mode, royalty_pct, image_url
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending', ?, ?, ?)`,
+        )
+        .run(
+          PENDING_DESIGN_ID,
+          "999",
+          "Admin Smoke Test Plate",
+          "mara",
+          "Fine Line",
+          1.0,
+          "Test placement",
+          "Test medium",
+          "one-time",
+          null,
+          null,
+        );
+      con.exec("COMMIT");
+    } catch {
+      con.exec("ROLLBACK");
+    } finally {
+      con.close();
+    }
   }
 }
 
 /** Read a design row by id. */
 function readDesign(id: string): DesignRow | null {
-  const dbPath = findD1Path();
-  if (!dbPath) return null;
-  const con = new DatabaseSync(dbPath, { readOnly: true });
-  try {
-    return con
-      .prepare("SELECT id, status FROM designs WHERE id = ?")
-      .get(id) as unknown as DesignRow | undefined ?? null;
-  } finally {
-    con.close();
+  const dbPaths = findD1Paths();
+  for (const dbPath of dbPaths) {
+    const con = new DatabaseSync(dbPath, { readOnly: true });
+    try {
+      const row = con
+        .prepare("SELECT id, status FROM designs WHERE id = ?")
+        .get(id) as unknown as DesignRow | undefined ?? null;
+      if (row) return row;
+    } catch {
+      // ignore
+    } finally {
+      con.close();
+    }
   }
+  return null;
 }
 
 /** Remove the test pending design. Safe to call multiple times. */
 function removePendingDesign(): void {
-  const dbPath = findD1Path();
-  if (!dbPath) return;
-  const con = new DatabaseSync(dbPath);
-  try {
-    con.prepare("DELETE FROM designs WHERE id = ?").run(PENDING_DESIGN_ID);
-  } finally {
-    con.close();
+  const dbPaths = findD1Paths();
+  for (const dbPath of dbPaths) {
+    const con = new DatabaseSync(dbPath);
+    try {
+      con.prepare("DELETE FROM designs WHERE id = ?").run(PENDING_DESIGN_ID);
+    } catch {
+      // ignore
+    } finally {
+      con.close();
+    }
   }
 }
 

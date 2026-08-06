@@ -26,16 +26,15 @@ import { DatabaseSync } from "node:sqlite";
 import { readdirSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
-/** Locate the local wrangler D1 file. Same logic as the seed script. */
-function findD1Path(): string | null {
+/** Locate all local wrangler D1 files. Same logic as the seed script. */
+function findD1Paths(): string[] {
   const d1Dir = ".wrangler/state/v3/d1/miniflare-D1DatabaseObject";
-  if (!existsSync(d1Dir)) return null;
+  if (!existsSync(d1Dir)) return [];
   const files = readdirSync(d1Dir)
     .filter((f: string) => f.endsWith(".sqlite") && !f.endsWith("-wal") && !f.endsWith("-shm"))
     .map((f: string) => ({ f, mtime: statSync(join(d1Dir, f)).mtimeMs }))
     .sort((a, b) => b.mtime - a.mtime);
-  if (files.length === 0) return null;
-  return join(d1Dir, files[0].f);
+  return files.map((f: { f: string }) => join(d1Dir, f.f));
 }
 
 interface BookingRow {
@@ -53,36 +52,45 @@ interface BookingRow {
 }
 
 function readBookingsForContact(contact: string): BookingRow[] {
-  const dbPath = findD1Path();
-  if (!dbPath) return [];
-  const con = new DatabaseSync(dbPath, { readOnly: true });
-  try {
-    return con
-      .prepare(
-        `SELECT id, artist_id, design_id, name, contact, message, booking_type,
-                custom_style, custom_size, custom_placement, custom_budget
-         FROM booking_inquiries
-         WHERE contact = ?`,
-      )
-      .all(contact) as unknown as BookingRow[];
-  } finally {
-    con.close();
+  const dbPaths = findD1Paths();
+  const allRows: BookingRow[] = [];
+  for (const dbPath of dbPaths) {
+    const con = new DatabaseSync(dbPath, { readOnly: true });
+    try {
+      const rows = con
+        .prepare(
+          `SELECT id, artist_id, design_id, name, contact, message, booking_type,
+                  custom_style, custom_size, custom_placement, custom_budget
+           FROM booking_inquiries
+           WHERE contact = ?`,
+        )
+        .all(contact) as unknown as BookingRow[];
+      allRows.push(...rows);
+    } catch {
+      // ignore
+    } finally {
+      con.close();
+    }
   }
+  return allRows;
 }
 
 /** Remove test rows so the spec is repeatable. */
 function cleanTestRows(names: string[]): void {
-  const dbPath = findD1Path();
-  if (!dbPath) return;
-  const con = new DatabaseSync(dbPath);
-  try {
-    for (const n of names) {
-      con
-        .prepare("DELETE FROM booking_inquiries WHERE name = ? OR contact = ?")
-        .run(n, n);
+  const dbPaths = findD1Paths();
+  for (const dbPath of dbPaths) {
+    const con = new DatabaseSync(dbPath);
+    try {
+      for (const n of names) {
+        con
+          .prepare("DELETE FROM booking_inquiries WHERE name = ? OR contact = ?")
+          .run(n, n);
+      }
+    } catch {
+      // ignore
+    } finally {
+      con.close();
     }
-  } finally {
-    con.close();
   }
 }
 
@@ -104,8 +112,8 @@ test.describe("Booking form variants - end-to-end user flow", () => {
   });
 
   test("plate mode -> submit -> reset -> custom mode -> submit -> 2 D1 rows", async ({ page }) => {
-    const dbPath = findD1Path();
-    if (!dbPath) {
+    const dbPaths = findD1Paths();
+    if (dbPaths.length === 0) {
       test.skip(
         true,
         "Local D1 not found. Run `pnpm dev` once and then `pnpm db:seed:dev`.",
