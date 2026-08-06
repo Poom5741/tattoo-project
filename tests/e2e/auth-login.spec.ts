@@ -46,7 +46,7 @@ test.describe("Login page (/auth/login)", () => {
     await expect(card).toBeVisible();
 
     // Check icon container
-    const icon = page.locator("div").filter({ has: page.locator("text=⬡") });
+    const icon = page.locator("div").filter({ has: page.locator("text=⬡") }).first();
     await expect(icon).toBeVisible();
   });
 });

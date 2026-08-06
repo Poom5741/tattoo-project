@@ -19,7 +19,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const expected = env.ADMIN_PASSWORD ?? "saknid2026";
   if (!password || typeof password !== "string" || password.length === 0) {
     return new Response(JSON.stringify({ error: "Password is required" }), {
-      status: 400,
+      status: 401,
       headers: { "Content-Type": "application/json" },
     });
   }
