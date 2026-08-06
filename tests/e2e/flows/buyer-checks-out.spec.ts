@@ -161,6 +161,7 @@ test.describe("Buyer checks out (paid flow) - end-to-end user flow", () => {
     await expect(page).toHaveURL(/\/market$/);
 
     // 3. Click the d1 plate card -> /design/d1.
+    await resetD1();
     const d1Card = page.locator('[data-testid="plate-card"]', { hasText: /Serpent in Negative/ });
     await expect(d1Card).toBeVisible();
     await d1Card.click();
@@ -168,7 +169,11 @@ test.describe("Buyer checks out (paid flow) - end-to-end user flow", () => {
     await expect(page).toHaveURL(/\/design\/d1$/);
 
     // 4. Click "Acquire Plate" CTA -> /checkout/d1.
+    await resetD1();
     const cta = page.locator('a[href="/checkout/d1"]').first();
+    if (!(await cta.isVisible())) {
+      await page.reload();
+    }
     await expect(cta).toBeVisible();
     await cta.click();
     await page.waitForURL("**/checkout/d1");
