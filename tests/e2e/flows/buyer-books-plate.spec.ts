@@ -102,7 +102,7 @@ test.describe("Buyer books a plate - end-to-end user flow", () => {
 
     // 2. Navigate to /market via the nav (the link is rendered by <Nav>;
     //    it's text 'Market' in the desktop nav).
-    const marketLink = page.locator("header nav a", { hasText: /^Market$/ }).first();
+    const marketLink = page.locator("header nav a[href='/market']").first();
     await marketLink.click();
     await page.waitForURL("**/market");
     await expect(page).toHaveURL(/\/market$/);

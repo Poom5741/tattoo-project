@@ -146,7 +146,7 @@ test.describe("Buyer checks out (paid flow) - end-to-end user flow", () => {
     await expect(page).toHaveTitle(/SAKNID/);
 
     // 2. Navigate to /market via the nav link.
-    const marketLink = page.locator("header nav a", { hasText: /^Market$/ }).first();
+    const marketLink = page.locator("header nav a[href='/market']").first();
     await marketLink.click();
     await page.waitForURL("**/market");
     await expect(page).toHaveURL(/\/market$/);
