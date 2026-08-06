@@ -29,7 +29,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const root = resolve(__dirname, "..");
 const d1Dir = join(root, ".wrangler/state/v3/d1/miniflare-D1DatabaseObject");
 
-function findD1Path(): string {
+function findD1Paths(): string[] {
   if (!existsSync(d1Dir)) {
     mkdirSync(d1Dir, { recursive: true });
   }
@@ -41,9 +41,9 @@ function findD1Path(): string {
     }))
     .sort((a, b) => b.mtime - a.mtime);
   if (files.length === 0) {
-    return join(d1Dir, "dev.sqlite");
+    return [join(d1Dir, "dev.sqlite")];
   }
-  return join(d1Dir, files[0].f);
+  return files.map((file) => join(d1Dir, file.f));
 }
 
 function execScript(con: DatabaseSync, sql: string): void {
@@ -131,47 +131,49 @@ function seedTestConversation(con: DatabaseSync): void {
 
 function main(): void {
   const reset = process.argv.includes("--reset");
-  const dbPath = findD1Path();
-  console.log(`Local D1: ${dbPath}`);
+  const dbPaths = findD1Paths();
+  console.log(`Local D1 target(s): ${dbPaths.join(", ")}`);
 
-  if (reset) {
-    console.log("--reset: deleting and recreating the D1 file");
-    unlinkSync(dbPath);
-    for (const ext of ["-wal", "-shm"]) {
-      const p = dbPath + ext;
-      if (existsSync(p)) unlinkSync(p);
+  for (const dbPath of dbPaths) {
+    if (reset) {
+      console.log(`--reset: deleting and recreating ${dbPath}`);
+      if (existsSync(dbPath)) unlinkSync(dbPath);
+      for (const ext of ["-wal", "-shm"]) {
+        const p = dbPath + ext;
+        if (existsSync(p)) unlinkSync(p);
+      }
     }
-  }
 
-  const con = new DatabaseSync(dbPath);
-  con.exec("PRAGMA journal_mode = WAL");
-  con.exec("PRAGMA foreign_keys = OFF");
-  try {
-    console.log("Applying migrations:");
-    con.exec("BEGIN");
+    const con = new DatabaseSync(dbPath);
+    con.exec("PRAGMA journal_mode = WAL");
+    con.exec("PRAGMA foreign_keys = OFF");
     try {
-      applyMigrations(con);
-      con.exec("COMMIT");
-    } catch (e) {
-      con.exec("ROLLBACK");
-      throw e;
+      console.log(`Applying migrations to ${dbPath}:`);
+      con.exec("BEGIN");
+      try {
+        applyMigrations(con);
+        con.exec("COMMIT");
+      } catch (e) {
+        con.exec("ROLLBACK");
+        throw e;
+      }
+      con.exec("PRAGMA foreign_keys = ON");
+      console.log(`Seeding test conversation in ${dbPath}:`);
+      seedTestConversation(con);
+      // Verify
+      const tables = con
+        .prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
+        .all() as { name: string }[];
+      console.log(`Tables: ${tables.map((t) => t.name).join(", ")}`);
+      const conv = con
+        .prepare("SELECT id, client_id, artist_id, status FROM conversations")
+        .all() as { id: string; client_id: string; artist_id: string; status: string }[];
+      console.log(`Conversations: ${conv.length} row(s) - ${conv.map((c) => c.id).join(", ")}`);
+      const msgs = con.prepare("SELECT COUNT(*) as n FROM messages").get() as { n: number };
+      console.log(`Messages: ${msgs.n} row(s)`);
+    } finally {
+      con.close();
     }
-    con.exec("PRAGMA foreign_keys = ON");
-    console.log("Seeding test conversation:");
-    seedTestConversation(con);
-    // Verify
-    const tables = con
-      .prepare("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name")
-      .all() as { name: string }[];
-    console.log(`Tables: ${tables.map((t) => t.name).join(", ")}`);
-    const conv = con
-      .prepare("SELECT id, client_id, artist_id, status FROM conversations")
-      .all() as { id: string; client_id: string; artist_id: string; status: string }[];
-    console.log(`Conversations: ${conv.length} row(s) - ${conv.map((c) => c.id).join(", ")}`);
-    const msgs = con.prepare("SELECT COUNT(*) as n FROM messages").get() as { n: number };
-    console.log(`Messages: ${msgs.n} row(s)`);
-  } finally {
-    con.close();
   }
   console.log("Done.");
 }
