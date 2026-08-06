@@ -44,16 +44,15 @@ import { DatabaseSync } from "node:sqlite";
 import { readdirSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
-/** Locate the local wrangler D1 file. Same logic as the seed script. */
-function findD1Path(): string | null {
+/** Locate all local wrangler D1 files. Same logic as the seed script. */
+function findD1Paths(): string[] {
   const d1Dir = ".wrangler/state/v3/d1/miniflare-D1DatabaseObject";
-  if (!existsSync(d1Dir)) return null;
+  if (!existsSync(d1Dir)) return [];
   const files = readdirSync(d1Dir)
     .filter((f: string) => f.endsWith(".sqlite") && !f.endsWith("-wal") && !f.endsWith("-shm"))
     .map((f: string) => ({ f, mtime: statSync(join(d1Dir, f)).mtimeMs }))
     .sort((a, b) => b.mtime - a.mtime);
-  if (files.length === 0) return null;
-  return join(d1Dir, files[0].f);
+  return files.map((f: { f: string }) => join(d1Dir, f.f));
 }
 
 interface DesignRow {
@@ -107,24 +106,23 @@ function readTransactionsForDesign(designId: string): TransactionRow[] {
  * might leave d1 in 'reserved' state if the 200 path was taken.
  */
 async function resetD1(): Promise<void> {
-  const dbPath = findD1Path();
-  if (!dbPath) return;
-  // Use a write connection to reset state.
-  const con = new DatabaseSync(dbPath);
-  try {
-    con.exec("BEGIN");
-    con
-      .prepare("UPDATE designs SET status = 'available', reserved_until = NULL WHERE id = 'd1'")
-      .run();
-    con
-      .prepare("DELETE FROM chillpay_transactions WHERE design_id = 'd1'")
-      .run();
-    con.exec("COMMIT");
-  } catch (err) {
-    con.exec("ROLLBACK");
-    throw err;
-  } finally {
-    con.close();
+  const dbPaths = findD1Paths();
+  for (const dbPath of dbPaths) {
+    const con = new DatabaseSync(dbPath);
+    try {
+      con.exec("BEGIN");
+      con
+        .prepare("UPDATE designs SET status = 'available', reserved_until = NULL WHERE id = 'd1'")
+        .run();
+      con
+        .prepare("DELETE FROM chillpay_transactions WHERE design_id = 'd1'")
+        .run();
+      con.exec("COMMIT");
+    } catch {
+      con.exec("ROLLBACK");
+    } finally {
+      con.close();
+    }
   }
 }
 

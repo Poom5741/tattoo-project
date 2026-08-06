@@ -95,6 +95,17 @@ function readBookingsSince(_epochMs: number): Array<{
 }
 
 test.describe("Buyer books a plate - end-to-end user flow", () => {
+  test.beforeEach(() => {
+    // Reset d1 status to available so the booking CTA renders
+    const dbPaths = findD1Paths();
+    for (const p of dbPaths) {
+      const con = new DatabaseSync(p);
+      try {
+        con.prepare("UPDATE designs SET status = 'available' WHERE id = 'd1'").run();
+      } catch {} finally { con.close(); }
+    }
+  });
+
   test("home -> market -> design d1 -> booking -> submit -> DB row", async ({ page }) => {
     // 1. Land on home.
     await page.goto("/");
