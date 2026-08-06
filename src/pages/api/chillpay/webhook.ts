@@ -146,18 +146,17 @@ export const POST: APIRoute = async ({ request, locals }) => {
       await db
         .prepare(
           `INSERT INTO earnings(
-            id, artist_id, design_id, type, amount, platform_fee, 
+            artist_id, design_id, type, amount, platform_fee, 
             tx_hash, payment_method, created_at
-          ) VALUES (?, ?, ?, 'primary_sale', ?, ?, ?, 'chillpay', ?)`
+          ) VALUES (?, ?, 'primary_sale', ?, ?, ?, 'chillpay', ?)`
         )
         .bind(
-          randomUUID(),
           design.artist_id,
           design.id,
           artistAmount,
           platformFee,
           `chillpay:${transactionId}`,
-          new Date().toISOString()
+          Math.floor(Date.now() / 1000)
         )
         .run();
     }
