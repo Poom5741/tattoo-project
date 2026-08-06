@@ -113,14 +113,11 @@ test.describe("Artist chat inbox - end-to-end user flow", () => {
     expect(posted).toBe(false);
   });
 
-  test("/artist/inbox is publicly accessible (auth-gate regression guard, see #71)", async ({ page }) => {
-    // The inbox page has no auth check. Visiting it without a
-    // session should render the inbox UI. When #71 lands (auth-gate
-    // fix), this test should be updated to expect a redirect to
-    // the sign-in gate.
-    const response = await page.goto("/artist/inbox");
-    expect(response?.status()).not.toBe(500);
-    await expect(page.locator("body")).toBeVisible();
+  test("/artist/inbox redirects to /artist/portal when not authenticated", async ({ page }) => {
+    // The inbox page now has an auth gate (middleware). Visiting it
+    // without a session should redirect to /artist/portal.
+    await page.goto("/artist/inbox");
+    await expect(page).toHaveURL(/\/artist\/portal/);
   });
 
   test("MOCK rows show the unread badge for John D. (unread: 2)", async ({ page }) => {
@@ -171,12 +168,12 @@ test.describe("Artist chat inbox - end-to-end user flow", () => {
     test.skip(true, "wiring in flight on #50, #59, #63; see map #53");
   });
 
-  test.skip("/artist/inbox is auth-gated (redirects unauthenticated requests)", async ({ page }) => {
+  test("/artist/inbox is auth-gated (redirects unauthenticated requests)", async ({ page }) => {
     // After #71 lands, /artist/inbox should redirect to the artist
-    // sign-in page when no artist session is present. The current
-    // "publicly accessible" test above documents the bug; this
-    // test will pass when the fix lands.
-    test.skip(true, "auth-gating is out of scope; needs ticket #71");
+    // sign-in page when no artist session is present. This test
+    // verifies the fix.
+    await page.goto("/artist/inbox");
+    await expect(page).toHaveURL(/\/artist\/portal/);
   });
 
   test.skip("anti-bypass: a client message containing http(s):// is flagged in the UI", async ({ page }) => {

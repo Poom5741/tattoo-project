@@ -22,10 +22,8 @@
  * Source: src/pages/artist/inbox.astro, src/components/InboxView.tsx,
  * src/components/ChatBox.tsx.
  *
- * Important: this page does NOT auth-gate. The Astro file has no
- * session check. That is a real finding and is reported in the
- * resolution comment for this ticket, but it is not in scope to fix
- * here (the fix is a small follow-up ticket on map #48 / #53).
+ * Important: this page DOES auth-gate. The middleware redirects
+ * unauthenticated requests to /artist/portal. This was fixed in #71.
  */
 
 import { test, expect } from "@playwright/test";
@@ -110,7 +108,8 @@ test.describe("/artist/inbox — as intended (deferred until #50, #59, #63 land)
   test("/artist/inbox is auth-gated (redirects unauthenticated requests)", async ({
     page,
   }) => {
-    // The page is publicly accessible today. It should not be.
-    test.skip(true, "auth-gating is out of scope; needs a separate ticket");
+    // The page should redirect to /artist/portal when not authenticated.
+    await page.goto("/artist/inbox");
+    await expect(page).toHaveURL(/\/artist\/portal/);
   });
 });
