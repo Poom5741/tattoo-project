@@ -48,7 +48,7 @@ const TH_DESIGN_CERTIFICATE = "ใบรับรองเพลท";
 const TH_DESIGN_AVAILABLE = "พร้อมขาย";
 // Nav labels (src/locales/th.json#nav.*) — pinned at spec-write time.
 const TH_NAV_GALLERY = "แกลเลอรี";
-const EN_HERO_TITLE = "Ink you can own.";
+const EN_HERO_TITLE = "One plate";
 
 /** Switch the locale by clicking the appropriate switcher button. */
 async function switchLocale(page: Page, target: "th" | "en"): Promise<void> {
