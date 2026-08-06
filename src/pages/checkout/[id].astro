@@ -19,6 +19,10 @@ interface DesignRow {
   status: string;
   placement: string | null;
   seed: number | null;
+  selling_mode: string;
+  royalty_pct: number | null;
+  image_url: string | null;
+  token_id: number | null;
 }
 
 let design: DesignRow | null = null;
@@ -26,7 +30,7 @@ let design: DesignRow | null = null;
 try {
   const db = Astro.locals.runtime.env.DB;
   design = await db
-    .prepare("SELECT * FROM designs WHERE id = ?")
+    .prepare("SELECT id, n, title, artist_id, style, price, price_usd, status, placement, seed, selling_mode, royalty_pct, image_url, token_id FROM designs WHERE id = ?")
     .bind(id)
     .first<DesignRow>();
 
@@ -43,21 +47,7 @@ try {
   console.error("checkout SSR D1 error:", e);
 }
 
-// Fallback design object for seeded design ID if D1 query returns null
-if (!design && id === "d1") {
-  design = {
-    id: "d1",
-    n: "001",
-    title: "Serpent in Negative",
-    artist_id: "mara",
-    style: "Fine Line",
-    price: 1.2,
-    price_usd: 2976,
-    status: "available",
-    placement: "Forearm · 16cm",
-    seed: 11,
-  };
-}
+
 
 if (!design) {
   return Astro.redirect("/market");
