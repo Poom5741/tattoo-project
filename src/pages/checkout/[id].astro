@@ -27,8 +27,8 @@ try {
   const apiUrl = new URL(`/api/designs/${id}`, Astro.url);
   const res = await fetch(apiUrl.toString());
   if (res.ok) {
-    const data = await res.json() as { design: DesignRow };
-    design = data.design;
+    const data = await res.json() as any;
+    design = (data.design ?? data) as DesignRow;
   }
 } catch {
   // fallback
