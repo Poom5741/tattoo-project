@@ -1,0 +1,52 @@
+# Deploy to Cloudflare Pages on push to main.
+#
+# Requires the following GitHub secrets:
+#   CLOUDFLARE_API_TOKEN  — Cloudflare API token with Pages:Edit permission
+#   CLOUDFLARE_ACCOUNT_ID — Cloudflare account ID
+#
+# The project "inknoir" must already exist in Cloudflare Pages.
+
+name: deploy
+
+on:
+  push:
+    branches: [main]
+
+# Only one deploy at a time; cancel stale in-flight deploys.
+concurrency:
+  group: deploy-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build
+        run: pnpm build
+        env:
+          NODE_OPTIONS: "--max-old-space-size=4096"
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy dist --project-name=inknoir --branch=main
