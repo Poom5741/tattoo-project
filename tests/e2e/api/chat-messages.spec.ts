@@ -112,11 +112,28 @@ test.describe("GET /api/chat/messages/[conversationId] - as admin", () => {
   });
 
   test("calling this endpoint resets conversations.unread to 0", async ({ adminRequest }) => {
-    // Set unread to a known value, then GET messages, then check unread.
-    // We do this via a follow-up GET on /api/chat/conversations/conv-test-001.
-    // (We need the conversations route to be readable. If it returns 401
-    // we'll skip - this test depends on the auth flow used by the
-    // conversations route, which differs from the messages route.)
-    test.skip(true, "depends on the conversations route auth flow; see ticket #68");
+    // Set unread to a known value using direct DB access
+    const dbPath = ".wrangler/state/v3/d1/miniflare-D1DatabaseObject/1592d9cc77fea325489abb3dab1e519efa56c739ccc21459c9fd7e0fe8f85b56.sqlite";
+    const { DatabaseSync } = await import("node:sqlite");
+    const con = new DatabaseSync(dbPath);
+    
+    // Set unread to 5
+    con.exec("UPDATE conversations SET unread = 5 WHERE id = 'conv-test-001'");
+    
+    // Verify it's set
+    const beforeUpdate = con.prepare("SELECT unread FROM conversations WHERE id = 'conv-test-001'").get() as { unread: number };
+    expect(beforeUpdate.unread).toBe(5);
+    
+    con.close();
+    
+    // Call GET messages - this should reset unread to 0
+    const res = await adminRequest.get("/api/chat/messages/conv-test-001");
+    expect(res.status()).toBe(200);
+    
+    // Verify unread was reset to 0
+    const con2 = new DatabaseSync(dbPath);
+    const afterUpdate = con2.prepare("SELECT unread FROM conversations WHERE id = 'conv-test-001'").get() as { unread: number };
+    expect(afterUpdate.unread).toBe(0);
+    con2.close();
   });
 });
