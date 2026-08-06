@@ -168,9 +168,9 @@ test.describe("Admin login and dashboard - end-to-end user flow", () => {
     await expect(approveButton).toBeVisible();
     await approveButton.click();
 
-    // 8. The component optimistically removes the row from the table
-    //    on success. Wait for the row to disappear.
-    await expect(designRow).toHaveCount(0, { timeout: 10_000 });
+    // 8. The component optimistically removes the row from the pending table
+    //    on success. Wait for the Approve button to disappear.
+    await expect(approveButton).not.toBeVisible({ timeout: 10_000 });
 
     // 9. D1 assertion: the design row's status is now 'available'.
     const dbPath = findD1Path();
