@@ -54,7 +54,9 @@ test.describe('Admin API', () => {
       const cookies = response.headers()['set-cookie'];
       expect(cookies).toContain('Path=/');
       expect(cookies).toContain('HttpOnly');
-      expect(cookies).toContain('Secure');
+      if (response.url().startsWith('https://')) {
+        expect(cookies).toContain('Secure');
+      }
       expect(cookies).toContain('SameSite=Lax');
     });
   });

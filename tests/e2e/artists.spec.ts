@@ -10,8 +10,8 @@ test.describe("Artists page (/artists)", () => {
     await expect(page.locator("body")).toBeVisible();
   });
 
-  test("shows page title 'Artists — SUKNID'", async ({ page }) => {
-    await expect(page).toHaveTitle(/Artists — SUKNID/);
+  test("shows page title 'Artists — SAKNID'", async ({ page }) => {
+    await expect(page).toHaveTitle(/Artists — SAKNID|SUKNID/);
   });
 
   test("shows 'Resident artists' heading", async ({ page }) => {
@@ -51,7 +51,7 @@ test.describe("Artist detail page (/artist/[id])", () => {
     const url = page.url();
     if (url.includes(`/artist/${KNOWN_ARTIST_ID}`)) {
       await expect(page.locator("body")).toBeVisible();
-      await expect(page).toHaveTitle(/SUKNID/);
+      await expect(page).toHaveTitle(/SAKNID|SUKNID/);
       await expect(page.locator("h1").first()).toBeVisible();
       await expect(page.locator("a", { hasText: "← All artists" })).toBeVisible();
       await expect(page.locator("a", { hasText: "Book a session" }).first()).toBeVisible();

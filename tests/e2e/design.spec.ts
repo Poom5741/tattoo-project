@@ -21,7 +21,7 @@ test.describe("Design detail page (/design/[id])", () => {
     if (url.includes(`/design/${KNOWN_AVAILABLE_DESIGN_ID}`)) {
       // Design found in DB
       await expect(page.locator("body")).toBeVisible();
-      await expect(page).toHaveTitle(/SUKNID/);
+      await expect(page).toHaveTitle(/S[AK]KNID/);
 
       // Should show design title (use .first() — Astro dev toolbar also injects h1 elements)
       await expect(page.locator("h1").first()).toContainText("Serpent in Negative");
