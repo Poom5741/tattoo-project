@@ -31,6 +31,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
   const db = env.DB;
   let d1Ms = 0;
+  let conversationId: string | null = null;
 
   try {
     const d1Start = Date.now();
@@ -40,6 +41,43 @@ export const POST: APIRoute = async ({ request, locals }) => {
       )
       .bind(artistId, designId ?? null, name, contact, message ?? null, bookingType, customStyle ?? null, customSize ?? null, customPlacement ?? null, customBudget ?? null)
       .run();
+
+    // Auto-create chat conversation thread and initial message
+    const clientId = locals.user?.id ?? contact;
+    const now = Math.floor(Date.now() / 1000);
+    const initialText = message ? `Booking Inquiry: ${message}` : `New ${bookingType} booking inquiry from ${name}`;
+
+    // Check if conversation thread already exists
+    const existing = await db
+      .prepare("SELECT id FROM conversations WHERE client_id = ? AND artist_id = ? AND status = 'active'")
+      .bind(clientId, artistId)
+      .first<{ id: string }>();
+
+    if (existing) {
+      conversationId = existing.id;
+      await db
+        .prepare("UPDATE conversations SET last_message = ?, last_message_at = ?, unread = unread + 1 WHERE id = ?")
+        .bind(initialText, now, conversationId)
+        .run();
+    } else {
+      conversationId = randomUUID();
+      await db
+        .prepare(
+          "INSERT INTO conversations (id, client_id, artist_id, design_id, last_message, last_message_at, unread, status, created_at) VALUES (?, ?, ?, ?, ?, ?, 1, 'active', ?)"
+        )
+        .bind(conversationId, clientId, artistId, designId ?? null, initialText, now, now)
+        .run();
+    }
+
+    // Insert initial message
+    const messageId = randomUUID();
+    await db
+      .prepare(
+        "INSERT INTO messages (id, conversation_id, sender_id, sender_role, text, created_at) VALUES (?, ?, ?, 'client', ?, ?)"
+      )
+      .bind(messageId, conversationId, clientId, initialText, now)
+      .run();
+
     d1Ms = Date.now() - d1Start;
   } catch (err) {
     console.log(
@@ -60,7 +98,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     JSON.stringify({ request_id: requestId, route: "/api/bookings", status: 200, duration_ms: Date.now() - start, d1_query_ms: d1Ms })
   );
 
-  return new Response(JSON.stringify({ ok: true }), {
+  return new Response(JSON.stringify({ ok: true, conversationId }), {
     status: 200,
     headers: { "Content-Type": "application/json" },
   });

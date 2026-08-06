@@ -53,7 +53,7 @@ test.describe("POST /api/bookings", () => {
     expect(res.status()).toBe(400);
   });
 
-  test("returns 200 with valid booking data (plate type) when DB is seeded", async ({ request }) => {
+  test("returns 200 with valid booking data and conversationId when DB is seeded", async ({ request }) => {
     const res = await request.post("/api/bookings", {
       data: {
         artistId: "mara",
@@ -68,6 +68,8 @@ test.describe("POST /api/bookings", () => {
     if (res.status() === 200) {
       const body = await res.json();
       expect(body).toHaveProperty("ok", true);
+      expect(body).toHaveProperty("conversationId");
+      expect(typeof body.conversationId).toBe("string");
     }
   });
 
