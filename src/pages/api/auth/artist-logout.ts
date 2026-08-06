@@ -11,11 +11,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
     await env.SESSION.delete(`artist:${token}`).catch(() => {});
   }
 
+  const isSecure = request.url.startsWith("https://");
+  const secureFlag = isSecure ? "Secure; " : "";
+
   const headers = new Headers();
   headers.set("Location", "/artist/portal");
   // Clear cookie at Path=/
-  headers.append("Set-Cookie", "artist_token=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0");
-  headers.append("Set-Cookie", "artist_token=; Path=/artist; HttpOnly; Secure; SameSite=Lax; Max-Age=0");
+  headers.append("Set-Cookie", `artist_token=; Path=/; HttpOnly; ${secureFlag}SameSite=Lax; Max-Age=0`);
+  headers.append("Set-Cookie", `artist_token=; Path=/artist; HttpOnly; ${secureFlag}SameSite=Lax; Max-Age=0`);
 
   return new Response(null, { status: 302, headers });
 };

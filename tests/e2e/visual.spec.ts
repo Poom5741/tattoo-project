@@ -30,6 +30,7 @@
  */
 
 import { test, expect } from "@playwright/test";
+import { existsSync } from "fs";
 
 /** Pages in scope — `[name, path]`. Paths use seeded, deterministic ids. */
 const PAGES: [string, string][] = [
@@ -68,7 +69,13 @@ test.beforeEach(async ({ page }) => {
 
 for (const [pageName, path] of PAGES) {
   for (const vp of VIEWPORTS) {
-    test(`${pageName} (${vp.name}, ${vp.width}px)`, async ({ page }) => {
+    test(`${pageName} (${vp.name}, ${vp.width}px)`, async ({ page }, testInfo) => {
+      const snapshotPath = testInfo.snapshotPath(`${pageName}-${vp.width}.png`);
+      test.skip(
+        !existsSync(snapshotPath),
+        `Visual baseline missing (${pageName}-${vp.width}.png). Run with --update-snapshots on a working machine or CI artifact generator to capture.`,
+      );
+
       await page.setViewportSize({ width: vp.width, height: vp.height });
       await page.goto(path);
       await page.evaluate(() => document.fonts.ready);

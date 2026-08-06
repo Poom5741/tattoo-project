@@ -11,11 +11,14 @@ export const POST: APIRoute = async ({ request, locals }) => {
     await env.SESSION.delete(`admin:${token}`).catch(() => {});
   }
 
+  const isSecure = request.url.startsWith("https://");
+  const secureFlag = isSecure ? "Secure; " : "";
+
   return new Response(null, {
     status: 302,
     headers: {
       Location: "/admin",
-      "Set-Cookie": "admin_token=; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=0",
+      "Set-Cookie": `admin_token=; Path=/; HttpOnly; ${secureFlag}SameSite=Lax; Max-Age=0`,
     },
   });
 };
