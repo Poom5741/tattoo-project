@@ -11,7 +11,8 @@ const cookieHeader = Astro.request.headers.get("cookie") ?? "";
 
 // Use artistSession from middleware if already set (dev role override)
 const artistSession = Astro.locals.artistSession ?? await getArtistSession(cookieHeader, env.SESSION);
-const isAdmin = await isAdminAuthed(cookieHeader, env.SESSION) || !!Astro.locals.devRole;
+// Dev role: admin/artist can access inbox; otherwise check admin token
+const isAdmin = Astro.locals.devRole === "admin" || Astro.locals.devRole === "artist" || await isAdminAuthed(cookieHeader, env.SESSION);
 
 // If neither artist nor admin, redirect to artist portal for authentication
 if (!artistSession && !isAdmin) {
