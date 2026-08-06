@@ -53,10 +53,20 @@ let resaleListings: ResaleListingRow[] = [];
 try {
   const db = Astro.locals.runtime.env.DB;
   design = await db
-    .prepare("SELECT id, n, title, artist_id, style, price, status, placement, seed, drawn, token_id, ipfs_cid, image_url, selling_mode, royalty_pct FROM designs WHERE id = ?")
+    .prepare("SELECT id, n, title, artist_id, style, price, status, placement, seed, drawn, token_id, ipfs_cid, image_url, selling_mode, royalty_pct, reserved_until FROM designs WHERE id = ?")
     .bind(id)
     .first<DesignRow>();
   if (design) {
+    if (design.status === "reserved" && (design as any).reserved_until) {
+      const expired = new Date((design as any).reserved_until).getTime() < Date.now();
+      if (expired) {
+        await db
+          .prepare("UPDATE designs SET status = 'available', reserved_until = NULL WHERE id = ?")
+          .bind(id)
+          .run();
+        design.status = "available";
+      }
+    }
     const [aRow, mRes, rRes] = await Promise.all([
       db
         .prepare("SELECT id, name, city, style, seed FROM artists WHERE id = ?")
