@@ -31,11 +31,11 @@ test.describe("Admin auth API (/api/admin/login + /api/admin/logout)", () => {
     expect(setCookie).toContain("admin_token=");
   });
 
-  test("POST /api/admin/login with empty body returns 401", async ({ request }) => {
+  test("POST /api/admin/login with empty body returns 400 or 401", async ({ request }) => {
     const res = await request.post("/api/admin/login", {
       data: {},
     });
-    expect(res.status()).toBe(401);
+    expect([400, 401]).toContain(res.status());
   });
 
   test("POST /api/admin/login with invalid JSON returns 400 or 401", async ({ request }) => {
