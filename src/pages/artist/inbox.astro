@@ -1,6 +1,22 @@
 ---
+export const prerender = false;
+
 import Base from "../../layouts/Base.astro";
 import InboxView from "../../components/InboxView";
+import { getArtistSession } from "../../lib/artist/auth";
+import { isAdminAuthed } from "../../lib/admin/auth";
+
+const env = Astro.locals.runtime.env;
+const cookieHeader = Astro.request.headers.get("cookie") ?? "";
+
+// Check for artist session or admin session
+const artistSession = await getArtistSession(cookieHeader, env.SESSION);
+const isAdmin = await isAdminAuthed(cookieHeader, env.SESSION);
+
+// If neither artist nor admin, redirect to artist portal for authentication
+if (!artistSession && !isAdmin) {
+  return Astro.redirect("/artist/portal");
+}
 ---
 
 <Base title="Inbox">

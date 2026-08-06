@@ -1,11 +1,23 @@
 import { defineMiddleware } from "astro:middleware";
 import { detectLocale } from "@/lib/i18n";
 import { createAuth } from "@/lib/auth/server";
+import { getArtistSession } from "@/lib/artist/auth";
 
 export const onRequest = defineMiddleware(async (context, next) => {
   const cookieHeader = context.request.headers.get("cookie") ?? "";
   const acceptLanguage = context.request.headers.get("accept-language") ?? "";
   context.locals.locale = detectLocale(cookieHeader, acceptLanguage);
+
+  // Check artist session for /artist/* routes
+  const url = new URL(context.request.url);
+  if (url.pathname.startsWith("/artist/")) {
+    const env = context.locals.runtime.env as Env;
+    const artistSession = await getArtistSession(cookieHeader, env.SESSION);
+    if (!artistSession) {
+      return context.redirect("/artist/portal");
+    }
+    context.locals.artistSession = artistSession;
+  }
 
   try {
     const env = context.locals.runtime.env as Env;

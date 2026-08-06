@@ -7,6 +7,7 @@ declare namespace App {
     locale: string;
     user: import("better-auth").User | null;
     session: import("better-auth").Session | null;
+    artistSession: import("./lib/artist/auth").ArtistSession | null;
   }
 }
 
