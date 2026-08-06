@@ -169,14 +169,12 @@ test.describe("Buyer checks out (paid flow) - end-to-end user flow", () => {
     await expect(page).toHaveURL(/\/design\/d1$/);
 
     // 4. Click "Acquire Plate" CTA -> /checkout/d1.
-    await resetD1();
     const cta = page.locator('a[href="/checkout/d1"]').first();
-    if (!(await cta.isVisible())) {
-      await page.reload();
-    }
     await expect(cta).toBeVisible();
-    await cta.click();
-    await page.waitForURL("**/checkout/d1");
+    await Promise.all([
+      page.waitForURL("**/checkout/d1"),
+      cta.click(),
+    ]);
     await expect(page).toHaveURL(/\/checkout\/d1$/);
 
     // 5. Wait for the React CheckoutFlow to hydrate. The component
