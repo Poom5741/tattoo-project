@@ -58,15 +58,12 @@ jobs:
       - name: Install Playwright browser (with system deps)
         run: pnpm exec playwright install --with-deps chromium
 
-      # Seed the LOCAL dev D1 (miniflare SQLite), not the remote. Step 1
-      # creates+migrates the .wrangler/state/.../miniflare-D1DatabaseObject
-      # file that astro dev will reuse; step 2 runs the repo's idempotent
-      # seed script (re-applies migrations + adds the conv-test-001 row
-      # the chat/inbox specs pin). No Cloudflare credentials needed.
+      # Seed the LOCAL dev D1 (miniflare SQLite), not the remote.
+      # The script self-bootstraps: creates .wrangler/state/... if missing,
+      # applies all migrations, and seeds the conv-test-001 test data.
+      # astro dev reuses this SQLite file when Playwright starts it.
       - name: Seed local D1
-        run: |
-          pnpm exec wrangler d1 migrations apply inknoir-catalog --local
-          pnpm db:seed:dev
+        run: pnpm db:seed:dev
 
       # webServer (playwright.config.ts) starts `astro dev`. The dev
       # command differs between local (pnpm not on PATH) and CI, so the
