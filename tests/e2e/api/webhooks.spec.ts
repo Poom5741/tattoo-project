@@ -27,16 +27,15 @@ import { DatabaseSync } from "node:sqlite";
 import { readdirSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
-/** Locate the local wrangler D1 file. Same logic as other specs. */
-function findD1Path(): string | null {
+/** Locate all local wrangler D1 files. Same logic as seed-dev-d1.ts. */
+function findD1Paths(): string[] {
   const d1Dir = ".wrangler/state/v3/d1/miniflare-D1DatabaseObject";
-  if (!existsSync(d1Dir)) return null;
+  if (!existsSync(d1Dir)) return [];
   const files = readdirSync(d1Dir)
     .filter((f: string) => f.endsWith(".sqlite") && !f.endsWith("-wal") && !f.endsWith("-shm"))
     .map((f: string) => ({ f, mtime: statSync(join(d1Dir, f)).mtimeMs }))
     .sort((a, b) => b.mtime - a.mtime);
-  if (files.length === 0) return null;
-  return join(d1Dir, files[0].f);
+  return files.map((f: { f: string }) => join(d1Dir, f.f));
 }
 
 const WEBHOOK_SECRET = "test-webhook-secret-12345";
@@ -63,55 +62,64 @@ function computeWebhookChecksum(params: Record<string, string>, secret: string):
 }
 
 /** Insert a pending chillpay_transactions row for testing. Returns the order_no. */
-function seedPendingTransaction(dbPath: string): { orderNo: string; txId: string; designId: string } {
-  const con = new DatabaseSync(dbPath);
-  try {
-    const now = new Date().toISOString();
-    const orderNo = `ORD-${Date.now()}`;
-    const txId = `TX-${Date.now()}`;
-    const designId = "d1"; // seeded design, status should be 'available' or 'reserved'
-    con
-      .prepare(
-        `INSERT INTO chillpay_transactions (id, order_no, design_id, amount, status, channel_code, customer_id, customer_email, created_at, updated_at)
-         VALUES (?, ?, ?, ?, 'pending', 'qrpayment', 'cust-test', 'test@example.com', ?, ?)`,
-      )
-      .run(txId, orderNo, designId, 1.2, now, now);
-    return { orderNo, txId, designId };
-  } finally {
-    con.close();
+function seedPendingTransaction(dbPaths: string[]): { orderNo: string; txId: string; designId: string } {
+  const now = new Date().toISOString();
+  const orderNo = `ORD-${Date.now()}`;
+  const txId = `TX-${Date.now()}`;
+  const designId = "d1"; // seeded design, status should be 'available' or 'reserved'
+
+  for (const dbPath of dbPaths) {
+    const con = new DatabaseSync(dbPath);
+    try {
+      con
+        .prepare(
+          `INSERT INTO chillpay_transactions (id, order_no, design_id, amount, status, channel_code, customer_id, customer_email, created_at, updated_at)
+           VALUES (?, ?, ?, ?, 'pending', 'qrpayment', 'cust-test', 'test@example.com', ?, ?)`,
+        )
+        .run(txId, orderNo, designId, 1.2, now, now);
+    } catch (e) {
+      console.warn("Failed to seed transaction in", dbPath, e);
+    } finally {
+      con.close();
+    }
   }
+  return { orderNo, txId, designId };
 }
 
 /** Clean up the test transaction. */
-function cleanTestTransaction(orderNo: string, dbPath: string): void {
-  const con = new DatabaseSync(dbPath);
-  try {
-    con.prepare("DELETE FROM chillpay_transactions WHERE order_no = ?").run(orderNo);
-  } finally {
-    con.close();
+function cleanTestTransaction(orderNo: string, dbPaths: string[]): void {
+  for (const dbPath of dbPaths) {
+    const con = new DatabaseSync(dbPath);
+    try {
+      con.prepare("DELETE FROM chillpay_transactions WHERE order_no = ?").run(orderNo);
+    } catch {
+      // ignore
+    } finally {
+      con.close();
+    }
   }
 }
 
 test.describe("POST /api/chillpay/webhook", () => {
   let testOrderNo: string;
   let testTxId: string;
+  let dbPaths: string[];
 
   test.beforeAll(() => {
     // Seed a pending transaction so the webhook has something to process.
-    const dbPath = findD1Path();
-    if (!dbPath) {
+    dbPaths = findD1Paths();
+    if (dbPaths.length === 0) {
       test.skip(true, "Local D1 not found. Run `pnpm dev` once and then `pnpm db:seed:dev`.");
     }
-    const result = seedPendingTransaction(dbPath);
+    const result = seedPendingTransaction(dbPaths);
     testOrderNo = result.orderNo;
     testTxId = result.txId;
   });
 
   test.afterAll(() => {
     // Clean up.
-    const dbPath = findD1Path();
-    if (dbPath) {
-      cleanTestTransaction(testOrderNo, dbPath);
+    if (dbPaths && dbPaths.length > 0) {
+      cleanTestTransaction(testOrderNo, dbPaths);
     }
   });
 
