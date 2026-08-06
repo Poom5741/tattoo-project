@@ -61,13 +61,8 @@ async function switchLocale(page: Page, target: "th" | "en"): Promise<void> {
     await expect(enButton).toBeVisible();
     await enButton.click();
   }
-  // The switcher does `window.location.reload()` after setting the
-  // cookie. Wait for the reload to land.
-  await page.waitForLoadState("domcontentloaded");
-  await expect(page.locator("html")).toHaveAttribute(
-    "lang",
-    target === "th" ? "th" : "en",
-  );
+  // Wait for Astro SSR data-locale attribute to flip post-reload
+  await expect(page.locator("html")).toHaveAttribute("data-locale", target, { timeout: 10_000 });
 }
 
 test.describe("i18n + SAKNID rename - full-journey user flow", () => {
