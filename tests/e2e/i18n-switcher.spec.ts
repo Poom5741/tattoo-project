@@ -33,7 +33,7 @@ test.describe("Language switcher", () => {
   }) => {
     await page.goto("/");
     await expect(
-      page.locator('button[aria-label="Switch to English"]')
+      page.locator('button[aria-label="Switch to English"]').first()
     ).toBeVisible();
   });
 
@@ -42,7 +42,7 @@ test.describe("Language switcher", () => {
   }) => {
     await page.goto("/");
     await expect(
-      page.locator('button[aria-label="เปลี่ยนเป็นภาษาไทย"]')
+      page.locator('button[aria-label="เปลี่ยนเป็นภาษาไทย"]').first()
     ).toBeVisible();
   });
 
@@ -61,7 +61,7 @@ test.describe("Language switcher", () => {
     context,
   }) => {
     await page.goto("/");
-    await page.locator('button[aria-label="เปลี่ยนเป็นภาษาไทย"]').click();
+    await page.locator('button[aria-label="เปลี่ยนเป็นภาษาไทย"]').first().click();
     await page.waitForLoadState("domcontentloaded");
     const lang = await page.locator("html").getAttribute("lang");
     const dataLocale = await page.locator("html").getAttribute("data-locale");
@@ -80,9 +80,9 @@ test.describe("Language switcher", () => {
     page,
   }) => {
     await page.goto("/");
-    await page.locator('button[aria-label="เปลี่ยนเป็นภาษาไทย"]').click();
+    await page.locator('button[aria-label="เปลี่ยนเป็นภาษาไทย"]').first().click();
     await page.waitForLoadState("domcontentloaded");
-    await page.locator('button[aria-label="Switch to English"]').click();
+    await page.locator('button[aria-label="Switch to English"]').first().click();
     await page.waitForLoadState("domcontentloaded");
     const lang = await page.locator("html").getAttribute("lang");
     expect(lang).toBe("en");
@@ -92,7 +92,7 @@ test.describe("Language switcher", () => {
     page,
   }) => {
     await page.goto("/");
-    await page.locator('button[aria-label="เปลี่ยนเป็นภาษาไทย"]').click();
+    await page.locator('button[aria-label="เปลี่ยนเป็นภาษาไทย"]').first().click();
     await page.waitForLoadState("domcontentloaded");
     // The hero renders a <h1> with the title (or titleHtml) text.
     // The page passes the title into the hero component via the t()

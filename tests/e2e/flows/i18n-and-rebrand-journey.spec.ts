@@ -53,11 +53,11 @@ const EN_HERO_TITLE = "Ink you can own.";
 /** Switch the locale by clicking the appropriate switcher button. */
 async function switchLocale(page: Page, target: "th" | "en"): Promise<void> {
   if (target === "th") {
-    const thButton = page.locator('button[aria-label="เปลี่ยนเป็นภาษาไทย"]');
+    const thButton = page.locator('button[aria-label="เปลี่ยนเป็นภาษาไทย"]').first();
     await expect(thButton).toBeVisible();
     await thButton.click();
   } else {
-    const enButton = page.locator('button[aria-label="Switch to English"]');
+    const enButton = page.locator('button[aria-label="Switch to English"]').first();
     await expect(enButton).toBeVisible();
     await enButton.click();
   }
