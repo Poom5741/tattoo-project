@@ -62,6 +62,7 @@ test.describe("Language switcher", () => {
   }) => {
     await page.goto("/");
     await page.locator('button[aria-label="เปลี่ยนเป็นภาษาไทย"]').first().click();
+    await page.waitForTimeout(500);
     await page.waitForLoadState("domcontentloaded");
     const lang = await page.locator("html").getAttribute("lang");
     const dataLocale = await page.locator("html").getAttribute("data-locale");
@@ -81,8 +82,10 @@ test.describe("Language switcher", () => {
   }) => {
     await page.goto("/");
     await page.locator('button[aria-label="เปลี่ยนเป็นภาษาไทย"]').first().click();
+    await page.waitForTimeout(500);
     await page.waitForLoadState("domcontentloaded");
     await page.locator('button[aria-label="Switch to English"]').first().click();
+    await page.waitForTimeout(500);
     await page.waitForLoadState("domcontentloaded");
     const lang = await page.locator("html").getAttribute("lang");
     expect(lang).toBe("en");
@@ -93,6 +96,8 @@ test.describe("Language switcher", () => {
   }) => {
     await page.goto("/");
     await page.locator('button[aria-label="เปลี่ยนเป็นภาษาไทย"]').first().click();
+    await page.waitForTimeout(500);
+    await page.waitForLoadState("domcontentloaded");
     await page.waitForLoadState("domcontentloaded");
     // The hero renders a <h1> with the title (or titleHtml) text.
     // The page passes the title into the hero component via the t()
