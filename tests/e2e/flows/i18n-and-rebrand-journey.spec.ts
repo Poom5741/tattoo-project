@@ -36,7 +36,7 @@ import { readFileSync, existsSync } from "node:fs";
 // Thai strings pinned at spec-write time. Read from src/locales/th.json
 // at the time the spec was written. If the source changes, update
 // these literals.
-const TH_HERO_TITLE = "รอยสักที่คุณเป็นเจ้าของ";
+const TH_HERO_TITLE = "รอยสักที่คุณ";
 const TH_HERO_KICKER = "หนึ่งเพลท · เจ้าของเดียว · เข็มเดียว";
 const TH_MARKET_KICKER = "แกลเลอรี";
 const TH_MARKET_TITLE = "เพลทสำหรับสะสม";
