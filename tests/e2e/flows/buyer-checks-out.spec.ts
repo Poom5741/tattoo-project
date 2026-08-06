@@ -123,6 +123,12 @@ async function resetD1(): Promise<void> {
     try {
       con.exec("BEGIN");
       con
+        .prepare("INSERT OR IGNORE INTO artists (id, name, handle, city, style, years, booked, rate, bio, pieces, rating, seed) VALUES ('mara', 'Mara Vael', '@maravael', 'Berlin, DE', 'Fine Line · Blackwork', 9, 'Booking Aug 2026', 180, 'Bio', 41, '4.98', 11)")
+        .run();
+      con
+        .prepare("INSERT OR IGNORE INTO designs (id, n, title, artist_id, style, price, price_usd, status, placement, seed, token, minted, medium, sessions, drawn, token_id) VALUES ('d1', '001', 'Serpent in Negative', 'mara', 'Fine Line', 1.2, 2976, 'available', 'Forearm · 16cm', 11, '0x7d852e…6d01ee', '2026-01-01', 'Single needle', 1, 14, 1)")
+        .run();
+      con
         .prepare("UPDATE designs SET status = 'available', reserved_until = NULL WHERE id = 'd1'")
         .run();
       con

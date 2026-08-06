@@ -173,13 +173,6 @@ test.describe("Admin login and dashboard - end-to-end user flow", () => {
     await expect(approveButton).not.toBeVisible({ timeout: 10_000 });
 
     // 9. D1 assertion: the design row's status is now 'available'.
-    const dbPath = findD1Path();
-    if (!dbPath) {
-      test.skip(
-        true,
-        "Local D1 not found. Run `pnpm dev` once and then `pnpm db:seed:dev`.",
-      );
-    }
     const updated = readDesign(PENDING_DESIGN_ID);
     expect(updated).not.toBeNull();
     expect(updated!.status).toBe("available");
