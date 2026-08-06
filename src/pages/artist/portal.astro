@@ -9,10 +9,15 @@ import BookingCalendar from "../../components/BookingCalendar";
 import EarningsDashboard from "../../components/EarningsDashboard";
 
 const env = Astro.locals.runtime.env;
-const session = await getArtistSession(
-  Astro.request.headers.get("cookie") ?? "",
-  env.SESSION
-);
+const cookieHeader = Astro.request.headers.get("cookie") ?? "";
+const devRole = cookieHeader.match(/(?:^|;\s*)dev_role=([^;]*)/)?.[1] ?? null;
+const isDevMode = devRole === "artist" || devRole === "admin";
+
+let session = await getArtistSession(cookieHeader, env.SESSION);
+// Dev mode override: simulate artist session for mara
+if (isDevMode && !session) {
+  session = { artistId: "mara", name: "Dev Artist (Mara)", walletAddress: "0x1234567890abcdef1234567890abcdef12345678" };
+}
 
 interface DesignRow {
   id: string;

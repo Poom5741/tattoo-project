@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { PasskeyWalletProvider } from "../contexts/PasskeyWalletContext";
 import PasskeyNavButton from "./PasskeyNavButton";
 import LanguageSwitcher from "./LanguageSwitcher";
+import DevRoleSwitcher from "./DevRoleSwitcher";
 import { createT, isSupportedLocale } from "@/lib/i18n";
 import type { Locale } from "@/lib/i18n/types";
 
@@ -97,8 +98,9 @@ export default function Nav({ currentPath = "/" }: NavProps) {
 						})}
 					</div>
 
-					{/* Language switcher */}
-					<div className="hidden md:block">
+					{/* Dev role switcher + Language switcher */}
+					<div className="hidden md:flex items-center gap-2">
+						<DevRoleSwitcher />
 						<LanguageSwitcher />
 					</div>
 
@@ -181,7 +183,10 @@ export default function Nav({ currentPath = "/" }: NavProps) {
 					<PasskeyNavButton />
 				</div>
 				<div className="mt-4 px-3">
-					<LanguageSwitcher />
+					<div className="flex items-center gap-2">
+						<DevRoleSwitcher />
+						<LanguageSwitcher />
+					</div>
 				</div>
 			</div>
 		</PasskeyWalletProvider>

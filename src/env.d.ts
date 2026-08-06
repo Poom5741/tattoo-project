@@ -8,6 +8,7 @@ declare namespace App {
     user: import("better-auth").User | null;
     session: import("better-auth").Session | null;
     artistSession: import("./lib/artist/auth").ArtistSession | null;
+    devRole: "buyer" | "artist" | "admin" | null;
   }
 }
 

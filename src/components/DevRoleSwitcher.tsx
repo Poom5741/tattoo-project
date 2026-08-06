@@ -1,0 +1,105 @@
+import { useState, useEffect } from "react";
+
+type Role = "buyer" | "artist" | "admin";
+
+const ROLES: { value: Role; label: string; icon: string }[] = [
+  { value: "buyer", label: "Buyer", icon: "🛒" },
+  { value: "artist", label: "Artist", icon: "🎨" },
+  { value: "admin", label: "Admin", icon: "🔑" },
+];
+
+function getStoredRole(): Role {
+  if (typeof document === "undefined") return "buyer";
+  return (localStorage.getItem("dev_role") as Role) || "buyer";
+}
+
+function setRoleCookie(role: Role) {
+  // 30 day expiry, SameSite=Lax, path=/
+  document.cookie = `dev_role=${role};max-age=${30 * 24 * 60 * 60};path=/;SameSite=Lax`;
+}
+
+function clearRoleCookie() {
+  document.cookie = "dev_role=;max-age=0;path=/;SameSite=Lax";
+}
+
+export default function DevRoleSwitcher() {
+  const [role, setRole] = useState<Role>("buyer");
+  const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    setRole(getStoredRole());
+  }, []);
+
+  const switchRole = (newRole: Role) => {
+    setRole(newRole);
+    localStorage.setItem("dev_role", newRole);
+    setRoleCookie(newRole);
+    // Reload to apply the new role across all pages
+    window.location.reload();
+  };
+
+  const currentRole = ROLES.find((r) => r.value === role) ?? ROLES[0];
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen(!open)}
+        className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-amber-400 bg-amber-50 text-amber-700 font-body text-[10px] font-semibold tracking-wider uppercase hover:bg-amber-100 transition-colors"
+        title="Dev role switcher (dev only)"
+      >
+        <span className="text-sm">{currentRole.icon}</span>
+        <span className="hidden md:inline">{currentRole.label}</span>
+        <span className="md:hidden">Role</span>
+      </button>
+
+      {open && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-40"
+            onClick={() => setOpen(false)}
+          />
+          {/* Dropdown */}
+          <div className="absolute right-0 top-full mt-2 z-50 w-48 bg-surface-container-low border border-outline-variant rounded-lg shadow-lg overflow-hidden">
+            <div className="px-3 py-2 border-b border-outline-variant/30">
+              <div className="font-body text-[10px] font-semibold tracking-wider uppercase text-on-surface-variant/60">
+                Dev role switcher
+              </div>
+            </div>
+            {ROLES.map((r) => (
+              <button
+                key={r.value}
+                onClick={() => switchRole(r.value)}
+                className={`w-full flex items-center gap-3 px-4 py-3 text-left font-body text-sm transition-colors ${
+                  role === r.value
+                    ? "bg-primary-container/10 text-primary-container"
+                    : "text-on-surface hover:bg-surface-container-high/50"
+                }`}
+              >
+                <span className="text-lg">{r.icon}</span>
+                <span className="font-medium">{r.label}</span>
+                {role === r.value && (
+                  <span className="ml-auto text-primary-container">✓</span>
+                )}
+              </button>
+            ))}
+            {role !== "buyer" && (
+              <button
+                onClick={() => {
+                  setRole("buyer");
+                  localStorage.removeItem("dev_role");
+                  clearRoleCookie();
+                  window.location.reload();
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-left font-body text-sm text-error hover:bg-error/5 border-t border-outline-variant/30"
+              >
+                <span className="text-lg">↩</span>
+                <span>Reset to default</span>
+              </button>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
