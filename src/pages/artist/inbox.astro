@@ -9,21 +9,9 @@ import { isAdminAuthed } from "../../lib/admin/auth";
 const env = Astro.locals.runtime.env;
 const cookieHeader = Astro.request.headers.get("cookie") ?? "";
 
-// Dev role override
-const devRole = cookieHeader.match(/(?:^|;\s*)dev_role=([^;]*)/)?.[1] ?? null;
-const isDevMode = devRole === "artist" || devRole === "admin";
-
-// Check for artist session or admin session
-let artistSession = await getArtistSession(cookieHeader, env.SESSION);
-let isAdmin = await isAdminAuthed(cookieHeader, env.SESSION);
-
-// Dev mode override
-if (isDevMode && !artistSession) {
-  artistSession = { artistId: "mara", name: "Dev Artist (Mara)", walletAddress: "0x1234...abcd" };
-}
-if (isDevMode && !isAdmin) {
-  isAdmin = true;
-}
+// Use artistSession from middleware if already set (dev role override)
+const artistSession = Astro.locals.artistSession ?? await getArtistSession(cookieHeader, env.SESSION);
+const isAdmin = await isAdminAuthed(cookieHeader, env.SESSION) || !!Astro.locals.devRole;
 
 // If neither artist nor admin, redirect to artist portal for authentication
 if (!artistSession && !isAdmin) {
