@@ -7,13 +7,10 @@
  * design, and booking pages, and that the SAKNID brand renders on
  * the footer regardless of locale.
  *
- * **The nav partial-localization finding (surfaced, not fixed):**
- * `src/components/Nav.tsx:10-17` defines the nav links with
- * hardcoded English ("Gallery", "Artists", "Book", "My Wallet",
- * "Artist Portal", "How it works"). The Thai strings exist in
- * `src/locales/th.json` under `nav.gallery`, `nav.artists`, etc.,
- * but they are not used in the rendered nav. After a TH switch,
- * the nav stays in English. The spec asserts this honestly.
+ * **Nav localization (fixed in #80):** `src/components/Nav.tsx`
+ * previously hardcoded the nav labels in English. They now use
+ * `t("nav.*")`, so after a TH switch the nav renders Thai. The spec
+ * asserts the Thai labels are present (and the English are gone).
  *
  * Covers closed issues:
  *   #24 (Rename SUKNID to SAKNID across codebase) - the footer
@@ -49,6 +46,8 @@ const TH_BOOKING_BACK = "← ศิลปินทั้งหมด";
 const TH_DESIGN_BACK = "← กลับไปแกลเลอรี";
 const TH_DESIGN_CERTIFICATE = "ใบรับรองเพลท";
 const TH_DESIGN_AVAILABLE = "พร้อมขาย";
+// Nav labels (src/locales/th.json#nav.*) — pinned at spec-write time.
+const TH_NAV_GALLERY = "แกลเลอรี";
 const EN_HERO_TITLE = "Ink you can own.";
 
 /** Switch the locale by clicking the appropriate switcher button. */
@@ -88,25 +87,18 @@ test.describe("i18n + SAKNID rename - full-journey user flow", () => {
     // The footer brand is still SAKNID.
     await expect(page.locator("footer")).toContainText("SAKNID");
 
-    // 3. **Partial-localization finding (asserted honestly):** the nav
-    //    links are hardcoded English. They should be Thai after the
-    //    switch but they are not. This is a real bug; the spec
-    //    surfaces it.
-    //
-    //    Read the rendered nav text. The desktop nav has the link
-    //    text "Gallery" hardcoded. The Thai version should be
-    //    "แกลเลอรี". We assert that the English is present (which
-    //    documents the bug) and that the Thai is NOT in the nav
-    //    (which is the negative space that the future fix will fill).
+    // 3. **Nav is localized (fixed in #80):** the nav links now use
+    //    t("nav.*"), so after the TH switch the desktop nav shows the
+    //    Thai labels. Assert the Thai gallery label is present and
+    //    the English "Gallery" is gone.
     const desktopNav = page.locator("header nav").first();
     const navText = await desktopNav.innerText();
-    expect(navText).toContain("Gallery"); // English, hardcoded
-    expect(navText).not.toContain("แกลเลอรี"); // Thai, should be there but isn't
+    expect(navText).toContain(TH_NAV_GALLERY); // Thai nav label
+    expect(navText).not.toContain("Gallery"); // English no longer hardcoded
 
-    // 4. Click "Market" / "Gallery" (the link text is English even
-    //    in the TH locale because of the nav bug). This is the nav
-    //    link, not the hero CTA. Land on /market.
-    const marketLink = page.locator("header nav a", { hasText: "Gallery" }).first();
+    // 4. Click the localized "Gallery" / "แกลเลอรี" nav link (not the
+    //    hero CTA) and land on /market.
+    const marketLink = page.locator("header nav a", { hasText: TH_NAV_GALLERY }).first();
     await marketLink.click();
     await page.waitForURL("**/market");
     await expect(page.locator("html")).toHaveAttribute("lang", "th");

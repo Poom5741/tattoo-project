@@ -2,23 +2,40 @@ import { useState, useEffect } from "react";
 import { PasskeyWalletProvider } from "../contexts/PasskeyWalletContext";
 import PasskeyNavButton from "./PasskeyNavButton";
 import LanguageSwitcher from "./LanguageSwitcher";
+import { createT, isSupportedLocale } from "@/lib/i18n";
+import type { Locale } from "@/lib/i18n/types";
 
 interface NavProps {
 	currentPath?: string;
 }
 
-const links: [string, string][] = [
-	["/market", "Gallery"],
-	["/artists", "Artists"],
-	["/booking", "Book"],
-	["/wallet", "My Wallet"],
-	["/artist/portal", "Artist Portal"],
-	["/", "How it works"],
-];
+/**
+ * Read the active locale from <html data-locale> (set by Astro SSR).
+ * Locale switches reload the page (see LanguageSwitcher), so this is
+ * read once at hydration via a lazy initializer — no setter needed.
+ */
+function readHtmlLocale(): Locale {
+	if (typeof document === "undefined") return "en";
+	const val = document.querySelector("html")?.getAttribute("data-locale");
+	return val && isSupportedLocale(val) ? val : "en";
+}
 
 export default function Nav({ currentPath = "/" }: NavProps) {
 	const [open, setOpen] = useState(false);
 	const [scrolled, setScrolled] = useState(false);
+
+	// Localized nav labels (hrefs stay locale-independent). Read once
+	// at hydration; a locale switch reloads the page (#80).
+	const [locale] = useState<Locale>(readHtmlLocale);
+	const t = createT(locale);
+	const links: [string, string][] = [
+		["/market", t("nav.gallery")],
+		["/artists", t("nav.artists")],
+		["/booking", t("nav.book")],
+		["/wallet", t("nav.myWallet")],
+		["/artist/portal", t("nav.artistPortal")],
+		["/", t("nav.howItWorks")],
+	];
 
 	useEffect(() => {
 		const onScroll = () => setScrolled(window.scrollY > 8);
