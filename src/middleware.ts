@@ -8,9 +8,9 @@ export const onRequest = defineMiddleware(async (context, next) => {
   const acceptLanguage = context.request.headers.get("accept-language") ?? "";
   context.locals.locale = detectLocale(cookieHeader, acceptLanguage);
 
-  // Check artist session for /artist/* routes
+  // Check artist session for protected /artist/ routes (e.g. /artist/inbox)
   const url = new URL(context.request.url);
-  if (url.pathname.startsWith("/artist/")) {
+  if (url.pathname.startsWith("/artist/inbox")) {
     const env = context.locals.runtime.env as Env;
     const artistSession = await getArtistSession(cookieHeader, env.SESSION);
     if (!artistSession) {

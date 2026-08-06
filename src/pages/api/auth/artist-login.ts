@@ -92,9 +92,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     expirationTtl: 60 * 60 * 8,
   });
 
+  const isSecure = request.url.startsWith("https://");
+  const secureFlag = isSecure ? "Secure; " : "";
+
   const headers = new Headers();
   headers.set("Content-Type", "application/json");
-  headers.append("Set-Cookie", `artist_token=${token}; Path=/; HttpOnly; Secure; SameSite=Lax; Max-Age=28800`);
+  headers.append("Set-Cookie", `artist_token=${token}; Path=/; HttpOnly; ${secureFlag}SameSite=Lax; Max-Age=28800`);
 
   return new Response(JSON.stringify({ ok: true, artistId: artist.id }), {
     status: 200,
