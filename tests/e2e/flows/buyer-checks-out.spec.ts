@@ -72,31 +72,42 @@ interface TransactionRow {
 }
 
 function readDesign(id: string): DesignRow | null {
-  const dbPath = findD1Path();
-  if (!dbPath) return null;
-  const con = new DatabaseSync(dbPath, { readOnly: true });
-  try {
-    return con
-      .prepare("SELECT id, status, reserved_until FROM designs WHERE id = ?")
-      .get(id) as unknown as DesignRow | undefined ?? null;
-  } finally {
-    con.close();
+  const dbPaths = findD1Paths();
+  for (const dbPath of dbPaths) {
+    const con = new DatabaseSync(dbPath, { readOnly: true });
+    try {
+      const row = con
+        .prepare("SELECT id, status, reserved_until FROM designs WHERE id = ?")
+        .get(id) as unknown as DesignRow | undefined ?? null;
+      if (row) return row;
+    } catch {
+      // ignore
+    } finally {
+      con.close();
+    }
   }
+  return null;
 }
 
 function readTransactionsForDesign(designId: string): TransactionRow[] {
-  const dbPath = findD1Path();
-  if (!dbPath) return [];
-  const con = new DatabaseSync(dbPath, { readOnly: true });
-  try {
-    return con
-      .prepare(
-        "SELECT id, order_no, design_id, amount, status, channel_code, customer_email FROM chillpay_transactions WHERE design_id = ?",
-      )
-      .all(designId) as unknown as TransactionRow[];
-  } finally {
-    con.close();
+  const dbPaths = findD1Paths();
+  const allTxns: TransactionRow[] = [];
+  for (const dbPath of dbPaths) {
+    const con = new DatabaseSync(dbPath, { readOnly: true });
+    try {
+      const txns = con
+        .prepare(
+          "SELECT id, order_no, design_id, amount, status, channel_code, customer_email FROM chillpay_transactions WHERE design_id = ?",
+        )
+        .all(designId) as unknown as TransactionRow[];
+      allTxns.push(...txns);
+    } catch {
+      // ignore
+    } finally {
+      con.close();
+    }
   }
+  return allTxns;
 }
 
 /**

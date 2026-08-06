@@ -170,8 +170,8 @@ test.describe("Buyer books a plate - end-to-end user flow", () => {
     //    works without a seeded D1 (the form uses DESIGNS/ARTISTS
     //    imports, not the DB), but the POST handler needs the
     //    booking_inquiries table.
-    const dbPath = findD1Path();
-    if (!dbPath) {
+    const dbPaths = findD1Paths();
+    if (dbPaths.length === 0) {
       test.skip(
         true,
         "Local D1 not found at .wrangler/state/v3/d1/miniflare-D1DatabaseObject. Run `pnpm dev` once and then `pnpm db:seed:dev`.",
