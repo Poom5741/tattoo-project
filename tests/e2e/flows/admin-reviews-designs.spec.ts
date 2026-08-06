@@ -173,9 +173,7 @@ test.describe("Admin login and dashboard - end-to-end user flow", () => {
     await expect(approveButton).not.toBeVisible({ timeout: 10_000 });
 
     // 9. D1 assertion: the design row's status is now 'available'.
-    const updated = readDesign(PENDING_DESIGN_ID);
-    expect(updated).not.toBeNull();
-    expect(updated!.status).toBe("available");
+    await expect.poll(() => readDesign(PENDING_DESIGN_ID)?.status, { timeout: 10_000 }).toBe("available");
 
     // 10. Sign out. The Sign out button is a form submit to
     //     /api/admin/logout which sets a 302 + clears the cookie.
