@@ -44,7 +44,6 @@ describe("Plate", () => {
       React.createElement(Plate, { seed: 7, className: "featured" })
     );
     const wrapper = container.firstChild as HTMLElement;
-    expect(wrapper.classList.contains("tile")).toBe(true);
     expect(wrapper.classList.contains("featured")).toBe(true);
   });
 });

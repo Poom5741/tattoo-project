@@ -47,7 +47,22 @@ export const GET: APIRoute = async ({ request, locals }) => {
     const { results } = await env.DB.prepare(sql)
       .bind(...params)
       .all();
-    return json({ conversations: results });
+
+    const conversations = (results || []).map((row: any) => ({
+      id: row.id,
+      clientId: row.client_id,
+      artistId: row.artist_id,
+      designId: row.design_id ?? null,
+      lastMessage: row.last_message ?? null,
+      lastMessageAt: row.last_message_at ?? null,
+      unread: row.unread ?? 0,
+      status: row.status ?? "active",
+      createdAt: row.created_at,
+      clientName: row.client_name ?? row.client_id ?? "Client",
+      artistName: row.artist_name ?? row.artist_id ?? "Artist",
+    }));
+
+    return json({ conversations });
   } catch (err) {
     console.error("GET /api/chat/conversations failed:", err);
     return json({ error: "Internal server error" }, 500);

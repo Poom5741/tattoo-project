@@ -1,0 +1,23 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Plate > renders deterministic DOM structure for seed 11 1`] = `
+<div
+  class="relative aspect-[3/4] bg-[#F0EBE1] rounded-lg overflow-hidden"
+>
+  <canvas
+    height="200"
+    width="160"
+  />
+</div>
+`;
+
+exports[`Plate > renders deterministic DOM structure for seed 29 1`] = `
+<div
+  class="relative aspect-[3/4] bg-[#F0EBE1] rounded-lg overflow-hidden"
+>
+  <canvas
+    height="200"
+    width="160"
+  />
+</div>
+`;

@@ -16,21 +16,33 @@ export default function ChatBox({ userId, senderRole, conversationId, onSendBook
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef<HTMLDivElement>(null);
-  const { messages, addMessage, markRead } = useChat();
+  const { messages, fetchMessages, sendMessage } = useChat();
   const msgList = messages[conversationId] ?? [];
 
-  useEffect(() => { markRead(conversationId); }, [conversationId]);
+  useEffect(() => {
+    if (conversationId && fetchMessages) {
+      fetchMessages(conversationId);
+    }
+  }, [conversationId, fetchMessages]);
+
   useEffect(() => { if (scrollRef.current) scrollRef.current.scrollTop = scrollRef.current.scrollHeight; }, [msgList.length]);
 
   async function handleSend() {
     const trimmed = text.trim();
     if (!trimmed || sending) return;
     const check = filterMessage(trimmed);
-    if (!check.clean) { setError("Message flagged"); return; }
+    if (!check.clean) { setError("Message flagged: " + (check.reason || "Anti-bypass rule matched")); return; }
     setError(""); setSending(true);
-    const msg: ChatMessage = { id: crypto.randomUUID(), conversationId, senderId: userId, senderRole, text: trimmed, flagged: false, createdAt: Date.now() };
-    addMessage(conversationId, msg);
-    setText(""); setSending(false);
+
+    if (sendMessage) {
+      const result = await sendMessage(conversationId, trimmed);
+      if (!result.ok) {
+        setError(result.error || "Failed to send message");
+      } else {
+        setText("");
+      }
+    }
+    setSending(false);
   }
 
   return (

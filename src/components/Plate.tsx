@@ -42,7 +42,8 @@ export default function Plate({ seed = 1, label, index, density = 1.0, kind, cla
     const H = Math.max(rect.height, 200);
     canvas.width = W * dpr;
     canvas.height = H * dpr;
-    const ctx = canvas.getContext("2d")!;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
     ctx.scale(dpr, dpr);
     const rnd = mulberry32(seed * 100 + 7);
     const INK = (a: number) => `rgba(27,28,24,${a})`;
