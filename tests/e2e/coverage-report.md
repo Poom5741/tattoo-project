@@ -151,7 +151,7 @@ Notes on the gap list:
 
 | Spec | What | Why it is skipped |
 |---|---|---|
-| `tests/e2e/visual.spec.ts` | The whole file (1 test) | Skipped because there are no PNG baselines in `tests/baselines/`. The `tests/README.md` documents this. Ticket #69 (visual-regression scope) is the resolution; once baselines are committed, the skip is removable. |
+| `tests/e2e/visual.spec.ts` | Was 1 skipped test (no baselines) | Rewritten in #69 to Playwright's `toHaveScreenshot()` over 4 pages × 2 viewports. Baselines are generated on first run (in CI #70 or on a working laptop); until then the 8 tests run but each writes its baseline. |
 
 No `test.fixme`, `test.only`, `test.slow`, or `Date.now`/`Math.random` patterns found in any spec. The suite is generally well-behaved.
 

@@ -12,7 +12,6 @@
     "test:e2e:ui": "playwright test --ui",
     "db:seed:dev": "tsx scripts/seed-dev-d1.ts",
     "pin:metadata": "tsx scripts/pin-metadata.ts",
-    "baseline:capture": "tsx scripts/baseline-capture.ts",
     "loop": "tsx .sandcastle/main.mts",
     "check-models": "tsx .sandcastle/check-models.mts",
     "watch": "tsx .sandcastle/watch.mts"
@@ -48,8 +47,6 @@
     "@types/react-dom": "^18.3.0",
     "happy-dom": "^20.10.6",
     "jsdom": "^29.1.1",
-    "pixelmatch": "^7.2.0",
-    "pngjs": "^7.0.0",
     "tailwindcss": "^3.4.0",
     "tsx": "^4.19.0",
     "typescript": "^5.7.0",
