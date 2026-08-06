@@ -43,10 +43,10 @@ try {
   console.error("checkout SSR D1 error:", e);
 }
 
-// Fallback design object for known seeded design IDs if D1 query returns null
-if (!design && id && id.startsWith("d")) {
+// Fallback design object for seeded design ID if D1 query returns null
+if (!design && id === "d1") {
   design = {
-    id,
+    id: "d1",
     n: "001",
     title: "Serpent in Negative",
     artist_id: "mara",
