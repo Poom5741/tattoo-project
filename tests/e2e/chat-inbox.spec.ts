@@ -50,9 +50,6 @@ test.describe("/artist/inbox — frontend wired to backend", () => {
     const isInbox = page.url().includes("/artist/inbox");
     expect(isPortal || isInbox).toBe(true);
   });
-    // active. The InboxView default is activeConv = null.
-    await expect(page.locator("text=Select a conversation")).toBeVisible();
-  });
 });
 
 test.describe("/artist/inbox — as intended (deferred until #50, #59, #63 land)", () => {
