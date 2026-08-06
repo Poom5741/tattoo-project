@@ -21,9 +21,9 @@
  */
 
 // Pinned from src/locales/en.json hero.title (read at spec-write time).
-const EN_HERO_TITLE = "Ink you can";
+const EN_HERO_TITLE = "One plate";
 // Pinned from src/locales/th.json hero.title (read at spec-write time).
-const TH_HERO_TITLE = "รอยสักที่คุณ";
+const TH_HERO_TITLE = "สามารถ เป็นเจ้าของ";
 
 import { test, expect } from "@playwright/test";
 
