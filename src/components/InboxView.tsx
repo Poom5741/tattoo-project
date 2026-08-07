@@ -11,28 +11,30 @@ function InboxInner() {
   }, [fetchConversations]);
 
   return (
-    <div className="flex h-[calc(100vh-120px)] gap-4">
-      <div className="w-80 shrink-0 border rounded-xl overflow-hidden bg-white">
-        <div className="px-4 py-3 border-b bg-gray-50 font-semibold text-sm">Inbox</div>
-        <div>
+    <div className="flex h-[calc(100vh-120px)] gap-6">
+      <div className="w-80 shrink-0 border border-[#E8E3D8] rounded-xl overflow-hidden bg-[#FBF9F3]">
+        <div className="px-4 py-3 border-b border-[#E8E3D8] bg-[#F5F0E8] font-display font-semibold text-sm text-[#1B1C18]">Inbox</div>
+        <div className="divide-y divide-[#E8E3D8]/40">
           {loading && conversations.length === 0 ? (
-            <div className="p-4 text-xs text-gray-400 text-center">Loading conversations...</div>
+            <div className="p-4 text-xs text-[#5A5B55]/60 text-center font-body">Loading conversations...</div>
           ) : conversations.length === 0 ? (
-            <div className="p-4 text-xs text-gray-400 text-center">No active conversations.</div>
+            <div className="p-4 text-xs text-[#5A5B55]/60 text-center font-body">No active conversations.</div>
           ) : (
             conversations.map((conv: any) => (
               <button
                 key={conv.id}
                 onClick={() => setActiveConv(conv.id)}
-                className={`w-full text-left px-4 py-3 border-b hover:bg-gray-50 ${activeConv === conv.id ? "bg-blue-50" : ""}`}
+                className={`w-full text-left px-4 py-3.5 hover:bg-[#F5F0E8]/50 transition-colors font-body ${
+                  activeConv === conv.id ? "bg-[#F5F0E8]" : ""
+                }`}
               >
-                <div className="flex items-center justify-between mb-1">
-                  <span className="font-medium text-sm">{conv.clientName || conv.artistName || conv.id}</span>
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="font-semibold text-sm text-[#1B1C18]">{conv.clientName || conv.artistName || conv.id}</span>
                   {conv.unread > 0 && (
-                    <span className="px-1.5 py-0.5 bg-blue-600 text-white text-[10px] rounded-full">{conv.unread}</span>
+                    <span className="px-2 py-0.5 bg-[#E60023] text-white text-[9px] font-bold rounded-full">{conv.unread}</span>
                   )}
                 </div>
-                <p className="text-xs text-gray-500 truncate">{conv.lastMessage || conv.designId || "No messages"}</p>
+                <p className="text-xs text-[#5A5B55]/70 truncate">{conv.lastMessage || conv.designId || "No messages"}</p>
               </button>
             ))
           )}
@@ -42,7 +44,7 @@ function InboxInner() {
         {activeConv ? (
           <ChatBox userId="artist" senderRole="artist" conversationId={activeConv} />
         ) : (
-          <div className="flex items-center justify-center h-full text-gray-400 text-sm border rounded-xl bg-white">Select a conversation</div>
+          <div className="flex items-center justify-center h-full text-[#5A5B55]/60 text-sm border border-[#E8E3D8] rounded-xl bg-[#FBF9F3] font-body">Select a conversation</div>
         )}
       </div>
     </div>
