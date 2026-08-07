@@ -63,12 +63,12 @@ Add footer text to `en.json` and `th.json` locale files:
 
 ### Acceptance Criteria
 
-- [ ] Footer links are deduplicated and point to correct pages
-- [ ] Footer text is i18n-enabled (en + th)
-- [ ] `readHtmlLocale()` removed from all 5+ components
-- [ ] All Astro pages pass `locale` prop to affected components
-- [ ] No hydration mismatches from locale reads
-- [ ] E2E tests still pass
+- [x] Footer links are deduplicated and point to correct pages
+- [x] Footer text is i18n-enabled (en + th)
+- [x] `readHtmlLocale()` removed from all 5+ components
+- [x] All Astro pages pass `locale` prop to affected components
+- [x] No hydration mismatches from locale reads
+- [x] E2E tests still pass
 
 ### Files to Change
 
@@ -81,3 +81,37 @@ Add footer text to `en.json` and `th.json` locale files:
 - `src/components/BookingForm.tsx` — remove readHtmlLocale
 - `src/components/WalletOwnedPlates.tsx` — remove readHtmlLocale
 - Various `.astro` pages — verify locale prop is passed
+
+## Resolution
+
+### Footer link cleanup
+
+`Footer.astro` was rewritten to use `t()` calls for all visible text. Links corrected:
+- "New releases" removed (was a duplicate of "Browse plates").
+- "Apply to sell" removed (dead — no real page).
+- "Aftercare" and "Authenticity" removed (dead — no real pages).
+- "Book a session" → `/booking` (was `/artists`).
+- "How it works" → `/#how-it-works` (anchor link, was `/`).
+
+### readHtmlLocale removal
+
+All 5 components cleaned up in the same pattern:
+- `readHtmlLocale()` function deleted.
+- `useState<Locale>(propLocale || readHtmlLocale)` → `useState<Locale>(propLocale || "en")`.
+- `document.querySelector` no longer appears in any of the 5 files.
+
+The `locale` prop is already passed from every Astro page that renders these components (verified by the existing i18n tests). The DOM read was redundant and the source of hydration mismatches.
+
+### Footer i18n
+
+`footer` keys added to both `en.json` and `th.json`:
+- `en.json` — 11 keys (tagline, galleryTitle, browsePlates, yourCollection, artistsTitle, theRoster, bookSession, houseTitle, howItWorks, copyright, locations)
+- `th.json` — same 11 keys with Thai translations
+
+`Footer.astro` now imports `createT` and wraps all visible strings in `t()` calls.
+
+### Tests added (TDD, RED→GREEN per slice)
+- `tests/unit/footer-i18n.test.ts` — 18 tests:
+  - 6 link correctness tests (dedup, dead link removal, correct hrefs)
+  - 10 readHtmlLocale removal tests (no function, no document.querySelector)
+  - 2 i18n keys existence tests (en + th footer objects)

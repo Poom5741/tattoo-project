@@ -43,9 +43,9 @@ describe("src/pages/500.astro", () => {
     expect(src).toContain("500");
   });
 
-  it("has a 'Back to gallery' CTA linking to /", () => {
+  it("has a CTA linking to / (uses i18n key page500.cta)", () => {
     const src = readFileSync(PAGE, "utf8");
     expect(src).toMatch(/href=["']\/["']/);
-    expect(src).toMatch(/Back to gallery/i);
+    expect(src).toMatch(/page500\.cta/);
   });
 });

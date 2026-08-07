@@ -21,7 +21,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     env.SESSION
   );
   if (!authed) {
-    return new Response(null, { status: 401 });
+    return jsonError(401, "Unauthorized");
   }
 
   let form: FormData;

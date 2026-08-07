@@ -126,6 +126,30 @@ export const POST: APIRoute = async ({ request, locals }) => {
 
     const { token_id: tokenId, price, ipfs_cid, artist_id: artistId, selling_mode, royalty_pct } = reserveResult;
 
+    // Artist ownership check: an artist session can only voucher their own designs.
+    if (artistSession && !isDevAdmin && artistSession.artistId !== artistId) {
+      // Un-reserve the design since this artist doesn't own it.
+      await db
+        .prepare("UPDATE designs SET status = 'available', reserved_until = NULL WHERE id = ?")
+        .bind(designId)
+        .run();
+      console.log(
+        JSON.stringify({
+          request_id: requestId,
+          route: "/api/voucher",
+          status: 403,
+          duration_ms: Date.now() - start,
+          reason: "artist_does_not_own_design",
+          requested_by: artistSession.artistId,
+          design_artist: artistId,
+        })
+      );
+      return new Response(JSON.stringify({ error: "You do not own this design" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
+
     // Look up artist's wallet address for per-artist treasury
     const artistRow = await db
       .prepare("SELECT wallet_address FROM artists WHERE id = ?")

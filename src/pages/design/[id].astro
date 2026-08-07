@@ -93,10 +93,7 @@ if (!design) {
   return Astro.redirect("/market");
 }
 
-function fmtThb(v: number | null) {
-  if (!v) return "—";
-  return `฿${v.toLocaleString("th-TH", { minimumFractionDigits: 2 })}`;
-}
+import { fmtThb } from "../../lib/format";
 
 function fmtDate(ts: number) {
   return new Date(ts * 1000).toLocaleString("en-GB", {
@@ -242,7 +239,7 @@ const t = createT(locale);
                       {fmtDate(r.created_at)}
                     </td>
                     <td class="p-3 px-4 border-b border-outline-variant/20">
-                      <a href={`/checkout/${design.id}?resale=${r.id}`} class="btn-primary text-xs !px-4 !py-2">{t("artistDetail.buyResale")}</a>
+                      <span class="text-xs text-on-surface-variant/50 font-body">Resale coming soon</span>
                     </td>
                   </tr>
                 ))}

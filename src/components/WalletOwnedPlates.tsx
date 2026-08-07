@@ -2,7 +2,8 @@ import WalletProvider from "./WalletProvider";
 import { useState, useEffect } from "react";
 import { usePasskeyWallet } from "../contexts/PasskeyWalletContext";
 import Plate from "./Plate";
-import { createT, isSupportedLocale } from "../lib/i18n";
+import { createT } from "../lib/i18n";
+import { fmtThb } from "../lib/format";
 import type { Locale } from "../lib/i18n/types";
 
 interface OwnedPlate {
@@ -95,7 +96,7 @@ function WalletOwnedPlatesInner({ locale: propLocale }: { locale?: Locale }) {
           <div className="font-body text-xs text-on-surface-variant/60 tracking-[0.12em] uppercase mt-1">{t("wallet.plates")}</div>
         </div>
         <div>
-          <div className="font-display text-headline-sm text-on-surface">฿{totalValue.toLocaleString("th-TH", { minimumFractionDigits: 2 })}</div>
+          <div className="font-display text-headline-sm text-on-surface">{fmtThb(totalValue)}</div>
           <div className="font-body text-xs text-on-surface-variant/60 tracking-[0.12em] uppercase mt-1">{t("wallet.value")}</div>
         </div>
       </div>

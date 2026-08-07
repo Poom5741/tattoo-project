@@ -194,5 +194,10 @@
     "howItWorks": "How it works",
     "copyright": "© 2026 SAKNID — house of one-off ink",
     "locations": "Berlin · Osaka · CDMX · Stockholm"
+  },
+  "page500": {
+    "title": "Something went wrong",
+    "message": "The ink didn't take. We've been notified — try again in a moment.",
+    "cta": "Back to gallery"
   }
 }

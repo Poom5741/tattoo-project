@@ -11,7 +11,10 @@ export const GET: APIRoute = async ({ request, locals }) => {
     env.SESSION
   );
   if (!authed) {
-    return new Response(null, { status: 401 });
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 
   try {

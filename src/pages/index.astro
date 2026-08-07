@@ -21,12 +21,9 @@ const STYLE_KIND: Record<string, number> = {
 };
 
 import { createT } from "../lib/i18n";
+import { fmtThb } from "../lib/format";
 const locale = Astro.locals?.locale ?? "en";
 const t = createT(locale as "en" | "th");
-function fmtThb(v: number | null) {
-  if (!v) return "—";
-  return `฿${v.toLocaleString("th-TH", { minimumFractionDigits: 2 })}`;
-}
 ---
 
 <Base title="SAKNID — One-of-one tattoo plates">

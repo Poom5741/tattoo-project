@@ -31,7 +31,7 @@ describe("currency — no ETH literals in price display", () => {
   it("wallet (WalletOwnedPlates.tsx) shows ฿, not ETH", () => {
     const src = readFileSync(SRC("components/WalletOwnedPlates.tsx"), "utf8");
     expect(src).not.toMatch(/ETH/);
-    expect(src).toMatch(/toLocaleString.*th-TH/);
+    expect(src).toMatch(/fmtThb/);
   });
 });
 

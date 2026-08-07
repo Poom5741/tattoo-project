@@ -65,10 +65,8 @@ if (!artist) {
 
 const avail = plates.filter((d) => d.status === "available").length;
 
-function fmtThb(v: number | null) {
-  if (!v) return "—";
-  return `฿${v.toLocaleString("th-TH", { minimumFractionDigits: 2 })}`;
-}
+import { fmtThb } from "../../lib/format";
+
 const locale = Astro.locals?.locale ?? "en";
 const t = createT(locale);
 ---

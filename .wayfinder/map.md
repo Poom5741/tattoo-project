@@ -59,6 +59,11 @@ SAKNID is production-ready for soft launch: all security gaps fixed, every user 
 - Resale listing table rows: the "Buy" links still render, but the destination `/checkout/[id]?resale=…` now redirects to booking. The user sees no action. Tighten when resale is re-enabled.
 - `fmtThb` exists in 4 separate files (index.astro, artist/[id].astro, design/[id].astro, WalletOwnedPlates.tsx). Consider extracting to a shared util when the next currency-related ticket arrives.
 - All 7 wayfinder tickets are closed. The map is clear — nothing left to decide before shipping.
+
+## Closed frontier (done)
+
+All 7 tickets resolved. The map is done. What remains in **Not yet specified** is the fog that graduated during this session — those are follow-up items for future maps, not blockers for the soft launch. The next move is to run `pnpm dev` and smoke-test the live flows (Scenario A–D in the manual test guide), then open a PR.
+
 - Domain acquisition for `saknid.io` (or equivalent) so Resend can verify it
 - Push/email notifications when a booking is accepted/declined or a new chat message arrives
 - Structured error tracking (beyond console.log) — Sentry, Logflare, or Cloudflare Analytics
