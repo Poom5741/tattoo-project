@@ -7,6 +7,13 @@ export const GET: APIRoute = async () => {
   return new Response(null, { status: 302, headers: { Location: "/admin" } });
 };
 
+function jsonError(status: number, message: string): Response {
+  return new Response(JSON.stringify({ error: message }), {
+    status,
+    headers: { "Content-Type": "application/json" },
+  });
+}
+
 export const POST: APIRoute = async ({ request, locals }) => {
   const env = locals.runtime.env;
   const authed = await isAdminAuthed(
@@ -21,7 +28,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   try {
     form = await request.formData();
   } catch {
-    return new Response("Invalid form data", { status: 400 });
+    return jsonError(400, "Invalid form data");
   }
 
   const str = (k: string) => {
@@ -36,7 +43,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const walletAddress = str("walletAddress") || null;
 
   if (!name) {
-    return new Response("Name is required", { status: 400 });
+    return jsonError(400, "Name is required");
   }
 
   // Generate ID from name: lowercase, replace spaces with hyphens, strip non-alphanumeric
@@ -47,12 +54,12 @@ export const POST: APIRoute = async ({ request, locals }) => {
     .slice(0, 30);
 
   if (!id) {
-    return new Response("Invalid name", { status: 400 });
+    return jsonError(400, "Invalid name");
   }
 
   // Validate wallet address format if provided
   if (walletAddress && !/^0x[a-fA-F0-9]{40}$/.test(walletAddress)) {
-    return new Response("Invalid wallet address", { status: 400 });
+    return jsonError(400, "Invalid wallet address");
   }
 
   try {
@@ -61,7 +68,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .bind(id)
       .first();
     if (existing) {
-      return new Response("Artist with this ID already exists", { status: 409 });
+      return jsonError(409, "Artist with this ID already exists");
     }
 
     await env.DB.prepare(
@@ -72,7 +79,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
       .run();
   } catch (err) {
     console.error("[register-artist] D1 error:", String(err));
-    return new Response("Internal server error", { status: 500 });
+    return jsonError(500, "Internal server error");
   }
 
   return new Response(null, {

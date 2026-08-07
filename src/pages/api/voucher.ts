@@ -16,6 +16,34 @@ export const POST: APIRoute = async ({ request, locals }) => {
   const env = locals.runtime.env;
   const db = env.DB;
 
+  // Auth gate: a voucher authorises on-chain minting for a specific buyer.
+  // It must not be signable by an unauthenticated caller.
+  //
+  // Accepted sessions:
+  //   - A buyer session (`locals.user` is the buyer's wallet/address) and
+  //     the body's `buyer` matches `locals.user.id`.
+  //   - An artist session (the artist who owns the design).
+  //   - An admin session (any design).
+  const buyerSession = locals.user ?? null;
+  const artistSession = locals.artistSession ?? null;
+  const isDevAdmin = locals.user?.id === "dev-admin";
+
+  if (!buyerSession && !artistSession && !isDevAdmin) {
+    console.log(
+      JSON.stringify({
+        request_id: requestId,
+        route: "/api/voucher",
+        status: 401,
+        duration_ms: Date.now() - start,
+        reason: "unauthorized",
+      })
+    );
+    return new Response(JSON.stringify({ error: "Unauthorized" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" },
+    });
+  }
+
   let body: unknown;
   try {
     body = await request.json();
@@ -32,6 +60,29 @@ export const POST: APIRoute = async ({ request, locals }) => {
       status: 400,
       headers: { "Content-Type": "application/json" },
     });
+  }
+
+  // Buyer-must-match check: a buyer session can only voucher for itself.
+  if (buyerSession && !isDevAdmin) {
+    const claimedBuyer = (parsed.data.buyer ?? "").toLowerCase();
+    const sessionId = (buyerSession.id ?? "").toLowerCase();
+    if (!claimedBuyer || claimedBuyer !== sessionId) {
+      console.log(
+        JSON.stringify({
+          request_id: requestId,
+          route: "/api/voucher",
+          status: 403,
+          duration_ms: Date.now() - start,
+          reason: "buyer_mismatch",
+          claimed: claimedBuyer,
+          session: sessionId,
+        })
+      );
+      return new Response(JSON.stringify({ error: "Buyer does not match the authenticated session" }), {
+        status: 403,
+        headers: { "Content-Type": "application/json" },
+      });
+    }
   }
 
   const { designId, buyer } = parsed.data;
