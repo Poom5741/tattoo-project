@@ -2,7 +2,12 @@ import { useState, useEffect } from "react";
 import ChatBox from "./ChatBox";
 import { ChatProvider, useChat } from "../lib/chat/store";
 
-function InboxInner() {
+interface InboxInnerProps {
+  userId: string;
+  role: "artist" | "client";
+}
+
+function InboxInner({ userId, role }: InboxInnerProps) {
   const [activeConv, setActiveConv] = useState<string | null>(null);
   const { conversations, fetchConversations, loading } = useChat();
 
@@ -31,7 +36,9 @@ function InboxInner() {
                 }`}
               >
                 <div className="flex items-center justify-between mb-1.5">
-                  <span className="font-semibold text-sm text-[#1B1C18]">{conv.clientName || conv.artistName || conv.id}</span>
+                  <span className="font-semibold text-sm text-[#1B1C18]">
+                    {role === "client" ? (conv.artistName || conv.clientName || conv.id) : (conv.clientName || conv.artistName || conv.id)}
+                  </span>
                   {conv.unread > 0 && (
                     <span className="px-2 py-0.5 bg-[#E60023] text-white text-[9px] font-bold rounded-full">{conv.unread}</span>
                   )}
@@ -44,7 +51,7 @@ function InboxInner() {
       </div>
       <div className={`flex-1 h-full ${activeConv ? "block" : "hidden md:block"}`}>
         {activeConv ? (
-          <ChatBox userId="artist" senderRole="artist" conversationId={activeConv} onBack={() => setActiveConv(null)} />
+          <ChatBox userId={userId} senderRole={role} conversationId={activeConv} onBack={() => setActiveConv(null)} />
         ) : (
           <div className="flex items-center justify-center h-full text-[#5A5B55]/60 text-sm border border-[#E8E3D8] rounded-xl bg-[#FBF9F3] font-body">Select a conversation</div>
         )}
@@ -53,10 +60,15 @@ function InboxInner() {
   );
 }
 
-export default function InboxView() {
+interface InboxViewProps {
+  userId?: string;
+  role?: "artist" | "client";
+}
+
+export default function InboxView({ userId = "artist", role = "artist" }: InboxViewProps) {
   return (
     <ChatProvider>
-      <InboxInner />
+      <InboxInner userId={userId} role={role} />
     </ChatProvider>
   );
 }

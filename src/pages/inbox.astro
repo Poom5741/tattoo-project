@@ -1,0 +1,30 @@
+---
+export const prerender = false;
+
+import Base from "../layouts/Base.astro";
+import Nav from "../components/Nav";
+import Footer from "../components/Footer.astro";
+import InboxView from "../components/InboxView";
+
+const user = Astro.locals.user;
+
+// Redirect to login if the buyer is not authenticated
+if (!user) {
+  return Astro.redirect("/auth/login");
+}
+---
+
+<Base title="Messages — SAKNID" description="Manage your conversations with artists.">
+  <Nav client:load currentPath="/inbox" />
+  
+  <main class="max-w-container-max mx-auto px-5 md:px-16 py-10 pb-20">
+    <div class="mb-10">
+      <div class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-2">SAKNID / Inbox</div>
+      <h1 class="font-display text-headline-md text-on-surface">Messages</h1>
+    </div>
+    
+    <InboxView client:load userId={user.id} role="client" />
+  </main>
+
+  <Footer />
+</Base>

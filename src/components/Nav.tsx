@@ -34,6 +34,7 @@ export default function Nav({ currentPath = "/" }: NavProps) {
 		["/artists", t("nav.artists")],
 		["/booking", t("nav.book")],
 		["/wallet", t("nav.myWallet")],
+		["/inbox", t("nav.inbox")],
 		["/artist/portal", t("nav.artistPortal")],
 		["/", t("nav.howItWorks")],
 	];
