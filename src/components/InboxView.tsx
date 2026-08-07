@@ -11,10 +11,12 @@ function InboxInner() {
   }, [fetchConversations]);
 
   return (
-    <div className="flex h-[calc(100vh-120px)] gap-6">
-      <div className="w-80 shrink-0 border border-[#E8E3D8] rounded-xl overflow-hidden bg-[#FBF9F3]">
+    <div className="flex h-[calc(100vh-120px)] gap-6 flex-col md:flex-row">
+      <div className={`w-full md:w-80 shrink-0 border border-[#E8E3D8] rounded-xl overflow-hidden bg-[#FBF9F3] ${
+        activeConv ? "hidden md:block" : "block"
+      }`}>
         <div className="px-4 py-3 border-b border-[#E8E3D8] bg-[#F5F0E8] font-display font-semibold text-sm text-[#1B1C18]">Inbox</div>
-        <div className="divide-y divide-[#E8E3D8]/40">
+        <div className="divide-y divide-[#E8E3D8]/40 overflow-y-auto max-h-[calc(100vh-180px)]">
           {loading && conversations.length === 0 ? (
             <div className="p-4 text-xs text-[#5A5B55]/60 text-center font-body">Loading conversations...</div>
           ) : conversations.length === 0 ? (
@@ -40,9 +42,9 @@ function InboxInner() {
           )}
         </div>
       </div>
-      <div className="flex-1">
+      <div className={`flex-1 h-full ${activeConv ? "block" : "hidden md:block"}`}>
         {activeConv ? (
-          <ChatBox userId="artist" senderRole="artist" conversationId={activeConv} />
+          <ChatBox userId="artist" senderRole="artist" conversationId={activeConv} onBack={() => setActiveConv(null)} />
         ) : (
           <div className="flex items-center justify-center h-full text-[#5A5B55]/60 text-sm border border-[#E8E3D8] rounded-xl bg-[#FBF9F3] font-body">Select a conversation</div>
         )}

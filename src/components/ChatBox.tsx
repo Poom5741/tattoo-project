@@ -9,9 +9,10 @@ interface ChatBoxProps {
   senderRole: "client" | "artist" | "admin";
   conversationId: string;
   onSendBooking?: () => void;
+  onBack?: () => void;
 }
 
-export default function ChatBox({ userId, senderRole, conversationId, onSendBooking }: ChatBoxProps) {
+export default function ChatBox({ userId, senderRole, conversationId, onSendBooking, onBack }: ChatBoxProps) {
   const [text, setText] = useState("");
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
@@ -49,6 +50,15 @@ export default function ChatBox({ userId, senderRole, conversationId, onSendBook
     <div className="flex flex-col h-full border border-[#E8E3D8] rounded-xl overflow-hidden bg-[#FBF9F3]">
       <div className="flex items-center justify-between px-4 py-3 border-b border-[#E8E3D8] bg-[#F5F0E8]">
         <div className="flex items-center gap-2">
+          {onBack && (
+            <button 
+              onClick={onBack} 
+              className="inline-flex items-center justify-center p-1 rounded-full hover:bg-[#E8E3D8]/50 text-[#5A5B55] hover:text-[#1B1C18] transition-colors mr-1"
+              title="Back to conversation list"
+            >
+              <span className="text-lg font-bold">←</span>
+            </button>
+          )}
           <MessageSquare className="w-5 h-5 text-[#5A5B55]" />
           <span className="font-display font-semibold text-sm text-[#1B1C18]">Chat</span>
         </div>
