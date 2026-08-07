@@ -2,6 +2,20 @@ import { defineMiddleware } from "astro:middleware";
 import { detectLocale } from "@/lib/i18n";
 import { createAuth } from "@/lib/auth/server";
 import { getArtistSession } from "@/lib/artist/auth";
+import {
+  applySecurityHeaders,
+  checkRateLimit,
+  classifyProtectedRoute,
+  getClientIp,
+  rateLimitResponse,
+  type RateLimitBucket,
+} from "@/lib/security";
+
+/** Per-bucket limits. Tied to ticket 02 acceptance criteria. */
+const RATE_LIMIT_CONFIG: Record<RateLimitBucket, { limit: number; windowSeconds: number }> = {
+  auth: { limit: 5, windowSeconds: 60 },
+  submit: { limit: 20, windowSeconds: 60 },
+};
 
 function getCookieValue(cookieHeader: string, name: string): string | null {
   const match = cookieHeader.match(new RegExp(`(?:^|;\\s*)${name}=([^;]*)`));
@@ -21,6 +35,29 @@ export const onRequest = defineMiddleware(async (context, next) => {
   context.locals.devRole = devRole;
 
   const url = new URL(context.request.url);
+
+  // Rate limiting: gate the brute-force / spam surfaces before any
+  // expensive work (auth handshake, DB writes).
+  const bucket = classifyProtectedRoute(url.pathname, context.request.method);
+  if (bucket) {
+    try {
+      const env = context.locals.runtime.env as Env;
+      const ip = getClientIp(context.request);
+      const cfg = RATE_LIMIT_CONFIG[bucket];
+      const decision = await checkRateLimit(env.SESSION, {
+        ip,
+        bucket,
+        limit: cfg.limit,
+        windowSeconds: cfg.windowSeconds,
+      });
+      if (!decision.allowed) {
+        return rateLimitResponse(decision);
+      }
+    } catch (e) {
+      // Rate-limit failures should never break the request — log and continue.
+      console.error("Rate limit check error:", e);
+    }
+  }
 
   // Check artist session for protected /artist/ routes (e.g. /artist/inbox)
   if (url.pathname.startsWith("/artist/inbox")) {
@@ -136,5 +173,6 @@ export const onRequest = defineMiddleware(async (context, next) => {
     context.locals.session = null;
   }
 
-  return next();
+  const response = await next();
+  return applySecurityHeaders(response);
 });

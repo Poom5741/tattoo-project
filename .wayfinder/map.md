@@ -12,17 +12,19 @@ SAKNID is production-ready for soft launch: all security gaps fixed, every user 
 - **Design system cleanup** (artist portal inline styles, admin panel theme) is a **separate effort** — not in this map.
 - **AdminReviewPanel** is a placeholder with hardcoded mock data — leave as-is, note on map.
 - **Execution mode: ON.** This map carries execution, not just decisions. Every task ticket is implemented test-first (TDD) by the agent and committed. The map clears when all tickets are closed, not when they are decided. Branch: `fix/rate-limiting-headers` is the working branch for tickets 02–06; the map and ticket 01's resolution live on `fix/security-hardening` and have been merged in via the working tree.
+- **Ticket 02 was researched AND implemented in this branch** (rather than split into a research subagent + separate implementation pass) because the rate-limiting research question resolves to a one-line "use the existing KV" answer that the implementation immediately consumes. Splitting it would have added two extra sessions for no added fidelity.
 
 ## Decisions so far
 
 - **[01 — Security Hardening](tickets/01-security-hardening.md)** — Closed in commit `46ece82` (`fix(security): remove hardcoded auth fallbacks, guard dev role switcher`): hardcoded `ADMIN_PASSWORD` and `BETTER_AUTH_SECRET` fallbacks removed, dev role switcher guarded by `DEV_MODE` env var in middleware and hidden in production builds.
+- **[02 — Rate Limiting & Headers](tickets/02-rate-limiting-headers.md)** — Closed on this branch (`fix/rate-limiting-headers`): in-middleware rate limiting on Cloudflare KV with two buckets (`auth` 5/min, `submit` 20/min) plus standard security headers on every response. 32 unit tests across 3 files (headers, rate-limit, route classifier). Implementation lives in `src/lib/security/` and is wired into `src/middleware.ts`.
 
 ## Frontier
 
 | Ticket | Type | Status | Claimed by |
 |--------|------|--------|------------|
 | [01 — Security Hardening](tickets/01-security-hardening.md) | task | **Closed** (`46ece82`) | — |
-| [02 — Rate Limiting & Headers](tickets/02-rate-limiting-headers.md) | research+task | **In progress** | wayfinder-loop |
+| [02 — Rate Limiting & Headers](tickets/02-rate-limiting-headers.md) | research+task | **Closed** (this branch) | wayfinder-loop |
 | [03 — Checkout Redirect & Resale](tickets/03-checkout-redirect-resale-cleanup.md) | task | Open | — |
 | [04 — Currency & Booking Fix](tickets/04-currency-booking-fix.md) | task | Open | — |
 | [05 — Footer, i18n & Locale Fix](tickets/05-footer-i18n-locale-fix.md) | task | Open | — |
