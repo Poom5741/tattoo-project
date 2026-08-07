@@ -77,7 +77,7 @@ const t = createT(locale);
   title={`${artist.name} — SAKNID`}
   description={artist.bio ?? `${artist.name} — ${artist.style}`}
 >
-  <Nav client:load currentPath="/artists" />
+  <Nav client:load currentPath="/artists" locale={locale} />
   <Toast client:load />
 
   <section class="py-8 pb-20">

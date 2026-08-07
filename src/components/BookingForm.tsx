@@ -7,6 +7,7 @@ import type { Locale } from "../lib/i18n/types";
 interface Props {
   artists: Artist[];
   designs: Design[];
+  locale?: Locale;
 }
 
 type BookingType = "plate" | "custom";
@@ -33,9 +34,9 @@ function readHtmlLocale(): Locale {
   return val && isSupportedLocale(val) ? val : "en";
 }
 
-function BookingFormInner({ artists, designs }: Props) {
+function BookingFormInner({ artists, designs, locale: propLocale }: Props) {
   const { address } = usePasskeyWallet();
-  const [locale] = useState<Locale>(readHtmlLocale);
+  const [locale] = useState<Locale>(propLocale || readHtmlLocale);
   const t = createT(locale);
 
   const STYLES = [
@@ -347,10 +348,10 @@ function BookingFormInner({ artists, designs }: Props) {
   );
 }
 
-export default function BookingForm({ artists, designs }: Props) {
+export default function BookingForm({ artists, designs, locale }: Props) {
   return (
     <PasskeyWalletProvider>
-      <BookingFormInner artists={artists} designs={designs} />
+      <BookingFormInner artists={artists} designs={designs} locale={locale} />
     </PasskeyWalletProvider>
   );
 }

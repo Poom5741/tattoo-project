@@ -8,6 +8,7 @@ import type { Locale } from "@/lib/i18n/types";
 
 interface NavProps {
 	currentPath?: string;
+	locale?: Locale;
 }
 
 /**
@@ -21,13 +22,13 @@ function readHtmlLocale(): Locale {
 	return val && isSupportedLocale(val) ? val : "en";
 }
 
-export default function Nav({ currentPath = "/" }: NavProps) {
+export default function Nav({ currentPath = "/", locale: propLocale }: NavProps) {
 	const [open, setOpen] = useState(false);
 	const [scrolled, setScrolled] = useState(false);
 
 	// Localized nav labels (hrefs stay locale-independent). Read once
 	// at hydration; a locale switch reloads the page (#80).
-	const [locale] = useState<Locale>(readHtmlLocale);
+	const [locale] = useState<Locale>(propLocale || readHtmlLocale);
 	const t = createT(locale);
 	const links: [string, string][] = [
 		["/market", t("nav.gallery")],

@@ -11,6 +11,7 @@ const cookieHeader = Astro.request.headers.get("cookie") ?? "";
 
 const artistSession = await getArtistSession(cookieHeader, env.SESSION);
 const isAdmin = await isAdminAuthed(cookieHeader, env.SESSION);
+const locale = Astro.locals?.locale ?? "en";
 
 // If neither artist nor admin, redirect to artist portal for authentication
 if (!artistSession && !isAdmin) {
@@ -23,6 +24,6 @@ if (!artistSession && !isAdmin) {
     <a href="/artist/portal" class="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface mb-6 font-body text-sm transition-colors duration-200">
       ← Back to portal
     </a>
-    <InboxView client:load />
+    <InboxView client:load locale={locale} />
   </main>
 </Base>

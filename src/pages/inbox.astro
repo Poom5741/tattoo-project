@@ -8,10 +8,11 @@ import InboxView from "../components/InboxView";
 import ClientWalletSignatureGate from "../components/ClientWalletSignatureGate";
 
 const user = Astro.locals.user;
+const locale = Astro.locals?.locale ?? "en";
 ---
 
 <Base title="Messages — SAKNID" description="Manage your conversations with artists.">
-  <Nav client:load currentPath="/inbox" />
+  <Nav client:load currentPath="/inbox" locale={locale} />
   
   <main class="max-w-container-max mx-auto px-5 md:px-16 py-10 pb-20">
     <div class="mb-10">
@@ -22,7 +23,7 @@ const user = Astro.locals.user;
     {!user ? (
       <ClientWalletSignatureGate client:load />
     ) : (
-      <InboxView client:load userId={user.id} role="client" />
+      <InboxView client:load userId={user.id} role="client" locale={locale} />
     )}
   </main>
 

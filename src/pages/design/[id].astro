@@ -112,7 +112,7 @@ const t = createT(locale);
   title={design.title + " — SAKNID"}
   description={`${design.title} by ${artist?.name ?? ""}. One-of-one tattoo plate.`}
 >
-  <Nav client:load currentPath="/market" />
+  <Nav client:load currentPath="/market" locale={locale} />
   <Toast client:load />
 
   <section class="py-8 pb-20">

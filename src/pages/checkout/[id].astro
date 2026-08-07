@@ -7,6 +7,7 @@ import Footer from "../../components/Footer.astro";
 import CheckoutFlow from "../../components/CheckoutFlow";
 
 const { id } = Astro.params;
+const locale = Astro.locals?.locale ?? "en";
 
 interface DesignRow {
   id: string;
@@ -63,7 +64,7 @@ if (design.status !== "available") {
   title={`Acquire "${design.title}" — SAKNID`}
   description={`Acquire ${design.title}. One-of-one tattoo plate on Base Sepolia.`}
 >
-  <Nav client:load currentPath="/checkout" />
+  <Nav client:load currentPath="/checkout" locale={locale} />
 
   <CheckoutFlow client:only="react" design={design} />
 

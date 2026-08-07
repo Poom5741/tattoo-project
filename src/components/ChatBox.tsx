@@ -12,6 +12,7 @@ interface ChatBoxProps {
   conversationId: string;
   onSendBooking?: () => void;
   onBack?: () => void;
+  locale?: Locale;
 }
 
 function readHtmlLocale(): Locale {
@@ -20,8 +21,8 @@ function readHtmlLocale(): Locale {
   return val && isSupportedLocale(val) ? val : "en";
 }
 
-export default function ChatBox({ userId, senderRole, conversationId, onSendBooking, onBack }: ChatBoxProps) {
-  const [locale] = useState<Locale>(readHtmlLocale);
+export default function ChatBox({ userId, senderRole, conversationId, onSendBooking, onBack, locale: propLocale }: ChatBoxProps) {
+  const [locale] = useState<Locale>(propLocale || readHtmlLocale);
   const t = createT(locale);
   const [text, setText] = useState("");
   const [error, setError] = useState("");

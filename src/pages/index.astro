@@ -27,7 +27,7 @@ const t = createT(locale as "en" | "th");
 
 <Base title="SAKNID — One-of-one tattoo plates">
   <div class="min-h-screen flex flex-col">
-    <Nav currentPath="/" client:load />
+    <Nav currentPath="/" client:load locale={locale} />
 
     <main class="flex-1 w-full max-w-container-max mx-auto px-5 md:px-16 pt-12 md:pt-24 pb-20">
       {/* ── Hero ── */}

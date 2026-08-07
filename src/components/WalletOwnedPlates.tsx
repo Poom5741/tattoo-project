@@ -23,8 +23,8 @@ function readHtmlLocale(): Locale {
   return val && isSupportedLocale(val) ? val : "en";
 }
 
-function WalletOwnedPlatesInner() {
-  const [locale] = useState<Locale>(readHtmlLocale);
+function WalletOwnedPlatesInner({ locale: propLocale }: { locale?: Locale }) {
+  const [locale] = useState<Locale>(propLocale || readHtmlLocale);
   const t = createT(locale);
   const { address, status } = usePasskeyWallet();
   const [plates, setPlates] = useState<OwnedPlate[]>([]);
@@ -136,10 +136,14 @@ function WalletOwnedPlatesInner() {
     </div>
   );
 }
-export default function WalletOwnedPlates() {
+interface WalletOwnedPlatesProps {
+  locale?: Locale;
+}
+
+export default function WalletOwnedPlates({ locale }: WalletOwnedPlatesProps) {
   return (
     <WalletProvider>
-      <WalletOwnedPlatesInner />
+      <WalletOwnedPlatesInner locale={locale} />
     </WalletProvider>
   );
 }

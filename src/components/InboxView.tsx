@@ -13,10 +13,11 @@ function readHtmlLocale(): Locale {
 interface InboxInnerProps {
   userId: string;
   role: "artist" | "client";
+  locale?: Locale;
 }
 
-function InboxInner({ userId, role }: InboxInnerProps) {
-  const [locale] = useState<Locale>(readHtmlLocale);
+function InboxInner({ userId, role, locale: propLocale }: InboxInnerProps) {
+  const [locale] = useState<Locale>(propLocale || readHtmlLocale);
   const t = createT(locale);
   const [activeConv, setActiveConv] = useState<string | null>(null);
   const { conversations, fetchConversations, loading } = useChat();
@@ -61,7 +62,7 @@ function InboxInner({ userId, role }: InboxInnerProps) {
       </div>
       <div className={`flex-1 h-full ${activeConv ? "block" : "hidden md:block"}`}>
         {activeConv ? (
-          <ChatBox userId={userId} senderRole={role} conversationId={activeConv} onBack={() => setActiveConv(null)} />
+          <ChatBox userId={userId} senderRole={role} conversationId={activeConv} onBack={() => setActiveConv(null)} locale={locale} />
         ) : (
           <div className="flex items-center justify-center h-full text-[#5A5B55]/60 text-sm border border-[#E8E3D8] rounded-xl bg-[#FBF9F3] font-body">{t("chat.selectConversation")}</div>
         )}
@@ -73,12 +74,13 @@ function InboxInner({ userId, role }: InboxInnerProps) {
 interface InboxViewProps {
   userId?: string;
   role?: "artist" | "client";
+  locale?: Locale;
 }
 
-export default function InboxView({ userId = "artist", role = "artist" }: InboxViewProps) {
+export default function InboxView({ userId = "artist", role = "artist", locale }: InboxViewProps) {
   return (
     <ChatProvider>
-      <InboxInner userId={userId} role={role} />
+      <InboxInner userId={userId} role={role} locale={locale} />
     </ChatProvider>
   );
 }

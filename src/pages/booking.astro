@@ -12,7 +12,7 @@ const t = createT(locale);
 ---
 <Base title="Book a session — SAKNID" description="Book a session with one of our resident artists. One-of-one tattoo plates, hand-drawn and inked once.">
   <div class="min-h-screen flex flex-col">
-    <Nav currentPath="/booking" client:load />
+    <Nav currentPath="/booking" client:load locale={locale} />
     <main class="flex-1">
         <div class="container-bb">
           <a href="/artists" class="inline-flex items-center gap-2 text-on-surface-variant hover:text-on-surface mb-8 font-body text-sm transition-colors">{t("bookingPage.backToArtists")}</a>
@@ -27,7 +27,7 @@ const t = createT(locale);
 
           <div class="grid grid-cols-1 lg:grid-cols-[1.3fr_0.7fr] gap-12 items-start">
             <div class="card-bb p-8 md:p-9">
-              <BookingForm artists={ARTISTS} designs={DESIGNS} client:load />
+              <BookingForm artists={ARTISTS} designs={DESIGNS} client:load locale={locale} />
             </div>
 
             <div class="flex flex-col gap-px bg-outline-variant border border-outline-variant rounded-lg overflow-hidden">
