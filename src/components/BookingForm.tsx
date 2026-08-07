@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { Artist, Design } from "../lib/catalog/types";
+import { PasskeyWalletProvider, usePasskeyWallet } from "../contexts/PasskeyWalletContext";
 
 interface Props {
   artists: Artist[];
@@ -33,7 +34,8 @@ const SIZES = [
 ];
 const BUDGETS = ["Under ฿5,000", "฿5,000–10,000", "฿10,000–20,000", "฿20,000–40,000", "฿40,000+", "Flexible / discuss"];
 
-export default function BookingForm({ artists, designs }: Props) {
+function BookingFormInner({ artists, designs }: Props) {
+  const { address } = usePasskeyWallet();
   const [form, setForm] = useState<FormState>({
     artistId: artists[0]?.id ?? "",
     bookingType: "plate",
@@ -92,6 +94,7 @@ export default function BookingForm({ artists, designs }: Props) {
           customSize: form.customSize || null,
           customPlacement: form.customPlacement.trim() || null,
           customBudget: form.customBudget || null,
+          buyerWallet: address || null,
         }),
       });
       if (!res.ok) {
@@ -309,5 +312,13 @@ export default function BookingForm({ artists, designs }: Props) {
         </p>
       </div>
     </form>
+  );
+}
+
+export default function BookingForm({ artists, designs }: Props) {
+  return (
+    <PasskeyWalletProvider>
+      <BookingFormInner artists={artists} designs={designs} />
+    </PasskeyWalletProvider>
   );
 }

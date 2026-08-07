@@ -55,6 +55,7 @@ export const BookingInquirySchema = z.object({
   customSize: z.enum(["small", "medium", "large", "extra-large"]).nullish(),
   customPlacement: z.string().max(200).nullish(),
   customBudget: z.string().max(100).nullish(),
+  buyerWallet: z.string().regex(/^0x[0-9a-fA-F]{40}$/).nullish(),
 });
 
 export const VoucherRequestSchema = z.object({

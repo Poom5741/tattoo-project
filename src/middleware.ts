@@ -34,12 +34,45 @@ export const onRequest = defineMiddleware(async (context, next) => {
 
   try {
     const env = context.locals.runtime.env as Env;
-    const auth = createAuth(env, context.url.origin);
-    const session = await auth.api.getSession({
-      headers: new Headers({ cookie: cookieHeader }),
-    });
-    context.locals.user = session?.user ?? null;
-    context.locals.session = session?.session ?? null;
+    
+    // Check client passkey wallet session first (takes priority)
+    const clientToken = getCookieValue(cookieHeader, "client_token");
+    let clientSession: { address: string } | null = null;
+    if (clientToken) {
+      try {
+        const val = await env.SESSION.get(`client:${clientToken}`);
+        if (val) clientSession = JSON.parse(val);
+      } catch (e) {
+        console.error("Client session read error:", e);
+      }
+    }
+
+    if (clientSession) {
+      const now = new Date();
+      context.locals.user = {
+        id: clientSession.address,
+        name: `${clientSession.address.slice(0, 6)}…${clientSession.address.slice(-4)}`,
+        email: `${clientSession.address}@passkey.wallet`,
+        emailVerified: true,
+        createdAt: now,
+        updatedAt: now,
+      } as any;
+      context.locals.session = {
+        id: clientToken!,
+        userId: clientSession.address,
+        expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+        token: clientToken!,
+        createdAt: now,
+        updatedAt: now,
+      } as any;
+    } else {
+      const auth = createAuth(env, context.url.origin);
+      const session = await auth.api.getSession({
+        headers: new Headers({ cookie: cookieHeader }),
+      });
+      context.locals.user = session?.user ?? null;
+      context.locals.session = session?.session ?? null;
+    }
 
     // Dev mode override: fake user session for admin/artist roles
     if (isDevMode && !context.locals.user) {
@@ -73,6 +106,23 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.locals.session = {
           id: "dev-session",
           userId: "dev-artist",
+          expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+          token: "dev-token",
+          createdAt: now,
+          updatedAt: now,
+        } as any;
+      } else if (devRole === "buyer") {
+        context.locals.user = {
+          id: "test-client",
+          name: "Dev Buyer (test-client)",
+          email: "buyer@dev.local",
+          emailVerified: true,
+          createdAt: now,
+          updatedAt: now,
+        } as any;
+        context.locals.session = {
+          id: "dev-session",
+          userId: "test-client",
           expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
           token: "dev-token",
           createdAt: now,

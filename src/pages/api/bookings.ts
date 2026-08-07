@@ -27,7 +27,7 @@ export const POST: APIRoute = async ({ request, locals }) => {
     });
   }
 
-  const { artistId, designId, name, contact, message, bookingType, customStyle, customSize, customPlacement, customBudget } = parsed.data;
+  const { artistId, designId, name, contact, message, bookingType, customStyle, customSize, customPlacement, customBudget, buyerWallet } = parsed.data;
 
   const db = env.DB;
   let d1Ms = 0;
@@ -37,13 +37,13 @@ export const POST: APIRoute = async ({ request, locals }) => {
     const d1Start = Date.now();
     await db
       .prepare(
-        "INSERT INTO booking_inquiries (artist_id, design_id, name, contact, message, booking_type, custom_style, custom_size, custom_placement, custom_budget) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        "INSERT INTO booking_inquiries (artist_id, design_id, name, contact, message, booking_type, custom_style, custom_size, custom_placement, custom_budget, buyer_wallet) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
       )
-      .bind(artistId, designId ?? null, name, contact, message ?? null, bookingType, customStyle ?? null, customSize ?? null, customPlacement ?? null, customBudget ?? null)
+      .bind(artistId, designId ?? null, name, contact, message ?? null, bookingType, customStyle ?? null, customSize ?? null, customPlacement ?? null, customBudget ?? null, buyerWallet ?? null)
       .run();
 
     // Auto-create chat conversation thread and initial message
-    const clientId = locals.user?.id ?? contact;
+    const clientId = buyerWallet ?? locals.user?.id ?? contact;
     const now = Math.floor(Date.now() / 1000);
     const initialText = message ? `Booking Inquiry: ${message}` : `New ${bookingType} booking inquiry from ${name}`;
 

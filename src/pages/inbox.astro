@@ -5,13 +5,9 @@ import Base from "../layouts/Base.astro";
 import Nav from "../components/Nav";
 import Footer from "../components/Footer.astro";
 import InboxView from "../components/InboxView";
+import ClientWalletSignatureGate from "../components/ClientWalletSignatureGate";
 
 const user = Astro.locals.user;
-
-// Redirect to login if the buyer is not authenticated
-if (!user) {
-  return Astro.redirect("/auth/login");
-}
 ---
 
 <Base title="Messages — SAKNID" description="Manage your conversations with artists.">
@@ -23,7 +19,11 @@ if (!user) {
       <h1 class="font-display text-headline-md text-on-surface">Messages</h1>
     </div>
     
-    <InboxView client:load userId={user.id} role="client" />
+    {!user ? (
+      <ClientWalletSignatureGate client:load />
+    ) : (
+      <InboxView client:load userId={user.id} role="client" />
+    )}
   </main>
 
   <Footer />
