@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#1B1C18"/>
+  <rect x="40" y="40" width="1120" height="550" rx="12" fill="#2A2B27" stroke="#E8E3D8" stroke-width="1"/>
+  <text x="600" y="280" text-anchor="middle" font-family="serif" font-weight="700" font-size="72" fill="#F0EBE1">SAKNID</text>
+  <text x="600" y="340" text-anchor="middle" font-family="sans-serif" font-size="24" fill="#E8E3D8">One-of-one tattoo plates</text>
+  <text x="600" y="390" text-anchor="middle" font-family="sans-serif" font-size="18" fill="#9A9B95">Blockchain-verified ownership · Berlin · Osaka · CDMX · Stockholm</text>
+</svg>
