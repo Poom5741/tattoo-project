@@ -181,5 +181,18 @@
     "artist": "Artist",
     "booking": "Booking",
     "typeMessage": "Type a message..."
+  },
+  "footer": {
+    "tagline": "A gallery of one-of-one tattoo plates. Each design is drawn once, claimed once, and inked by its maker. No repeats, ever.",
+    "galleryTitle": "Gallery",
+    "browsePlates": "Browse plates",
+    "yourCollection": "Your collection",
+    "artistsTitle": "Artists",
+    "theRoster": "The roster",
+    "bookSession": "Book a session",
+    "houseTitle": "House",
+    "howItWorks": "How it works",
+    "copyright": "© 2026 SAKNID — house of one-off ink",
+    "locations": "Berlin · Osaka · CDMX · Stockholm"
   }
 }

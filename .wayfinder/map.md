@@ -23,6 +23,7 @@ SAKNID is production-ready for soft launch: all security gaps fixed, every user 
 - **[07 — Research: Deployment & Email](tickets/07-research-deployment-email.md)** — Closed: findings in `docs/research/deployment-address-and-email.md`. Recommended: D1 `app_config` table for runtime contract address; Resend on a verified domain for email (drop MailChannels fallback). Recipient model (artist-direct vs admin vs hybrid) is a HITL question carried into ticket 06.
 - **[06 — Error Page & API Consistency](tickets/06-error-page-api-consistency.md)** — Closed on this branch: `src/pages/500.astro` added (mirrors 404 with Bone & Blood theme + "Back to gallery" CTA); the only API offender returning raw strings (`register-artist.ts`, 6 responses) converted to `{ error: string }` JSON envelope; `POST /api/voucher` now requires a buyer / artist / dev-admin session and verifies the body's `buyer` matches the authenticated user. 11 new unit tests (3 files). Email-recipient HITL question stays open and is logged on the map.
 - **[03 — Checkout Redirect & Resale Cleanup](tickets/03-checkout-redirect-resale-cleanup.md)** — Closed on this branch: `/checkout/[id]` is now a 6-line redirect shim to `/booking?designId=[id]`; the design-detail CTA moves through the existing i18n layer ("Reserve this plate" / "จองเพลทนี้"); the reservation auto-release UPDATE is gone; `ResaleButton` is a static placeholder (no wagmi); `/api/resale/{create,buy}` return `503 { error: "Resale is not yet available" }`. 7 new unit tests in `tests/unit/checkout-flow.test.ts`.
+- **[04 — Currency & Booking Fix](tickets/04-currency-booking-fix.md)** — Closed on this branch: all ETH price displays replaced with `fmtThb` / `toLocaleString("th-TH")` across `index.astro`, `artist/[id].astro`, and `WalletOwnedPlates.tsx`; `booking.astro` now queries D1 first (seed data is the fallback); booking success state includes a "Go to your inbox" link to `/inbox`. 6 new unit tests in `tests/unit/currency-booking.test.ts`.
 
 ## Frontier
 
@@ -31,7 +32,7 @@ SAKNID is production-ready for soft launch: all security gaps fixed, every user 
 | [01 — Security Hardening](tickets/01-security-hardening.md) | task | **Closed** (`46ece82`) | — |
 | [02 — Rate Limiting & Headers](tickets/02-rate-limiting-headers.md) | research+task | **Closed** (this branch) | wayfinder-loop |
 | [03 — Checkout Redirect & Resale](tickets/03-checkout-redirect-resale-cleanup.md) | task | **Closed** (this branch) | — |
-| [04 — Currency & Booking Fix](tickets/04-currency-booking-fix.md) | task | Open | — |
+| [04 — Currency & Booking Fix](tickets/04-currency-booking-fix.md) | task | **Closed** (this branch) | — |
 | [05 — Footer, i18n & Locale Fix](tickets/05-footer-i18n-locale-fix.md) | task | Open | — |
 | [06 — Error Page & API Consistency](tickets/06-error-page-api-consistency.md) | task | **Closed** (this branch) | — |
 | [07 — Research: Deployment & Email](tickets/07-research-deployment-email.md) | research | **Closed** (this branch) | — |
@@ -55,6 +56,7 @@ SAKNID is production-ready for soft launch: all security gaps fixed, every user 
 - 500 page request-id rendering (already logged by API routes; surface to the user)
 - ResaleButton final UX (current placeholder is intentionally minimal)
 - Resale listing table rows: the "Buy" links still render, but the destination `/checkout/[id]?resale=…` now redirects to booking. The user sees no action. Tighten when resale is re-enabled.
+- `fmtThb` exists in 4 separate files (index.astro, artist/[id].astro, design/[id].astro, WalletOwnedPlates.tsx). Consider extracting to a shared util when the next currency-related ticket arrives.
 - Domain acquisition for `saknid.io` (or equivalent) so Resend can verify it
 - Push/email notifications when a booking is accepted/declined or a new chat message arrives
 - Structured error tracking (beyond console.log) — Sentry, Logflare, or Cloudflare Analytics

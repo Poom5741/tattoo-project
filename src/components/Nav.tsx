@@ -16,19 +16,13 @@ interface NavProps {
  * Locale switches reload the page (see LanguageSwitcher), so this is
  * read once at hydration via a lazy initializer — no setter needed.
  */
-function readHtmlLocale(): Locale {
-	if (typeof document === "undefined") return "en";
-	const val = document.querySelector("html")?.getAttribute("data-locale");
-	return val && isSupportedLocale(val) ? val : "en";
-}
-
 export default function Nav({ currentPath = "/", locale: propLocale }: NavProps) {
 	const [open, setOpen] = useState(false);
 	const [scrolled, setScrolled] = useState(false);
 
 	// Localized nav labels (hrefs stay locale-independent). Read once
 	// at hydration; a locale switch reloads the page (#80).
-	const [locale] = useState<Locale>(propLocale || readHtmlLocale);
+	const [locale] = useState<Locale>(propLocale || "en");
 	const t = createT(locale);
 	const links: [string, string][] = [
 		["/market", t("nav.gallery")],

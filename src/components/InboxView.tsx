@@ -4,11 +4,7 @@ import { ChatProvider, useChat } from "../lib/chat/store";
 import { createT, isSupportedLocale } from "../lib/i18n";
 import type { Locale } from "../lib/i18n/types";
 
-function readHtmlLocale(): Locale {
-  if (typeof document === "undefined") return "en";
-  const val = document.querySelector("html")?.getAttribute("data-locale");
-  return val && isSupportedLocale(val) ? val : "en";
-}
+
 
 interface InboxInnerProps {
   userId: string;
@@ -17,7 +13,7 @@ interface InboxInnerProps {
 }
 
 function InboxInner({ userId, role, locale: propLocale }: InboxInnerProps) {
-  const [locale] = useState<Locale>(propLocale || readHtmlLocale);
+  const [locale] = useState<Locale>(propLocale || "en");
   const t = createT(locale);
   const [activeConv, setActiveConv] = useState<string | null>(null);
   const { conversations, fetchConversations, loading } = useChat();

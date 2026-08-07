@@ -17,14 +17,8 @@ interface OwnedPlate {
   token: string | null;
 }
 
-function readHtmlLocale(): Locale {
-  if (typeof document === "undefined") return "en";
-  const val = document.querySelector("html")?.getAttribute("data-locale");
-  return val && isSupportedLocale(val) ? val : "en";
-}
-
 function WalletOwnedPlatesInner({ locale: propLocale }: { locale?: Locale }) {
-  const [locale] = useState<Locale>(propLocale || readHtmlLocale);
+  const [locale] = useState<Locale>(propLocale || "en");
   const t = createT(locale);
   const { address, status } = usePasskeyWallet();
   const [plates, setPlates] = useState<OwnedPlate[]>([]);

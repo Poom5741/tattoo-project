@@ -28,15 +28,9 @@ interface FormState {
   message: string;
 }
 
-function readHtmlLocale(): Locale {
-  if (typeof document === "undefined") return "en";
-  const val = document.querySelector("html")?.getAttribute("data-locale");
-  return val && isSupportedLocale(val) ? val : "en";
-}
-
 function BookingFormInner({ artists, designs, locale: propLocale }: Props) {
   const { address } = usePasskeyWallet();
-  const [locale] = useState<Locale>(propLocale || readHtmlLocale);
+  const [locale] = useState<Locale>(propLocale || "en");
   const t = createT(locale);
 
   const STYLES = [

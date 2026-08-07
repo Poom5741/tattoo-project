@@ -1,4 +1,8 @@
 ---
+import { createT } from "../lib/i18n";
+
+const locale = (Astro.locals?.locale ?? "en") as "en" | "th";
+const t = createT(locale);
 ---
 
 <footer class="bg-surface-container-low w-full mt-20 border-t border-outline-variant/30">
@@ -7,41 +11,37 @@
       <div class="max-w-xs">
         <a href="/" class="font-display text-2xl font-bold tracking-tight text-on-surface">SAKNID</a>
         <p class="font-body text-sm text-on-surface-variant mt-4 leading-relaxed">
-          A gallery of one-of-one tattoo plates. Each design is drawn once, claimed once, and inked by its maker. No repeats, ever.
+          {t("footer.tagline")}
         </p>
       </div>
 
       <div class="grid grid-cols-3 gap-8 md:gap-16">
         <div>
-          <h5 class="font-body text-label-md font-semibold text-on-surface mb-4 uppercase tracking-wider">Gallery</h5>
+          <h5 class="font-body text-label-md font-semibold text-on-surface mb-4 uppercase tracking-wider">{t("footer.galleryTitle")}</h5>
           <div class="flex flex-col gap-2.5">
-            <a href="/market" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">Browse plates</a>
-            <a href="/market" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">New releases</a>
-            <a href="/wallet" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">Your collection</a>
+            <a href="/market" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">{t("footer.browsePlates")}</a>
+            <a href="/wallet" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">{t("footer.yourCollection")}</a>
           </div>
         </div>
         <div>
-          <h5 class="font-body text-label-md font-semibold text-on-surface mb-4 uppercase tracking-wider">Artists</h5>
+          <h5 class="font-body text-label-md font-semibold text-on-surface mb-4 uppercase tracking-wider">{t("footer.artistsTitle")}</h5>
           <div class="flex flex-col gap-2.5">
-            <a href="/artists" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">The roster</a>
-            <a href="/artists" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">Apply to sell</a>
-            <a href="/artists" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">Book a session</a>
+            <a href="/artists" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">{t("footer.theRoster")}</a>
+            <a href="/booking" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">{t("footer.bookSession")}</a>
           </div>
         </div>
         <div>
-          <h5 class="font-body text-label-md font-semibold text-on-surface mb-4 uppercase tracking-wider">House</h5>
+          <h5 class="font-body text-label-md font-semibold text-on-surface mb-4 uppercase tracking-wider">{t("footer.houseTitle")}</h5>
           <div class="flex flex-col gap-2.5">
-            <a href="/" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">How it works</a>
-            <a href="/" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">Authenticity</a>
-            <a href="/" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">Aftercare</a>
+            <a href="/#how-it-works" class="font-body text-sm text-on-surface-variant hover:text-primary-container transition-colors duration-200">{t("footer.howItWorks")}</a>
           </div>
         </div>
       </div>
     </div>
 
     <div class="mt-12 pt-6 border-t border-outline-variant/30 flex flex-col md:flex-row justify-between items-center gap-4">
-      <span class="font-body text-xs text-on-surface-variant">© 2026 SAKNID — house of one-off ink</span>
-      <span class="font-body text-xs text-on-surface-variant">Berlin · Osaka · CDMX · Stockholm</span>
+      <span class="font-body text-xs text-on-surface-variant">{t("footer.copyright")}</span>
+      <span class="font-body text-xs text-on-surface-variant">{t("footer.locations")}</span>
     </div>
   </div>
 </footer>

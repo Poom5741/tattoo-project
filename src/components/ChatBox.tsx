@@ -15,14 +15,10 @@ interface ChatBoxProps {
   locale?: Locale;
 }
 
-function readHtmlLocale(): Locale {
-  if (typeof document === "undefined") return "en";
-  const val = document.querySelector("html")?.getAttribute("data-locale");
-  return val && isSupportedLocale(val) ? val : "en";
-}
+
 
 export default function ChatBox({ userId, senderRole, conversationId, onSendBooking, onBack, locale: propLocale }: ChatBoxProps) {
-  const [locale] = useState<Locale>(propLocale || readHtmlLocale);
+  const [locale] = useState<Locale>(propLocale || "en");
   const t = createT(locale);
   const [text, setText] = useState("");
   const [error, setError] = useState("");
