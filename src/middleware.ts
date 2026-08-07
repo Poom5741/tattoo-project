@@ -25,19 +25,11 @@ export const onRequest = defineMiddleware(async (context, next) => {
   // Check artist session for protected /artist/ routes (e.g. /artist/inbox)
   if (url.pathname.startsWith("/artist/inbox")) {
     const env = context.locals.runtime.env as Env;
-    if (isDevMode && devRole === "admin") {
-      // Dev mode: admin can access artist inbox
-      context.locals.artistSession = { artistId: "mara", name: "Dev Admin (Mara)", walletAddress: "0x1234...abcd" };
-    } else if (isDevMode && devRole === "artist") {
-      // Dev mode: simulate artist session
-      context.locals.artistSession = { artistId: "mara", name: "Dev Artist (Mara)", walletAddress: "0x1234...abcd" };
-    } else {
-      const artistSession = await getArtistSession(cookieHeader, env.SESSION);
-      if (!artistSession) {
-        return context.redirect("/artist/portal");
-      }
-      context.locals.artistSession = artistSession;
+    const artistSession = await getArtistSession(cookieHeader, env.SESSION);
+    if (!artistSession) {
+      return context.redirect("/artist/portal");
     }
+    context.locals.artistSession = artistSession;
   }
 
   try {

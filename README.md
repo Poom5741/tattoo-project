@@ -34,7 +34,7 @@ Replaced legacy auth with a self-custodial auth stack:
 - ✅ Schema migrations applied
 - ✅ Code pushed to `main` on https://github.com/Poom5741/tattoo-project
 
-**Current deploy:** https://inknoir.pages.dev
+**Current deploy:** https://suknid.pages.dev
 
 ---
 

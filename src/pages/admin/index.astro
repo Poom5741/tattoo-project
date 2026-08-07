@@ -7,12 +7,7 @@ import AdminPendingReview from "../../components/AdminPendingReview";
 
 const env = Astro.locals.runtime.env;
 const cookieHeader = Astro.request.headers.get("cookie") ?? "";
-const devRole = cookieHeader.match(/(?:^|;\s*)dev_role=([^;]*)/)?.[1] ?? null;
-const isDevMode = devRole === "admin";
-
-let authed = await isAdminAuthed(cookieHeader, env.SESSION);
-// Dev mode override: admin role bypasses auth
-if (isDevMode) authed = true;
+const authed = await isAdminAuthed(cookieHeader, env.SESSION);
 
 interface BookingRow {
   id: number;

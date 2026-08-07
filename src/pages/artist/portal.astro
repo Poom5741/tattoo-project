@@ -10,14 +10,7 @@ import EarningsDashboard from "../../components/EarningsDashboard";
 
 const env = Astro.locals.runtime.env;
 const cookieHeader = Astro.request.headers.get("cookie") ?? "";
-const devRole = cookieHeader.match(/(?:^|;\s*)dev_role=([^;]*)/)?.[1] ?? null;
-const isDevMode = devRole === "artist" || devRole === "admin";
-
-let session = await getArtistSession(cookieHeader, env.SESSION);
-// Dev mode override: simulate artist session for mara
-if (isDevMode && !session) {
-  session = { artistId: "mara", name: "Dev Artist (Mara)", walletAddress: "0x1234567890abcdef1234567890abcdef12345678" };
-}
+const session = await getArtistSession(cookieHeader, env.SESSION);
 
 interface DesignRow {
   id: string;
@@ -116,6 +109,7 @@ function fmtDate(ts: number) {
           </div>
         </div>
         <div style="display:flex;gap:12px;align-items:center">
+          <a href="/artist/inbox" class="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-transparent text-[#1B1C18] border border-[#E8E3D8] hover:border-[#D4CFC4]">Inbox</a>
           <a href="/artist/portal?new=1" class="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-[#E60023] text-white hover:bg-[#C4001F] disabled:opacity-40">+ List new design</a>
           <form method="POST" action="/api/auth/artist-logout">
             <button type="submit" class="inline-flex items-center justify-center gap-2 px-7 py-3 rounded-full font-sora font-semibold text-sm transition-all bg-transparent text-[#1B1C18] border border-[#E8E3D8] hover:border-[#D4CFC4]">Sign out</button>

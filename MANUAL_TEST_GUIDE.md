@@ -16,13 +16,13 @@ Open browser DevTools → Console, then run:
 
 ```js
 // Switch to Buyer (default — no auth required)
-document.cookie = "dev_role=buyer;path=/"
+document.cookie = 'dev_role=buyer;path=/';
 
 // Switch to Artist (accesses Mara Vael's portal & inbox)
-document.cookie = "dev_role=artist;path=/"
+document.cookie = 'dev_role=artist;path=/';
 
 // Switch to Admin (accesses admin dashboard + artist inbox)
-document.cookie = "dev_role=admin;path=/"
+document.cookie = 'dev_role=admin;path=/';
 ```
 
 **Refresh the page** after setting the cookie. An amber role indicator will appear in the header nav showing your current role.
@@ -125,12 +125,12 @@ document.cookie = "dev_role=admin;path=/"
 
 ```js
 // Set role
-document.cookie = "dev_role=buyer;path=/"
-document.cookie = "dev_role=artist;path=/"
-document.cookie = "dev_role=admin;path=/"
+document.cookie = 'dev_role=buyer;path=/';
+document.cookie = 'dev_role=artist;path=/';
+document.cookie = 'dev_role=admin;path=/';
 
 // Clear role
-document.cookie = "dev_role=;max-age=0;path=/"
+document.cookie = 'dev_role=;max-age=0;path=/';
 ```
 
 ### Key test data
