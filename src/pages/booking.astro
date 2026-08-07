@@ -6,10 +6,79 @@ import Footer from "../components/Footer.astro";
 import Toast from "../components/Toast";
 import BookingForm from "../components/BookingForm";
 import { createT } from "../lib/i18n";
-import { DESIGNS, ARTISTS } from "../lib/catalog/seed";
+import { DESIGNS as SEED_DESIGNS, ARTISTS as SEED_ARTISTS } from "../lib/catalog/seed";
+
 const locale = Astro.locals?.locale ?? "en";
 const t = createT(locale);
+
+// Load artists and designs from D1, falling back to seed data if the
+// queries fail (e.g. fresh local dev before seeding, or DB outage).
+let artists = SEED_ARTISTS;
+let designs = SEED_DESIGNS;
+
+try {
+  const db = Astro.locals.runtime.env.DB;
+  const [aRes, dRes] = await Promise.all([
+    db.prepare(
+      "SELECT id, name, handle, city, style, years, booked, rate, bio, pieces, rating, seed FROM artists ORDER BY name ASC"
+    ).all<{
+      id: string; name: string; handle: string | null; city: string | null;
+      style: string | null; years: number | null; booked: string | null;
+      rate: number | null; bio: string | null; pieces: number | null;
+      rating: string | null; seed: number | null;
+    }>(),
+    db.prepare(
+      "SELECT id, n, title, artist_id, style, price, price_usd, status, placement, seed, token, minted, medium, sessions, drawn, token_id FROM designs WHERE status = 'available' ORDER BY rowid ASC"
+    ).all<{
+      id: string; n: string; title: string; artist_id: string;
+      style: string | null; price: number | null; price_usd: number | null;
+      status: string; placement: string | null; seed: number | null;
+      token: string | null; minted: string | null; medium: string | null;
+      sessions: number | null; drawn: number | null; token_id: number | null;
+    }>(),
+  ]);
+
+  if (aRes.results.length > 0) {
+    artists = aRes.results.map((r) => ({
+      id: r.id,
+      name: r.name,
+      handle: r.handle ?? "",
+      city: r.city ?? "",
+      style: r.style ?? "Ink",
+      years: r.years ?? 0,
+      booked: r.booked ?? "",
+      rate: r.rate ?? 0,
+      bio: r.bio ?? "",
+      pieces: r.pieces ?? 0,
+      rating: r.rating ?? "0",
+      seed: r.seed ?? 0,
+    }));
+
+    designs = dRes.results.map((r) => ({
+      id: r.id,
+      n: r.n,
+      title: r.title,
+      artistId: r.artist_id,
+      artistName: "",  // not needed by BookingForm; resolves from artist list
+      style: r.style ?? "",
+      price: r.price ?? 0,
+      priceUsd: r.price_usd ?? 0,
+      status: "available" as const,
+      placement: r.placement ?? "",
+      seed: r.seed ?? 0,
+      token: r.token ?? "",
+      minted: r.minted ?? "",
+      medium: r.medium ?? "",
+      sessions: r.sessions ?? 0,
+      drawn: r.drawn ?? 0,
+      token_id: r.token_id ?? 0,
+    }));
+  }
+} catch {
+  // D1 unavailable — fall through to seed data.
+}
 ---
+
 <Base title="Book a session — SAKNID" description="Book a session with one of our resident artists. One-of-one tattoo plates, hand-drawn and inked once.">
   <div class="min-h-screen flex flex-col">
     <Nav currentPath="/booking" client:load locale={locale} />
@@ -27,11 +96,11 @@ const t = createT(locale);
 
           <div class="grid grid-cols-1 lg:grid-cols-[1.3fr_0.7fr] gap-12 items-start">
             <div class="card-bb p-8 md:p-9">
-              <BookingForm artists={ARTISTS} designs={DESIGNS} client:load locale={locale} />
+              <BookingForm artists={artists} designs={designs} client:load locale={locale} />
             </div>
 
             <div class="flex flex-col gap-px bg-outline-variant border border-outline-variant rounded-lg overflow-hidden">
-              {ARTISTS.map((a) => (
+              {artists.map((a) => (
                 <div class="p-5 px-[22px] bg-surface-container-low flex flex-col gap-1.5">
                   <div class="display font-display font-semibold text-on-surface text-headline-sm">{a.name}</div>
                   <div class="font-body text-on-surface-variant/60 text-[10.5px] tracking-[0.08em]">{a.style}</div>

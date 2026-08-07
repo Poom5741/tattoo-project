@@ -155,6 +155,9 @@ function BookingFormInner({ artists, designs, locale: propLocale }: Props) {
         <p className="font-body text-on-surface-variant/60 text-xs tracking-[0.06em]">
           {t("bookingForm.replyNotice")}
         </p>
+        <a href="/inbox" className="btn-primary mt-6 inline-block">
+          Go to your inbox
+        </a>
         <button
           className="btn-secondary mt-6"
           onClick={() => { setDone(false); setForm((p) => ({ ...p, designId: "", name: "", contact: "", message: "" })); }}

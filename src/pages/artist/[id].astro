@@ -65,9 +65,9 @@ if (!artist) {
 
 const avail = plates.filter((d) => d.status === "available").length;
 
-function fmtEth(v: number | null) {
+function fmtThb(v: number | null) {
   if (!v) return "—";
-  return v.toFixed(3) + " ETH";
+  return `฿${v.toLocaleString("th-TH", { minimumFractionDigits: 2 })}`;
 }
 const locale = Astro.locals?.locale ?? "en";
 const t = createT(locale);
@@ -161,7 +161,7 @@ const t = createT(locale);
                   </div>
                   <h3 class="font-display font-semibold text-on-surface text-xl mb-2 group-hover:text-primary transition-colors duration-200">{d.title}</h3>
                   <div class="font-body text-on-surface-variant text-xs">{d.style} · {d.placement}</div>
-                  <div class="font-display font-semibold text-on-surface text-[22px] mt-3">{fmtEth(d.price)}</div>
+                  <div class="font-display font-semibold text-on-surface text-[22px] mt-3">{fmtThb(d.price)}</div>
                 </div>
               </a>
             ))}

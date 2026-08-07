@@ -101,7 +101,7 @@ function WalletOwnedPlatesInner({ locale: propLocale }: { locale?: Locale }) {
           <div className="font-body text-xs text-on-surface-variant/60 tracking-[0.12em] uppercase mt-1">{t("wallet.plates")}</div>
         </div>
         <div>
-          <div className="font-display text-headline-sm text-on-surface">{totalValue.toFixed(3)} ETH</div>
+          <div className="font-display text-headline-sm text-on-surface">฿{totalValue.toLocaleString("th-TH", { minimumFractionDigits: 2 })}</div>
           <div className="font-body text-xs text-on-surface-variant/60 tracking-[0.12em] uppercase mt-1">{t("wallet.value")}</div>
         </div>
       </div>

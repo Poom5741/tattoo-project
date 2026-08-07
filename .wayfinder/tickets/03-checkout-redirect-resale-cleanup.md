@@ -20,12 +20,12 @@ Payments are disabled (no ChillPay credentials, money happens off-platform). The
 
 ### Acceptance Criteria
 
-- [ ] `/checkout/[id]` redirects to `/booking?designId=[id]`
-- [ ] Design detail "Acquire" button says "Reserve this plate"
-- [ ] No auto-release of reservations on checkout page load
-- [ ] ResaleButton shows "Resale coming soon" instead of wagmi connect
-- [ ] Resale API endpoints return 503
-- [ ] No wagmi/RainbowKit imports in ResaleButton
+- [x] `/checkout/[id]` redirects to `/booking?designId=[id]`
+- [x] Design detail "Acquire" button says "Reserve this plate"
+- [x] No auto-release of reservations on checkout page load
+- [x] ResaleButton shows "Resale coming soon" instead of wagmi connect
+- [x] Resale API endpoints return 503
+- [x] No wagmi/RainbowKit imports in ResaleButton
 
 ### Files to Change
 
@@ -34,3 +34,39 @@ Payments are disabled (no ChillPay credentials, money happens off-platform). The
 - `src/components/ResaleButton.tsx` — disable with notice
 - `src/pages/api/resale/create.ts` — return 503
 - `src/pages/api/resale/buy.ts` — return 503
+
+## Resolution
+
+All five sub-tasks landed. The page is now a 6-line redirect shim:
+
+```astro
+const { id } = Astro.params;
+if (!id) return Astro.redirect("/market");
+return Astro.redirect(`/booking?designId=${encodeURIComponent(id)}`);
+```
+
+The CTA text moved through the existing i18n layer (en + th), not the template, so the Thai translation updated in lockstep (`รับเพลทนี้` → `จองเพลทนี้`).
+
+The auto-release statement (`UPDATE designs SET status = 'available' …`) was deleted from the checkout page. The timeout-based release on the design detail page is the single source of truth and is unaffected.
+
+`ResaleButton.tsx` is now a static `<div aria-disabled="true">Resale coming soon</div>` with no React state, no hooks, no wagmi/RainbowKit imports. The export shape is preserved so the design detail page's conditional render (`design.status === "sold" && design.selling_mode === "resellable" && design.token_id != null`) still works.
+
+The two resale API endpoints are now 9-line stubs returning the agreed envelope.
+
+### Files changed
+- `src/pages/checkout/[id].astro` — replaced with redirect shim
+- `src/locales/en.json`, `src/locales/th.json` — `artistDetail.acquirePlate` updated
+- `src/components/ResaleButton.tsx` — placeholder
+- `src/pages/api/resale/create.ts`, `src/pages/api/resale/buy.ts` — 503 stubs
+
+### Tests added (TDD, RED→GREEN per slice)
+- `tests/unit/checkout-flow.test.ts` — 7 tests:
+  - 2 resale API tests (503 + JSON envelope)
+  - 2 ResaleButton tests (no wagmi import, "coming soon" text)
+  - 1 design-detail CTA test (en + th i18n values)
+  - 2 checkout redirect tests (redirect, no auto-release UPDATE)
+
+### Out of scope (logged on map, not in this ticket)
+- ResaleButton final UX when resale is enabled (current placeholder is intentionally minimal).
+- Resale listings table on design detail page — kept as-is per ticket; the rows still render but the "Buy" link goes to `/checkout/[id]?resale=…` which now redirects to booking. The user sees no resale action available. Tighten when resale is enabled.
+- The booking form's prefill when arriving from `/checkout/[id]` redirect — should verify `designId` is consumed (likely already works; not tested in this ticket).
