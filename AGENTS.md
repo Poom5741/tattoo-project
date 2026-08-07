@@ -48,3 +48,9 @@ First-time setup per repo: invoke `/skill:setup-matt-pocock-skills` once so the 
 3. **DON'T Execute SQL `BEGIN TRANSACTION` via Wrangler D1 Migrations API**:
    - Raw `.sql` migration files executed via Wrangler / D1 must not contain explicit `BEGIN TRANSACTION;` or `COMMIT;` statements, as Cloudflare D1 rejects them.
 
+4. **DON'T Read DOM State (`document.querySelector`) in React SSR Initialization**:
+   - Never try to read the active locale or other attributes from DOM queries (like `document.querySelector("html")`) inside React component initializers. These will return fallback values on the server since `document` is undefined, causing hydration mismatches. Pass them as props from Astro instead.
+
+5. **DON'T Mix Google OAuth with Passkey Wallet Auth for Buyer Identity**:
+   - Keep buyer-side messaging/inbox flows natively aligned with biometric Passkey Wallet signature authentication (EVM signature) instead of Google OAuth. SAKNID is a Web3/EVM application, and users should sign a challenge message using their biometric passkey wallet to authenticate.
+
