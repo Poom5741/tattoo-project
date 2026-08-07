@@ -2,6 +2,8 @@ import WalletProvider from "./WalletProvider";
 import { useState, useEffect } from "react";
 import { usePasskeyWallet } from "../contexts/PasskeyWalletContext";
 import Plate from "./Plate";
+import { createT, isSupportedLocale } from "../lib/i18n";
+import type { Locale } from "../lib/i18n/types";
 
 interface OwnedPlate {
   id: string;
@@ -15,7 +17,15 @@ interface OwnedPlate {
   token: string | null;
 }
 
+function readHtmlLocale(): Locale {
+  if (typeof document === "undefined") return "en";
+  const val = document.querySelector("html")?.getAttribute("data-locale");
+  return val && isSupportedLocale(val) ? val : "en";
+}
+
 function WalletOwnedPlatesInner() {
+  const [locale] = useState<Locale>(readHtmlLocale);
+  const t = createT(locale);
   const { address, status } = usePasskeyWallet();
   const [plates, setPlates] = useState<OwnedPlate[]>([]);
   const [loading, setLoading] = useState(false);
@@ -44,9 +54,9 @@ function WalletOwnedPlatesInner() {
     return (
       <div className="card-bb p-12 md:p-20 text-center bg-surface-container-low">
         <div className="w-[52px] h-[52px] rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-body font-bold text-lg mx-auto mb-5">⬡</div>
-        <h3 className="font-display text-headline-md text-on-surface">Connect your wallet</h3>
+        <h3 className="font-display text-headline-md text-on-surface">{t("wallet.connectTitle")}</h3>
         <p className="font-body text-body-md text-on-surface-variant mt-3 mx-auto mb-7 max-w-[38ch]">
-          Create or unlock your passkey wallet to see plates you own on-chain.
+          {t("wallet.connectDesc")}
         </p>
       </div>
     );
@@ -55,7 +65,7 @@ function WalletOwnedPlatesInner() {
   if (loading) {
     return (
       <div className="text-center py-16 font-body text-body-md text-on-surface-variant">
-        Loading your collection…
+        {t("wallet.loadingCollection")}
       </div>
     );
   }
@@ -72,11 +82,11 @@ function WalletOwnedPlatesInner() {
     return (
       <div className="card-bb p-12 md:p-20 text-center bg-surface-container-low">
         <div className="w-[52px] h-[52px] rounded-full bg-primary-container text-on-primary-container flex items-center justify-center font-body font-bold text-lg mx-auto mb-5">⬡</div>
-        <h3 className="font-display text-headline-md text-on-surface">Nothing held yet</h3>
+        <h3 className="font-display text-headline-md text-on-surface">{t("wallet.nothingHeld")}</h3>
         <p className="font-body text-body-md text-on-surface-variant mt-3 mx-auto mb-7 max-w-[38ch]">
-          Claim a one-of-one plate and its certificate of authenticity will live here.
+          {t("wallet.nothingHeldDesc")}
         </p>
-        <a href="/market" className="btn-primary">Enter the gallery →</a>
+        <a href="/market" className="btn-primary">{t("wallet.enterGallery")}</a>
       </div>
     );
   }
@@ -88,11 +98,11 @@ function WalletOwnedPlatesInner() {
       <div className="flex gap-8 mb-10">
         <div>
           <div className="font-display text-headline-sm text-on-surface">{plates.length}</div>
-          <div className="font-body text-xs text-on-surface-variant/60 tracking-[0.12em] uppercase mt-1">Plates</div>
+          <div className="font-body text-xs text-on-surface-variant/60 tracking-[0.12em] uppercase mt-1">{t("wallet.plates")}</div>
         </div>
         <div>
           <div className="font-display text-headline-sm text-on-surface">{totalValue.toFixed(3)} ETH</div>
-          <div className="font-body text-xs text-on-surface-variant/60 tracking-[0.12em] uppercase mt-1">Value</div>
+          <div className="font-body text-xs text-on-surface-variant/60 tracking-[0.12em] uppercase mt-1">{t("wallet.value")}</div>
         </div>
       </div>
 
@@ -112,12 +122,12 @@ function WalletOwnedPlatesInner() {
                 {d.style} · № {d.n}/001 · {d.token ?? ""}
               </div>
               <div className="mt-2.5">
-                <span className="tag-bb text-green-700 bg-green-700/10"><span className="w-2 h-2 rounded-full bg-current"></span>In collection</span>
+                <span className="tag-bb text-green-700 bg-green-700/10"><span className="w-2 h-2 rounded-full bg-current"></span>{t("wallet.inCollection")}</span>
               </div>
             </div>
             <div className="flex-shrink-0 hidden sm:block">
               <a href={`/design/${d.id}`} className="btn-secondary" onClick={(e) => e.stopPropagation()}>
-                View plate →
+                {t("wallet.viewPlate")}
               </a>
             </div>
           </div>

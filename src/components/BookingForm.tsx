@@ -1,6 +1,8 @@
 import { useState } from "react";
 import type { Artist, Design } from "../lib/catalog/types";
 import { PasskeyWalletProvider, usePasskeyWallet } from "../contexts/PasskeyWalletContext";
+import { createT, isSupportedLocale } from "../lib/i18n";
+import type { Locale } from "../lib/i18n/types";
 
 interface Props {
   artists: Artist[];
@@ -25,17 +27,47 @@ interface FormState {
   message: string;
 }
 
-const STYLES = ["Blackwork", "Fine Line", "Geometric", "Irezumi", "Neo-Traditional", "Realism", "Lettering", "Watercolor", "Minimalist", "Traditional", "Not sure yet"];
-const SIZES = [
-  { value: "small", label: "Small — palm-sized or less" },
-  { value: "medium", label: "Medium — hand-sized" },
-  { value: "large", label: "Large — forearm / calf" },
-  { value: "extra-large", label: "Extra large — full sleeve / back piece" },
-];
-const BUDGETS = ["Under ฿5,000", "฿5,000–10,000", "฿10,000–20,000", "฿20,000–40,000", "฿40,000+", "Flexible / discuss"];
+function readHtmlLocale(): Locale {
+  if (typeof document === "undefined") return "en";
+  const val = document.querySelector("html")?.getAttribute("data-locale");
+  return val && isSupportedLocale(val) ? val : "en";
+}
 
 function BookingFormInner({ artists, designs }: Props) {
   const { address } = usePasskeyWallet();
+  const [locale] = useState<Locale>(readHtmlLocale);
+  const t = createT(locale);
+
+  const STYLES = [
+    { value: "Blackwork", label: t("bookingForm.styleBlackwork") },
+    { value: "Fine Line", label: t("bookingForm.styleFineLine") },
+    { value: "Geometric", label: t("bookingForm.styleGeometric") },
+    { value: "Irezumi", label: t("bookingForm.styleIrezumi") },
+    { value: "Neo-Traditional", label: t("bookingForm.styleNeoTraditional") },
+    { value: "Realism", label: t("bookingForm.styleRealism") },
+    { value: "Lettering", label: t("bookingForm.styleLettering") },
+    { value: "Watercolor", label: t("bookingForm.styleWatercolor") },
+    { value: "Minimalist", label: t("bookingForm.styleMinimalist") },
+    { value: "Traditional", label: t("bookingForm.styleTraditional") },
+    { value: "Not sure yet", label: t("bookingForm.styleNotSure") },
+  ];
+
+  const SIZES = [
+    { value: "small", label: t("bookingForm.sizeSmall") },
+    { value: "medium", label: t("bookingForm.sizeMedium") },
+    { value: "large", label: t("bookingForm.sizeLarge") },
+    { value: "extra-large", label: t("bookingForm.sizeExtraLarge") },
+  ];
+
+  const BUDGETS = [
+    { value: "Under ฿5,000", label: t("bookingForm.budgetUnder5k") },
+    { value: "฿5,000–10,000", label: t("bookingForm.budget5kTo10k") },
+    { value: "฿10,000–20,000", label: t("bookingForm.budget10kTo20k") },
+    { value: "฿20,000–40,000", label: t("bookingForm.budget20kTo40k") },
+    { value: "฿40,000+", label: t("bookingForm.budget40kPlus") },
+    { value: "Flexible / discuss", label: t("bookingForm.budgetFlexible") },
+  ];
+
   const [form, setForm] = useState<FormState>({
     artistId: artists[0]?.id ?? "",
     bookingType: "plate",
@@ -70,11 +102,11 @@ function BookingFormInner({ artists, designs }: Props) {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!form.name.trim() || !form.contact.trim()) {
-      setError("Name and contact are required.");
+      setError(t("bookingForm.requiredFields"));
       return;
     }
     if (form.bookingType === "custom" && !form.customPlacement.trim()) {
-      setError("Please describe where you'd like the tattoo placed.");
+      setError(t("bookingForm.requiredPlacement"));
       return;
     }
     setSubmitting(true);
@@ -104,11 +136,11 @@ function BookingFormInner({ artists, designs }: Props) {
       setDone(true);
       window.dispatchEvent(
         new CustomEvent("suknid:toast", {
-          detail: { message: "Booking request sent — we'll be in touch within 48 h." },
+          detail: { message: t("bookingForm.requestSent") },
         })
       );
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong. Please try again.");
+      setError(err instanceof Error ? err.message : t("common.error"));
     } finally {
       setSubmitting(false);
     }
@@ -116,11 +148,11 @@ function BookingFormInner({ artists, designs }: Props) {
 
   if (done) {
     return (
-      <div className="text-center py-10">
+      <div className="text-center py-10 font-body">
         <div className="font-display text-headline-md mb-3">✓</div>
-        <div className="font-display text-headline-sm text-on-surface mb-2">Request sent</div>
+        <div className="font-display text-headline-sm text-on-surface mb-2">{t("bookingForm.requestSent")}</div>
         <p className="font-body text-on-surface-variant/60 text-xs tracking-[0.06em]">
-          We'll reply within 48 h to confirm availability and next steps.
+          {t("bookingForm.replyNotice")}
         </p>
         <button
           className="btn-secondary mt-6"
@@ -137,9 +169,9 @@ function BookingFormInner({ artists, designs }: Props) {
 
       {/* Booking type toggle */}
       <div className="mb-5">
-        <label className="label-bb">Booking type</label>
+        <label className="label-bb">{t("bookingForm.bookingType")}</label>
         <div className="grid grid-cols-2 gap-px border border-outline-variant rounded-lg overflow-hidden mt-2">
-          {([["plate", "Book a plate", "Choose from existing designs"], ["custom", "Custom consultation", "Describe your own tattoo idea"]] as const).map(([val, title, sub]) => (
+          {([["plate", t("bookingForm.bookPlate"), t("bookingForm.choosePlate")], ["custom", t("bookingForm.customConsult"), t("bookingForm.describeIdea")]] as const).map(([val, title, sub]) => (
             <button
               key={val}
               type="button"
@@ -163,7 +195,7 @@ function BookingFormInner({ artists, designs }: Props) {
 
       {/* Artist */}
       <div className="mb-5">
-        <label htmlFor="bf-artist" className="label-bb">Artist</label>
+        <label htmlFor="bf-artist" className="label-bb">{t("bookingForm.artist")}</label>
         <select
           id="bf-artist"
           className="input-bb"
@@ -186,14 +218,14 @@ function BookingFormInner({ artists, designs }: Props) {
       {/* Plate booking fields */}
       {form.bookingType === "plate" && (
         <div className="mb-5">
-          <label htmlFor="bf-design" className="label-bb">Design</label>
+          <label htmlFor="bf-design" className="label-bb">{t("bookingForm.design")}</label>
           <select
             id="bf-design"
             className="input-bb"
             value={form.designId}
             onChange={(e) => set("designId", e.target.value)}
           >
-            <option value="">— No specific plate selected —</option>
+            <option value="">{t("bookingForm.noDesignSelected")}</option>
             {artistDesigns.map((d) => (
               <option key={d.id} value={d.id}>
                 {d.title} · {d.placement}
@@ -202,7 +234,7 @@ function BookingFormInner({ artists, designs }: Props) {
           </select>
           {artistDesigns.length === 0 && (
             <div className="font-body text-on-surface-variant/60 text-[11px] mt-2">
-              No available plates for this artist right now.
+              {t("bookingForm.noPlates")}
             </div>
           )}
         </div>
@@ -213,16 +245,16 @@ function BookingFormInner({ artists, designs }: Props) {
         <>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-[18px]">
             <div className="mb-5">
-              <label htmlFor="bf-style" className="label-bb">Style preference</label>
+              <label htmlFor="bf-style" className="label-bb">{t("bookingForm.stylePref")}</label>
               <select id="bf-style" className="input-bb" value={form.customStyle} onChange={(e) => set("customStyle", e.target.value)}>
-                <option value="">— Select style —</option>
-                {STYLES.map((s) => <option key={s} value={s}>{s}</option>)}
+                <option value="">{t("bookingForm.selectStyle")}</option>
+                {STYLES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
             <div className="mb-5">
-              <label htmlFor="bf-size" className="label-bb">Approximate size</label>
+              <label htmlFor="bf-size" className="label-bb">{t("bookingForm.approxSize")}</label>
               <select id="bf-size" className="input-bb" value={form.customSize} onChange={(e) => set("customSize", e.target.value)}>
-                <option value="">— Select size —</option>
+                <option value="">{t("bookingForm.selectSize")}</option>
                 {SIZES.map((s) => <option key={s.value} value={s.value}>{s.label}</option>)}
               </select>
             </div>
@@ -230,7 +262,7 @@ function BookingFormInner({ artists, designs }: Props) {
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-[18px]">
             <div className="mb-5">
-              <label htmlFor="bf-placement" className="label-bb">Placement <span className="text-primary-container">*</span></label>
+              <label htmlFor="bf-placement" className="label-bb">{t("bookingForm.placement")} <span className="text-primary-container">*</span></label>
               <input
                 id="bf-placement"
                 className="input-bb"
@@ -241,10 +273,10 @@ function BookingFormInner({ artists, designs }: Props) {
               />
             </div>
             <div className="mb-5">
-              <label htmlFor="bf-budget" className="label-bb">Budget range</label>
+              <label htmlFor="bf-budget" className="label-bb">{t("bookingForm.budgetRange")}</label>
               <select id="bf-budget" className="input-bb" value={form.customBudget} onChange={(e) => set("customBudget", e.target.value)}>
-                <option value="">— Select budget —</option>
-                {BUDGETS.map((b) => <option key={b} value={b}>{b}</option>)}
+                <option value="">{t("bookingForm.selectBudget")}</option>
+                {BUDGETS.map((b) => <option key={b.value} value={b.value}>{b.label}</option>)}
               </select>
             </div>
           </div>
@@ -254,7 +286,7 @@ function BookingFormInner({ artists, designs }: Props) {
       {/* Shared fields */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-[18px]">
         <div className="mb-5">
-          <label htmlFor="bf-name" className="label-bb">Full name <span className="text-primary-container">*</span></label>
+          <label htmlFor="bf-name" className="label-bb">{t("bookingForm.fullName")} <span className="text-primary-container">*</span></label>
           <input
             id="bf-name"
             className="input-bb"
@@ -266,12 +298,12 @@ function BookingFormInner({ artists, designs }: Props) {
           />
         </div>
         <div className="mb-5">
-          <label htmlFor="bf-contact" className="label-bb">Email or handle <span className="text-primary-container">*</span></label>
+          <label htmlFor="bf-contact" className="label-bb">{t("bookingForm.contact")} <span className="text-primary-container">*</span></label>
           <input
             id="bf-contact"
             className="input-bb"
             type="text"
-            placeholder="you@email.com or @handle"
+            placeholder={t("bookingForm.contactPlaceholder")}
             value={form.contact}
             onChange={(e) => set("contact", e.target.value)}
             required
@@ -281,7 +313,7 @@ function BookingFormInner({ artists, designs }: Props) {
 
       <div className="mb-5">
         <label htmlFor="bf-message" className="label-bb">
-          {form.bookingType === "custom" ? "Describe your idea, references, skin notes…" : "Message"}
+          {form.bookingType === "custom" ? t("bookingForm.customDesc") : t("bookingForm.message")}
         </label>
         <textarea
           id="bf-message"
@@ -289,8 +321,8 @@ function BookingFormInner({ artists, designs }: Props) {
           rows={4}
           placeholder={
             form.bookingType === "custom"
-              ? "Share your concept, references, any skin considerations, or anything else the artist should know…"
-              : "Placement, size, references, skin notes, anything the artist should know…"
+              ? t("bookingForm.customPlaceholder")
+              : t("bookingForm.messagePlaceholder")
           }
           value={form.message}
           onChange={(e) => set("message", e.target.value)}
@@ -305,10 +337,10 @@ function BookingFormInner({ artists, designs }: Props) {
 
       <div className="mt-7">
         <button type="submit" className="btn-primary" disabled={submitting}>
-          {submitting ? "Sending…" : form.bookingType === "custom" ? "Request consultation" : "Send booking request"}
+          {submitting ? t("bookingForm.sending") : form.bookingType === "custom" ? t("bookingForm.requestConsult") : t("bookingForm.sendRequest")}
         </button>
         <p className="font-body text-on-surface-variant/60 text-[10.5px] mt-3.5 tracking-[0.06em]">
-          We'll reply within 48 h to confirm availability and next steps.
+          {t("bookingForm.replyNotice")}
         </p>
       </div>
     </form>

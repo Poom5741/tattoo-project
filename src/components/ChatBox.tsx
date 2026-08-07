@@ -3,6 +3,8 @@ import { useChat } from "../lib/chat/store";
 import { filterMessage } from "../lib/chat/schema";
 import type { ChatMessage } from "../lib/chat/schema";
 import { Send, AlertTriangle, MessageSquare } from "lucide-react";
+import { createT, isSupportedLocale } from "../lib/i18n";
+import type { Locale } from "../lib/i18n/types";
 
 interface ChatBoxProps {
   userId: string;
@@ -12,7 +14,15 @@ interface ChatBoxProps {
   onBack?: () => void;
 }
 
+function readHtmlLocale(): Locale {
+  if (typeof document === "undefined") return "en";
+  const val = document.querySelector("html")?.getAttribute("data-locale");
+  return val && isSupportedLocale(val) ? val : "en";
+}
+
 export default function ChatBox({ userId, senderRole, conversationId, onSendBooking, onBack }: ChatBoxProps) {
+  const [locale] = useState<Locale>(readHtmlLocale);
+  const t = createT(locale);
   const [text, setText] = useState("");
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
@@ -60,15 +70,15 @@ export default function ChatBox({ userId, senderRole, conversationId, onSendBook
             </button>
           )}
           <MessageSquare className="w-5 h-5 text-[#5A5B55]" />
-          <span className="font-display font-semibold text-sm text-[#1B1C18]">Chat</span>
+          <span className="font-display font-semibold text-sm text-[#1B1C18]">{t("chat.chat")}</span>
         </div>
         {senderRole === "artist" && onSendBooking && (
-          <button onClick={onSendBooking} className="px-3 py-1.5 text-xs font-semibold font-body bg-[#E60023] text-white rounded-full hover:bg-[#C4001F] transition-colors shadow-sm">+ Send Booking</button>
+          <button onClick={onSendBooking} className="px-3 py-1.5 text-xs font-semibold font-body bg-[#E60023] text-white rounded-full hover:bg-[#C4001F] transition-colors shadow-sm">+{t("chat.sendBooking")}</button>
         )}
       </div>
       <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-4">
         {msgList.length === 0 ? (
-          <p className="text-center text-[#5A5B55]/60 font-body text-sm mt-8">No messages yet.</p>
+          <p className="text-center text-[#5A5B55]/60 font-body text-sm mt-8">{t("chat.noMessages")}</p>
         ) : (
           msgList.map(msg => {
             const isSelf = msg.senderRole === senderRole || msg.senderId === userId;
@@ -77,7 +87,7 @@ export default function ChatBox({ userId, senderRole, conversationId, onSendBook
                 {/* Sender ID/Role label for received messages */}
                 {!isSelf && (
                   <span className="font-body text-[10px] font-semibold uppercase tracking-wider text-[#5A5B55]/70 mb-1 px-1">
-                    {msg.senderRole === "client" ? "Client" : msg.senderRole === "admin" ? "Admin" : "Artist"}
+                    {msg.senderRole === "client" ? t("chat.client") : msg.senderRole === "admin" ? t("chat.admin") : t("chat.artist")}
                   </span>
                 )}
                 <div className={`max-w-[75%] px-4 py-2.5 rounded-2xl font-body text-sm shadow-sm ${
@@ -92,7 +102,7 @@ export default function ChatBox({ userId, senderRole, conversationId, onSendBook
                         ? "bg-white/10 border-white/20 text-white" 
                         : "bg-[#FBF9F3] border-[#E8E3D8] text-[#5A5B55]"
                     }`}>
-                      📅 Booking: #{msg.bookingId.slice(0, 8)}
+                      📅 {t("chat.booking")}: #{msg.bookingId.slice(0, 8)}
                     </div>
                   )}
                   <p className={`text-[9px] mt-1 text-right font-medium opacity-60`}>
@@ -111,7 +121,7 @@ export default function ChatBox({ userId, senderRole, conversationId, onSendBook
             value={text} 
             onChange={e => { setText(e.target.value); setError(""); }} 
             onKeyDown={e => e.key === "Enter" && handleSend()} 
-            placeholder="Type a message..." 
+            placeholder={t("chat.typeMessage")} 
             className="flex-1 px-3 py-2 border border-[#E8E3D8] bg-[#FBF9F3] text-[#1B1C18] rounded-lg text-sm focus:ring-1 focus:ring-[#E60023] focus:border-[#E60023] outline-none font-body" 
             maxLength={2000} 
           />

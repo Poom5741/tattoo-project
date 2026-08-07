@@ -1,6 +1,14 @@
 import { useState, useEffect } from "react";
 import ChatBox from "./ChatBox";
 import { ChatProvider, useChat } from "../lib/chat/store";
+import { createT, isSupportedLocale } from "../lib/i18n";
+import type { Locale } from "../lib/i18n/types";
+
+function readHtmlLocale(): Locale {
+  if (typeof document === "undefined") return "en";
+  const val = document.querySelector("html")?.getAttribute("data-locale");
+  return val && isSupportedLocale(val) ? val : "en";
+}
 
 interface InboxInnerProps {
   userId: string;
@@ -8,6 +16,8 @@ interface InboxInnerProps {
 }
 
 function InboxInner({ userId, role }: InboxInnerProps) {
+  const [locale] = useState<Locale>(readHtmlLocale);
+  const t = createT(locale);
   const [activeConv, setActiveConv] = useState<string | null>(null);
   const { conversations, fetchConversations, loading } = useChat();
 
@@ -20,12 +30,12 @@ function InboxInner({ userId, role }: InboxInnerProps) {
       <div className={`w-full md:w-80 shrink-0 border border-[#E8E3D8] rounded-xl overflow-hidden bg-[#FBF9F3] ${
         activeConv ? "hidden md:block" : "block"
       }`}>
-        <div className="px-4 py-3 border-b border-[#E8E3D8] bg-[#F5F0E8] font-display font-semibold text-sm text-[#1B1C18]">Inbox</div>
-        <div className="divide-y divide-[#E8E3D8]/40 overflow-y-auto max-h-[calc(100vh-180px)]">
+        <div className="px-4 py-3 border-b border-[#E8E3D8] bg-[#F5F0E8] font-display font-semibold text-sm text-[#1B1C18]">{t("chat.inbox")}</div>
+        <div className="divide-y divide-[#E8E3D8]/40 overflow-y-auto max-h-[calc(100vh-180px)] font-body">
           {loading && conversations.length === 0 ? (
-            <div className="p-4 text-xs text-[#5A5B55]/60 text-center font-body">Loading conversations...</div>
+            <div className="p-4 text-xs text-[#5A5B55]/60 text-center font-body">{t("chat.loadingConversations")}</div>
           ) : conversations.length === 0 ? (
-            <div className="p-4 text-xs text-[#5A5B55]/60 text-center font-body">No active conversations.</div>
+            <div className="p-4 text-xs text-[#5A5B55]/60 text-center font-body">{t("chat.noActiveConversations")}</div>
           ) : (
             conversations.map((conv: any) => (
               <button
@@ -53,7 +63,7 @@ function InboxInner({ userId, role }: InboxInnerProps) {
         {activeConv ? (
           <ChatBox userId={userId} senderRole={role} conversationId={activeConv} onBack={() => setActiveConv(null)} />
         ) : (
-          <div className="flex items-center justify-center h-full text-[#5A5B55]/60 text-sm border border-[#E8E3D8] rounded-xl bg-[#FBF9F3] font-body">Select a conversation</div>
+          <div className="flex items-center justify-center h-full text-[#5A5B55]/60 text-sm border border-[#E8E3D8] rounded-xl bg-[#FBF9F3] font-body">{t("chat.selectConversation")}</div>
         )}
       </div>
     </div>
