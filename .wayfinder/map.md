@@ -13,11 +13,14 @@ SAKNID is production-ready for soft launch: all security gaps fixed, every user 
 - **AdminReviewPanel** is a placeholder with hardcoded mock data — leave as-is, note on map.
 - **Execution mode: ON.** This map carries execution, not just decisions. Every task ticket is implemented test-first (TDD) by the agent and committed. The map clears when all tickets are closed, not when they are decided. Branch: `fix/rate-limiting-headers` is the working branch for tickets 02–06; the map and ticket 01's resolution live on `fix/security-hardening` and have been merged in via the working tree.
 - **Ticket 02 was researched AND implemented in this branch** (rather than split into a research subagent + separate implementation pass) because the rate-limiting research question resolves to a one-line "use the existing KV" answer that the implementation immediately consumes. Splitting it would have added two extra sessions for no added fidelity.
+- **Ticket 07 was a pure research ticket and is closed as findings only.** No code in this branch for it. The D1 `app_config` table and Resend wiring land in ticket 06.
+- **Ticket 06 has one HITL question** the agent can't decide: the booking-email recipient model (artist-direct / admin-moderated / hybrid). Will be raised when ticket 06 is picked up; default to admin-moderated (single `admin@` inbox) if no answer by then.
 
 ## Decisions so far
 
 - **[01 — Security Hardening](tickets/01-security-hardening.md)** — Closed in commit `46ece82` (`fix(security): remove hardcoded auth fallbacks, guard dev role switcher`): hardcoded `ADMIN_PASSWORD` and `BETTER_AUTH_SECRET` fallbacks removed, dev role switcher guarded by `DEV_MODE` env var in middleware and hidden in production builds.
 - **[02 — Rate Limiting & Headers](tickets/02-rate-limiting-headers.md)** — Closed on this branch (`fix/rate-limiting-headers`): in-middleware rate limiting on Cloudflare KV with two buckets (`auth` 5/min, `submit` 20/min) plus standard security headers on every response. 32 unit tests across 3 files (headers, rate-limit, route classifier). Implementation lives in `src/lib/security/` and is wired into `src/middleware.ts`.
+- **[07 — Research: Deployment & Email](tickets/07-research-deployment-email.md)** — Closed: findings in `docs/research/deployment-address-and-email.md`. Recommended: D1 `app_config` table for runtime contract address; Resend on a verified domain for email (drop MailChannels fallback). Recipient model (artist-direct vs admin vs hybrid) is a HITL question carried into ticket 06.
 
 ## Frontier
 
@@ -28,8 +31,8 @@ SAKNID is production-ready for soft launch: all security gaps fixed, every user 
 | [03 — Checkout Redirect & Resale](tickets/03-checkout-redirect-resale-cleanup.md) | task | Open | — |
 | [04 — Currency & Booking Fix](tickets/04-currency-booking-fix.md) | task | Open | — |
 | [05 — Footer, i18n & Locale Fix](tickets/05-footer-i18n-locale-fix.md) | task | Open | — |
-| [06 — Error Page & API Consistency](tickets/06-error-page-api-consistency.md) | task | Open (Blocked by 07) | — |
-| [07 — Research: Deployment & Email](tickets/07-research-deployment-email.md) | research | Open | — |
+| [06 — Error Page & API Consistency](tickets/06-error-page-api-consistency.md) | task | **Unblocked** (research 07 closed) | — |
+| [07 — Research: Deployment & Email](tickets/07-research-deployment-email.md) | research | **Closed** (this branch) | — |
 
 ## Dependencies
 
@@ -42,6 +45,9 @@ SAKNID is production-ready for soft launch: all security gaps fixed, every user 
 
 <!-- fog of war: in-scope decisions you can't ticket yet; graduates as the frontier advances -->
 
+- Booking email retry / queue (when Resend is down, currently the message is lost; needs a retryable sidecar)
+- Booking email recipient model — artist-direct vs admin-moderated vs hybrid (HITL, see ticket 06)
+- Domain acquisition for `saknid.io` (or equivalent) so Resend can verify it
 - Push/email notifications when a booking is accepted/declined or a new chat message arrives
 - Structured error tracking (beyond console.log) — Sentry, Logflare, or Cloudflare Analytics
 - Loading skeletons/spinners for client-side data fetches (wallet, inbox, earnings)
