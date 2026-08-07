@@ -1,72 +1,18 @@
 ---
 export const prerender = false;
 
-import Base from "../../layouts/Base.astro";
-import Nav from "../../components/Nav";
-import Footer from "../../components/Footer.astro";
-import CheckoutFlow from "../../components/CheckoutFlow";
+// The checkout flow is disabled at the soft launch (no ChillPay credentials;
+// money happens off-platform). The CTA on the design detail page now reads
+// "Reserve this plate" and points here; we redirect to the booking form
+// pre-filled with the design id. The conversion funnel stays intact:
+//   Acquire → /checkout/[id] → /booking?designId=[id]
+// See wayfinder ticket 03.
 
 const { id } = Astro.params;
-const locale = Astro.locals?.locale ?? "en";
 
-interface DesignRow {
-  id: string;
-  n: string;
-  title: string;
-  artist_id: string;
-  style: string | null;
-  price: number | null;
-  price_usd: number | null;
-  status: string;
-  placement: string | null;
-  seed: number | null;
-  selling_mode: string;
-  royalty_pct: number | null;
-  image_url: string | null;
-  token_id: number | null;
-}
-
-let design: DesignRow | null = null;
-
-try {
-  const db = Astro.locals.runtime.env.DB;
-  design = await db
-    .prepare("SELECT id, n, title, artist_id, style, price, price_usd, status, placement, seed, selling_mode, royalty_pct, image_url, token_id FROM designs WHERE id = ?")
-    .bind(id)
-    .first<DesignRow>();
-
-  if (design && design.status === "reserved") {
-    // Release reservation for testing or if expired
-    await db
-      .prepare("UPDATE designs SET status = 'available', reserved_until = NULL WHERE id = ?")
-      .bind(id)
-      .run()
-      .catch(() => {});
-    design.status = "available";
-  }
-} catch (e) {
-  console.error("checkout SSR D1 error:", e);
-}
-
-
-
-if (!design) {
+if (!id) {
   return Astro.redirect("/market");
 }
 
-if (design.status !== "available") {
-  return Astro.redirect(`/design/${id}`);
-}
-
+return Astro.redirect(`/booking?designId=${encodeURIComponent(id)}`);
 ---
-
-<Base
-  title={`Acquire "${design.title}" — SAKNID`}
-  description={`Acquire ${design.title}. One-of-one tattoo plate on Base Sepolia.`}
->
-  <Nav client:load currentPath="/checkout" locale={locale} />
-
-  <CheckoutFlow client:only="react" design={design} />
-
-  <Footer />
-</Base>

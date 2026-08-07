@@ -21,6 +21,7 @@ SAKNID is production-ready for soft launch: all security gaps fixed, every user 
 - **[01 — Security Hardening](tickets/01-security-hardening.md)** — Closed in commit `46ece82` (`fix(security): remove hardcoded auth fallbacks, guard dev role switcher`): hardcoded `ADMIN_PASSWORD` and `BETTER_AUTH_SECRET` fallbacks removed, dev role switcher guarded by `DEV_MODE` env var in middleware and hidden in production builds.
 - **[02 — Rate Limiting & Headers](tickets/02-rate-limiting-headers.md)** — Closed on this branch (`fix/rate-limiting-headers`): in-middleware rate limiting on Cloudflare KV with two buckets (`auth` 5/min, `submit` 20/min) plus standard security headers on every response. 32 unit tests across 3 files (headers, rate-limit, route classifier). Implementation lives in `src/lib/security/` and is wired into `src/middleware.ts`.
 - **[07 — Research: Deployment & Email](tickets/07-research-deployment-email.md)** — Closed: findings in `docs/research/deployment-address-and-email.md`. Recommended: D1 `app_config` table for runtime contract address; Resend on a verified domain for email (drop MailChannels fallback). Recipient model (artist-direct vs admin vs hybrid) is a HITL question carried into ticket 06.
+- **[06 — Error Page & API Consistency](tickets/06-error-page-api-consistency.md)** — Closed on this branch: `src/pages/500.astro` added (mirrors 404 with Bone & Blood theme + "Back to gallery" CTA); the only API offender returning raw strings (`register-artist.ts`, 6 responses) converted to `{ error: string }` JSON envelope; `POST /api/voucher` now requires a buyer / artist / dev-admin session and verifies the body's `buyer` matches the authenticated user. 11 new unit tests (3 files). Email-recipient HITL question stays open and is logged on the map.
 
 ## Frontier
 
@@ -31,7 +32,7 @@ SAKNID is production-ready for soft launch: all security gaps fixed, every user 
 | [03 — Checkout Redirect & Resale](tickets/03-checkout-redirect-resale-cleanup.md) | task | Open | — |
 | [04 — Currency & Booking Fix](tickets/04-currency-booking-fix.md) | task | Open | — |
 | [05 — Footer, i18n & Locale Fix](tickets/05-footer-i18n-locale-fix.md) | task | Open | — |
-| [06 — Error Page & API Consistency](tickets/06-error-page-api-consistency.md) | task | **Unblocked** (research 07 closed) | — |
+| [06 — Error Page & API Consistency](tickets/06-error-page-api-consistency.md) | task | **Closed** (this branch) | — |
 | [07 — Research: Deployment & Email](tickets/07-research-deployment-email.md) | research | **Closed** (this branch) | — |
 
 ## Dependencies
@@ -47,6 +48,10 @@ SAKNID is production-ready for soft launch: all security gaps fixed, every user 
 
 - Booking email retry / queue (when Resend is down, currently the message is lost; needs a retryable sidecar)
 - Booking email recipient model — artist-direct vs admin-moderated vs hybrid (HITL, see ticket 06)
+- 401-null-body API endpoints → JSON envelope for full consistency (ticket 06 left as-is, cross-cutting change)
+- Voucher auth: tighten artist path so the artist must own the design they're vouchering for
+- 500 page i18n (en + th strings) — currently hardcoded English
+- 500 page request-id rendering (already logged by API routes; surface to the user)
 - Domain acquisition for `saknid.io` (or equivalent) so Resend can verify it
 - Push/email notifications when a booking is accepted/declined or a new chat message arrives
 - Structured error tracking (beyond console.log) — Sentry, Logflare, or Cloudflare Analytics

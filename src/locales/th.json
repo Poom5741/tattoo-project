@@ -77,7 +77,7 @@
     "rating": "คะแนน",
     "sessionRate": "อัตราค่าบริการ",
     "bookSession": "จองคิวสัก",
-    "acquirePlate": "รับเพลทนี้",
+    "acquirePlate": "จองเพลทนี้",
     "bookArtist": "จอง {name} เพื่อสัก",
     "reserved": "ถูกจอง",
     "claimed": "ถูกครอบครอง — ปลดระวาง",
