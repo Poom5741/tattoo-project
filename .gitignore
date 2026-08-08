@@ -46,3 +46,4 @@ playwright-report/
 test-results/
 # Local Pi runtime state
 .atl/
+.env.deploy

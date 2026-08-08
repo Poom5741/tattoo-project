@@ -1,0 +1,17 @@
+{
+  "loopToken": "d791ad6e-bb09-41e6-9d54-54b68d133d60",
+  "ralphPath": "/home/vscode/codingZone/tattoo-project/RALPH.md",
+  "taskDir": "/home/vscode/codingZone/tattoo-project",
+  "cwd": "/home/vscode/codingZone/tattoo-project",
+  "status": "running",
+  "currentIteration": 2,
+  "maxIterations": 12,
+  "timeout": 300,
+  "startedAt": "2026-08-08T04:49:18.473Z",
+  "guardrails": {
+    "blockCommands": [
+      "git\\s+push"
+    ],
+    "protectedFiles": []
+  }
+}

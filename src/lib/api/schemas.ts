@@ -121,3 +121,20 @@ export type ReviewDesign = z.infer<typeof ReviewDesignSchema>;
 export type ResaleListing = z.infer<typeof ResaleListingSchema>;
 export type BookingAction = z.infer<typeof BookingActionSchema>;
 export type CreateOrder = z.infer<typeof CreateOrderSchema>;
+
+// Admin: Update artist details
+export const UpdateArtistSchema = z.object({
+  artistId: z.string().min(1, "Artist ID is required"),
+  name: z.string().min(1).max(100).optional(),
+  handle: z.string().max(50).optional().nullable(),
+  city: z.string().max(100).optional().nullable(),
+  style: z.string().max(200).optional().nullable(),
+  years: z.number().int().min(0).max(100).optional().nullable(),
+  booked: z.string().max(100).optional().nullable(),
+  rate: z.number().int().min(0).max(10000).optional().nullable(),
+  bio: z.string().max(2000).optional().nullable(),
+  email: z.string().email().optional().nullable(),
+  walletAddress: z.string().regex(/^0x[0-9a-fA-F]{40}$/, "Must be a 0x Ethereum address").optional().nullable(),
+});
+
+export type UpdateArtist = z.infer<typeof UpdateArtistSchema>;

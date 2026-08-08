@@ -1,3 +1,11 @@
 packages:
   - "."
   - "contracts"
+allowBuilds:
+  bufferutil: true
+  esbuild: true
+  keccak: true
+  protobufjs: true
+  sharp: true
+  utf-8-validate: true
+  workerd: true

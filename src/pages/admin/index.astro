@@ -4,6 +4,7 @@ export const prerender = false;
 import Base from "../../layouts/Base.astro";
 import { isAdminAuthed } from "../../lib/admin/auth";
 import AdminPendingReview from "../../components/AdminPendingReview";
+import AdminArtistTable from "../../components/AdminArtistTable";
 
 const env = Astro.locals.runtime.env;
 const cookieHeader = Astro.request.headers.get("cookie") ?? "";
@@ -283,42 +284,10 @@ const tdBase = "px-4 py-3 border-b border-outline-variant/40 text-body-md font-b
         </div>
       </form>
 
-      {/* ── Artist wallet addresses ── */}
-      <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant mb-4">Artist wallet addresses</div>
-      <div class="overflow-x-auto mb-12">
-        <table class="w-full border border-outline-variant/40 border-collapse rounded-lg overflow-hidden">
-          <thead>
-            <tr>
-              <th class={thBase}>Artist</th>
-              <th class={thBase}>ID</th>
-              <th class={thBase}>Current wallet</th>
-              <th class={thBase}>Update</th>
-            </tr>
-          </thead>
-          <tbody>
-            {artists.map((a) => (
-              <tr class="hover:bg-surface-container-low/50 transition-colors">
-                <td class={`${tdBase} font-medium text-on-surface`}>{a.name}</td>
-                <td class={`${tdBase} text-label-sm text-on-surface-variant/60 font-mono`}>{a.id}</td>
-                <td class={`${tdBase} text-label-sm font-mono max-w-[200px] truncate`}>
-                  {a.wallet_address ? a.wallet_address : <span class="text-on-surface-variant/40">not set</span>}
-                </td>
-                <td class={tdBase}>
-                  <form method="POST" action="/api/admin/update-artist-wallet"
-                    class="flex gap-2 items-center">
-                    <input type="hidden" name="artistId" value={a.id} />
-                    <input type="text" name="walletAddress" class="input-bb text-label-sm font-mono w-[280px] py-1.5"
-                      placeholder="0x…"
-                      value={a.wallet_address ?? ""} />
-                    <button type="submit" class="btn-secondary text-label-sm py-1.5 px-4">
-                      Save
-                    </button>
-                  </form>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      {/* ── Artist management ── */}
+      <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant mb-4">Artist management</div>
+      <div class="mb-12">
+        <AdminArtistTable client:load artists={artists} />
       </div>
     </div>
   )}
