@@ -83,7 +83,6 @@ const _subscribers = new Set<Subscriber>();
 
 /** Call this after every _state mutation to notify all React roots. */
 function emitChange(): void {
-  console.log(`[WALLET-STORE] emitChange: status=${_state.status} addr=${_state.address?.slice(0,10)}… subscribers=${_subscribers.size}`);
   _subscribers.forEach((fn) => fn());
 }
 
@@ -155,14 +154,12 @@ async function createWallet(): Promise<void> {
 
 function unlock(): void {
   if (!_daccRef || !_state.address) return;
-  console.log(`[WALLET-STORE] unlock: addr=${_state.address.slice(0,10)}…`);
   _state = { ..._state, status: "unlocked" };
   emitChange();
 }
 
 function lock(): void {
   if (!_daccRef) return;
-  console.log(`[WALLET-STORE] lock`);
   _state = { ..._state, status: "locked" };
   emitChange();
 }
@@ -172,7 +169,6 @@ function importBackup(data: {
   address: `0x${string}`;
   encryptedPasswordSecretKey?: string;
 }): void {
-  console.log(`[WALLET-STORE] importBackup: addr=${data.address.slice(0,10)}…`);
   _daccRef = data.daccPublickey;
   _state = {
     status: "unlocked",
@@ -205,11 +201,9 @@ export function useWalletStore(): WalletState & WalletActions & { isReady: boole
 
   useEffect(() => {
     const subscriber = () => {
-      console.log(`[WALLET-STORE] subscriber: new state status=${_state.status} addr=${_state.address?.slice(0,10)}…`);
       setState({ ..._state });
     };
     _subscribers.add(subscriber);
-    console.log(`[WALLET-STORE] useEffect: registered subscriber, total=${_subscribers.size}`);
 
     // Sync on mount — catches any state change between initial render and effect
     setState({ ..._state });
