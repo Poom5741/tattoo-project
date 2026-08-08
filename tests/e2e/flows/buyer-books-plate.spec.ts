@@ -126,11 +126,23 @@ test.describe("Buyer books a plate - end-to-end user flow", () => {
     // Wait for the React BookingForm to hydrate.
     await page.waitForSelector("#bf-artist", { timeout: 10_000 });
 
-    // 5. Fill the form. The default artist is the first one in the list
-    //    (the form sets artistId from artists[0]?.id). We keep the
-    //    default. The design dropdown defaults to "No specific plate";
-    //    pick "d1 — Serpent in Negative" by its option value.
-    await page.selectOption("#bf-design", "d1");
+    // 5. Fill the form. The default artist is the first one in the list.
+    //    The design dropdown defaults to "No specific plate"; select
+    //    the first available design (option value varies by D1/seed state).
+    const designOptions = page.locator("#bf-design option");
+    const optionCount = await designOptions.count();
+    // Find the first option that isn't the "No specific plate" placeholder.
+    let designValue = "";
+    for (let i = 0; i < optionCount; i++) {
+      const val = await designOptions.nth(i).getAttribute("value");
+      if (val && val !== "") {
+        designValue = val;
+        break;
+      }
+    }
+    if (designValue) {
+      await page.selectOption("#bf-design", designValue);
+    }
     await page.fill("#bf-name", "Smoke Buyer");
     await page.fill("#bf-contact", "smoke-buyer@example.com");
     // Optionally: a message.
@@ -187,8 +199,12 @@ test.describe("Buyer books a plate - end-to-end user flow", () => {
       contact: "smoke-buyer@example.com",
       booking_type: "plate",
     });
-    // design_id is stored; the form sent designId='d1' for plate mode.
-    expect(row.design_id).toBe("d1");
+    // design_id is stored; the form sent the selected design id.
+    if (designValue) {
+      expect(row.design_id).toBe(designValue);
+    } else {
+      expect(row.design_id).toBeTruthy();
+    }
     // The artistId is the form's default (first artist in the list).
     // We don't pin the id here because the seed may add/remove artists;
     // we just assert it's non-empty.

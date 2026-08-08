@@ -174,24 +174,22 @@ test.describe("Buyer checks out (paid flow) - end-to-end user flow", () => {
     await page.waitForURL("**/design/d1");
     await expect(page).toHaveURL(/\/design\/d1$/);
 
-    // 4. Click "Acquire Plate" CTA -> /checkout/d1.
+    // 4. Click "Reserve this plate" CTA -> /checkout/d1 -> redirects to /booking.
+    //    Checkout is disabled at soft launch (wayfinder ticket 03).
     const cta = page.locator('a[href="/checkout/d1"]').first();
     await expect(cta).toBeVisible();
-    await Promise.all([
-      page.waitForURL("**/checkout/d1"),
-      cta.click(),
-    ]);
-    await expect(page).toHaveURL(/\/checkout\/d1$/);
+    await cta.click();
+    await page.waitForURL("**/booking*", { timeout: 10_000 });
+    expect(page.url()).toContain("/booking");
+    expect(page.url()).toContain("designId=d1");
 
-    // 5. Wait for the React CheckoutFlow to hydrate. The component
-    //    renders the channel options as buttons with text like
-    //    "QR PromptPay" and "Credit/Debit Card".
-    await expect(
-      page.locator("button", { hasText: "QR PromptPay" }).first(),
-    ).toBeVisible({ timeout: 10_000 });
+    // 5. Checkout is disabled at soft launch. The page redirects to
+    //    /booking?designId=d1. Verify the booking form loads.
+    await expect(page.locator("#bf-artist")).toBeVisible({ timeout: 10_000 });
 
-    // 6. Verify the design summary shows d1's title.
-    await expect(page.locator("h3", { hasText: "Serpent in Negative" })).toBeVisible();
+    // Paid flow is disabled — stop here. The remaining steps (ChillPay,
+    // email, checkbox, pay button) are no longer reachable.
+    return;
 
     // 7. Verify the price displays (it has the THB currency symbol
     //    and a numeric value).
