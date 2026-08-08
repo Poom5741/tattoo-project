@@ -5,8 +5,11 @@
  * store that all islands import. Since ES modules are singletons, every
  * Astro island that imports this store gets the SAME instance.
  *
- * State mutations broadcast via CustomEvent("saknid-wallet-change") so
- * React hooks in different islands re-render on changes.
+ * State mutations call emitChange() which notifies all subscribers.
+ * Each subscriber's useEffect callback calls setState to trigger re-render.
+ *
+ * SSR-safe: _state starts as null (server) and hydrates from localStorage
+ * on the client. The React hook handles both cases.
  */
 
 // ── localStorage keys ──────────────────────────────────────────
@@ -56,55 +59,48 @@ function persistSecret(secret: string): void {
   localStorage.setItem(LS_SECRET, secret);
 }
 
-function getOrCreateSecret(): string {
-  if (typeof window === "undefined") return "";
-  const stored = localStorage.getItem(LS_SECRET);
-  if (stored) return stored;
-  // generateRandomSecret is imported at module scope (see top of file)
-  const secret = generateRandomSecret();
-  localStorage.setItem(LS_SECRET, secret);
-  return secret;
+/** Build initial state from localStorage (client-only) or empty (SSR). */
+function getInitialState(): WalletState {
+  const restored = readStorage();
+  return {
+    status: restored ? "locked" : "none",
+    address: restored?.address ?? null,
+    daccPublickey: restored?.daccPublickey ?? null,
+  };
 }
 
 // ── Module-level singleton state ───────────────────────────────
-// On first import, hydrate from localStorage.
-const initial = readStorage();
+// On the server (SSR), readStorage() returns null → status "none".
+// On the client, readStorage() returns wallet data → status "locked".
+// Both server and client compute the SAME initial state for their
+// environment, so hydration matches.
+let _state: WalletState = getInitialState();
+let _daccRef: string | null = _state.daccPublickey;
 
-let _state: WalletState = {
-  status: initial ? "locked" : "none",
-  address: initial?.address ?? null,
-  daccPublickey: initial?.daccPublickey ?? null,
-};
+// ── Subscriber set ─────────────────────────────────────────────
+type Subscriber = () => void;
+const _subscribers = new Set<Subscriber>();
 
-// Ref holder for the wallet dacc publickey (not React state)
-let _daccRef: string | null = initial?.daccPublickey ?? null;
-
-// ── Event bus ──────────────────────────────────────────────────
-const EVENT_NAME = "saknid-wallet-change";
-type Listener = () => void;
-const _listeners = new Set<Listener>();
-
-function notify(): void {
-  // Dispatch a DOM custom event for cross-island notification
-  if (typeof window !== "undefined") {
-    window.dispatchEvent(new CustomEvent(EVENT_NAME));
-  }
-  // Also notify in-process listeners (same React root)
-  _listeners.forEach((fn) => fn());
+/** Call this after every _state mutation to notify all React roots. */
+function emitChange(): void {
+  console.log(`[WALLET-STORE] emitChange: status=${_state.status} addr=${_state.address?.slice(0,10)}… subscribers=${_subscribers.size}`);
+  _subscribers.forEach((fn) => fn());
 }
 
 // ── Actions (module-level, shared across all islands) ──────────
 
 async function createWallet(): Promise<void> {
   if (_daccRef) return;
+  console.log(`[WALLET-STORE] createWallet: starting`);
   _state = { ..._state, status: "loading" };
-  notify();
+  emitChange();
 
   try {
     const { createDaccWallet } = await import("dacc-js");
 
     let secret = localStorage.getItem(LS_SECRET);
     if (!secret) {
+      const { generateRandomSecret } = await import("@/lib/passkey/crypto");
       secret = generateRandomSecret();
       localStorage.setItem(LS_SECRET, secret);
     }
@@ -117,7 +113,8 @@ async function createWallet(): Promise<void> {
       daccPublickey: wallet.daccPublickey,
     };
     persistWallet(wallet.daccPublickey, wallet.address);
-    notify();
+    console.log(`[WALLET-STORE] createWallet: done, addr=${wallet.address.slice(0,10)}…`);
+    emitChange();
 
     // Backup to cloud if signed in
     try {
@@ -147,25 +144,27 @@ async function createWallet(): Promise<void> {
         }
       }
     } catch {
-      // Auth/backup not critical — wallet is created
+      // Auth/backup not critical
     }
   } catch (e) {
     _state = { ..._state, status: "none" };
-    notify();
+    emitChange();
     throw e;
   }
 }
 
 function unlock(): void {
   if (!_daccRef || !_state.address) return;
+  console.log(`[WALLET-STORE] unlock: addr=${_state.address.slice(0,10)}…`);
   _state = { ..._state, status: "unlocked" };
-  notify();
+  emitChange();
 }
 
 function lock(): void {
   if (!_daccRef) return;
+  console.log(`[WALLET-STORE] lock`);
   _state = { ..._state, status: "locked" };
-  notify();
+  emitChange();
 }
 
 function importBackup(data: {
@@ -173,6 +172,7 @@ function importBackup(data: {
   address: `0x${string}`;
   encryptedPasswordSecretKey?: string;
 }): void {
+  console.log(`[WALLET-STORE] importBackup: addr=${data.address.slice(0,10)}…`);
   _daccRef = data.daccPublickey;
   _state = {
     status: "unlocked",
@@ -183,79 +183,57 @@ function importBackup(data: {
   if (data.encryptedPasswordSecretKey) {
     persistSecret(data.encryptedPasswordSecretKey);
   }
-  notify();
+  emitChange();
 }
 
-// ── Getters (read current snapshot) ────────────────────────────
+// ── React hook ─────────────────────────────────────────────────
+import { useState, useEffect } from "react";
+
+/**
+ * useWalletStore — React hook that subscribes to the shared wallet store.
+ *
+ * Works across ALL Astro islands because it reads from the module-level
+ * singleton _state (not a per-island React context).
+ *
+ * Each hook instance:
+ * 1. Initializes local state from _state
+ * 2. Registers a subscriber that calls setState when _state changes
+ * 3. Returns the current state + actions
+ */
+export function useWalletStore(): WalletState & WalletActions & { isReady: boolean } {
+  const [state, setState] = useState<WalletState>(_state);
+
+  useEffect(() => {
+    const subscriber = () => {
+      console.log(`[WALLET-STORE] subscriber: new state status=${_state.status} addr=${_state.address?.slice(0,10)}…`);
+      setState({ ..._state });
+    };
+    _subscribers.add(subscriber);
+    console.log(`[WALLET-STORE] useEffect: registered subscriber, total=${_subscribers.size}`);
+
+    // Sync on mount — catches any state change between initial render and effect
+    setState({ ..._state });
+
+    return () => {
+      _subscribers.delete(subscriber);
+    };
+  }, []);
+
+  return {
+    ...state,
+    createWallet,
+    unlock,
+    lock,
+    importBackup,
+    isReady: state.status === "unlocked",
+  };
+}
+
+// ── Getters (for non-React code) ──────────────────────────────
 export function getWalletState(): WalletState {
   return _state;
 }
 
-export function getWalletActions(): WalletActions {
-  return { createWallet, unlock, lock, importBackup };
-}
-
 export function isReady(): boolean {
   return _state.status === "unlocked";
-}
-
-// ── React hook ─────────────────────────────────────────────────
-import { useState, useEffect, useCallback, useRef } from "react";
-import { generateRandomSecret } from "@/lib/passkey/crypto";
-
-/**
- * useWalletStore — React hook that subscribes to the shared wallet store.
- * Works identically across all Astro islands because it reads from the
- * module-level singleton, not from a per-island React context.
- */
-export function useWalletStore(): WalletState & WalletActions & { isReady: boolean } {
-  // Read initial snapshot from the module-level store
-  const [state, setState] = useState<WalletState>(() => _state);
-  const actionsRef = useRef<WalletActions>(getWalletActions());
-  // Keep actions ref stable (they're module-level, never change)
-  actionsRef.current = getWalletActions();
-
-  useEffect(() => {
-    // Sync on DOM custom event (cross-island)
-    const onEvent = () => setState({ ..._state });
-    window.addEventListener(EVENT_NAME, onEvent);
-
-    // Also listen for React dispatch (same root)
-    _listeners.add(onEvent);
-
-    // Sync on storage event (cross-tab)
-    const onStorage = (e: StorageEvent) => {
-      if (e.key && [LS_DACC, LS_ADDR, LS_SECRET].includes(e.key)) {
-        // Re-hydrate from localStorage
-        const fresh = readStorage();
-        if (fresh) {
-          _daccRef = fresh.daccPublickey;
-          _state = {
-            status: "locked", // Re-hydrated wallets start locked
-            address: fresh.address,
-            daccPublickey: fresh.daccPublickey,
-          };
-        } else {
-          _daccRef = null;
-          _state = { status: "none", address: null, daccPublickey: null };
-        }
-        setState({ ..._state });
-      }
-    };
-    window.addEventListener("storage", onStorage);
-
-    return () => {
-      window.removeEventListener(EVENT_NAME, onEvent);
-      window.removeEventListener("storage", onStorage);
-      _listeners.delete(onEvent);
-    };
-  }, []);
-
-  const stableActions = actionsRef.current;
-
-  return {
-    ...state,
-    ...stableActions,
-    isReady: state.status === "unlocked",
-  };
 }
