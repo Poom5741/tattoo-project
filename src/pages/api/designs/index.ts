@@ -1,35 +1,130 @@
 export const prerender = false;
 
 import type { APIRoute } from "astro";
+import { z } from "zod";
 import { randomUUID } from "crypto";
 
-export const GET: APIRoute = async ({ locals }) => {
+/**
+ * Statuses safe to expose on the public listing.
+ *
+ * 'pending', 'rejected', 'delisted' are internal/moderation states and must
+ * never be returned from the unauthenticated listing. 'owned' is the
+ * post-mint buyer state; it is excluded from the public browse surface since
+ * owned designs are surfaced via the buyer's wallet/account endpoints.
+ */
+const PUBLIC_STATUSES = ["available", "reserved", "sold"] as const;
+type PublicStatus = (typeof PUBLIC_STATUSES)[number];
+
+const QuerySchema = z.object({
+  status: z
+    .enum(PUBLIC_STATUSES)
+    .optional()
+    .or(z.literal("").transform(() => undefined)),
+  limit: z.coerce.number().int().min(1).max(100).default(50),
+  offset: z.coerce.number().int().nonnegative().default(0),
+});
+
+export const GET: APIRoute = async ({ request, locals }) => {
   const start = Date.now();
   const requestId = randomUUID();
   const db = locals.runtime.env.DB;
+
+  const url = new URL(request.url);
+  const parsed = QuerySchema.safeParse({
+    status: url.searchParams.get("status") ?? undefined,
+    limit: url.searchParams.get("limit") ?? undefined,
+    offset: url.searchParams.get("offset") ?? undefined,
+  });
+
+  if (!parsed.success) {
+    const status = 400;
+    console.log(
+      JSON.stringify({
+        request_id: requestId,
+        route: "/api/designs",
+        status,
+        duration_ms: Date.now() - start,
+        issues: parsed.error.issues,
+      })
+    );
+    return new Response(
+      JSON.stringify({ error: "Invalid query", issues: parsed.error.issues }),
+      {
+        status,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
+  }
+
+  const { status: statusFilter, limit, offset } = parsed.data;
 
   let d1Start = Date.now();
   let d1Ms = 0;
 
   try {
+    // Build the WHERE clause. The public endpoint always restricts results
+    // to the PUBLIC_STATUSES allowlist; an explicit ?status= narrows further.
+    const allowedStatuses: PublicStatus[] = statusFilter
+      ? [statusFilter]
+      : [...PUBLIC_STATUSES];
+
+    const placeholders = allowedStatuses.map(() => "?").join(",");
+    const baseWhere = `WHERE status IN (${placeholders})`;
+    const baseParams: (string | number)[] = [...allowedStatuses];
+
     d1Start = Date.now();
-    const { results } = await db.prepare("SELECT * FROM designs ORDER BY token_id ASC").all();
+    const countStmt = `SELECT COUNT(*) AS total FROM designs ${baseWhere}`;
+    const countRow = await db
+      .prepare(countStmt)
+      .bind(...baseParams)
+      .first<{ total: number }>();
+    const total = countRow?.total ?? 0;
+
+    const dataStmt = `SELECT * FROM designs ${baseWhere} ORDER BY token_id ASC LIMIT ? OFFSET ?`;
+    const dataParams: (string | number)[] = [...baseParams, limit, offset];
+    const { results } = await db.prepare(dataStmt).bind(...dataParams).all();
     d1Ms = Date.now() - d1Start;
 
     const status = 200;
     console.log(
-      JSON.stringify({ request_id: requestId, route: "/api/designs", status, duration_ms: Date.now() - start, d1_query_ms: d1Ms })
+      JSON.stringify({
+        request_id: requestId,
+        route: "/api/designs",
+        status,
+        duration_ms: Date.now() - start,
+        d1_query_ms: d1Ms,
+        returned: results.length,
+        total,
+        limit,
+        offset,
+        status_filter: statusFilter ?? null,
+      })
     );
 
-    return new Response(JSON.stringify(results), {
-      status,
-      headers: { "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({
+        data: results,
+        total,
+        limit,
+        offset,
+      }),
+      {
+        status,
+        headers: { "Content-Type": "application/json" },
+      }
+    );
   } catch (err) {
     d1Ms = Date.now() - d1Start;
     const status = 500;
     console.log(
-      JSON.stringify({ request_id: requestId, route: "/api/designs", status, duration_ms: Date.now() - start, d1_query_ms: d1Ms, error: String(err) })
+      JSON.stringify({
+        request_id: requestId,
+        route: "/api/designs",
+        status,
+        duration_ms: Date.now() - start,
+        d1_query_ms: d1Ms,
+        error: String(err),
+      })
     );
     return new Response(JSON.stringify({ error: "Internal server error" }), {
       status,
