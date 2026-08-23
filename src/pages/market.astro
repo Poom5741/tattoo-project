@@ -49,7 +49,7 @@ try {
   const db = Astro.locals.runtime.env.DB;
   const [dRes, rRes] = await Promise.all([
     db
-      .prepare("SELECT id, n, title, artist_id, style, price, status, placement, seed, drawn, image_url, selling_mode, royalty_pct, token_id FROM designs WHERE status IN ('available', 'reserved', 'sold') ORDER BY rowid ASC")
+      .prepare("SELECT d.id, d.n, d.title, d.artist_id, d.style, d.price, d.status, d.placement, d.seed, d.drawn, d.image_url, d.selling_mode, d.royalty_pct, d.token_id FROM designs d JOIN artists a ON a.id = d.artist_id WHERE d.status IN ('available', 'reserved', 'sold') AND a.deleted_at IS NULL AND a.name NOT LIKE 'test-%' ORDER BY d.rowid ASC")
       .all<DesignRow>(),
     db
       .prepare(`SELECT rl.id, rl.design_id, rl.seller_wallet, rl.asking_price, rl.token_id, rl.status,
@@ -58,7 +58,7 @@ try {
                 FROM resale_listings rl
                 JOIN designs d ON rl.design_id = d.id
                 JOIN artists a ON d.artist_id = a.id
-                WHERE rl.status = 'active'`)
+                WHERE rl.status = 'active' AND a.deleted_at IS NULL AND a.name NOT LIKE 'test-%'`)
       .all<ResaleListing>(),
   ]);
   designs = dRes.results;

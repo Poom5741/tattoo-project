@@ -43,7 +43,7 @@ let plates: DesignRow[] = [];
 try {
   const db = Astro.locals.runtime.env.DB;
   const row = await db
-    .prepare("SELECT * FROM artists WHERE id = ?")
+    .prepare("SELECT * FROM artists WHERE id = ? AND deleted_at IS NULL AND name NOT LIKE 'test-%'")
     .bind(id)
     .first<ArtistRow>();
   artist = row ?? null;

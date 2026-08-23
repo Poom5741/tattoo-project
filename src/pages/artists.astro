@@ -29,8 +29,8 @@ interface CountRow {
 
 const db = Astro.locals.runtime.env.DB;
 const [aRes, cRes] = await Promise.all([
-  db.prepare("SELECT id, name, handle, city, style, years, booked, bio, pieces, rating, seed FROM artists ORDER BY name ASC").all<ArtistRow>(),
-  db.prepare("SELECT artist_id, COUNT(*) AS available_count FROM designs WHERE status='available' GROUP BY artist_id").all<CountRow>(),
+  db.prepare("SELECT id, name, handle, city, style, years, booked, bio, pieces, rating, seed FROM artists WHERE deleted_at IS NULL AND name NOT LIKE 'test-%' ORDER BY name ASC").all<ArtistRow>(),
+  db.prepare("SELECT d.artist_id, COUNT(*) AS available_count FROM designs d JOIN artists a ON a.id = d.artist_id WHERE d.status='available' AND a.deleted_at IS NULL AND a.name NOT LIKE 'test-%' GROUP BY d.artist_id").all<CountRow>(),
 ]);
 
 const availMap = Object.fromEntries(cRes.results.map((r) => [r.artist_id, r.available_count]));

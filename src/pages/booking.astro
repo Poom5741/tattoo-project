@@ -20,7 +20,7 @@ try {
   const db = Astro.locals.runtime.env.DB;
   const [aRes, dRes] = await Promise.all([
     db.prepare(
-      "SELECT id, name, handle, city, style, years, booked, rate, bio, pieces, rating, seed FROM artists ORDER BY name ASC"
+      "SELECT id, name, handle, city, style, years, booked, rate, bio, pieces, rating, seed FROM artists WHERE deleted_at IS NULL AND name NOT LIKE 'test-%' ORDER BY name ASC"
     ).all<{
       id: string; name: string; handle: string | null; city: string | null;
       style: string | null; years: number | null; booked: string | null;
@@ -28,7 +28,7 @@ try {
       rating: string | null; seed: number | null;
     }>(),
     db.prepare(
-      "SELECT id, n, title, artist_id, style, price, price_usd, status, placement, seed, token, minted, medium, sessions, drawn, token_id FROM designs WHERE status = 'available' ORDER BY rowid ASC"
+      "SELECT d.id, d.n, d.title, d.artist_id, d.style, d.price, d.price_usd, d.status, d.placement, d.seed, d.token, d.minted, d.medium, d.sessions, d.drawn, d.token_id FROM designs d JOIN artists a ON a.id = d.artist_id WHERE d.status = 'available' AND a.deleted_at IS NULL AND a.name NOT LIKE 'test-%' ORDER BY d.rowid ASC"
     ).all<{
       id: string; n: string; title: string; artist_id: string;
       style: string | null; price: number | null; price_usd: number | null;

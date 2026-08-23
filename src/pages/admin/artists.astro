@@ -1,0 +1,460 @@
+---
+export const prerender = false;
+
+import Base from "../../layouts/Base.astro";
+import { isAdminAuthed } from "../../lib/admin/auth";
+
+const env = Astro.locals.runtime.env;
+const cookieHeader = Astro.request.headers.get("cookie") ?? "";
+const authed = await isAdminAuthed(cookieHeader, env.SESSION);
+
+interface ArtistRow {
+  id: string;
+  name: string;
+  handle: string | null;
+  city: string | null;
+  style: string | null;
+  email: string | null;
+  wallet_address: string | null;
+  deleted_at: number | null;
+}
+
+let artists: ArtistRow[] = [];
+
+if (authed) {
+  const db = env.DB;
+  const res = await db
+    .prepare(
+      "SELECT id, name, handle, city, style, email, wallet_address, deleted_at FROM artists WHERE deleted_at IS NULL ORDER BY name ASC"
+    )
+    .all<ArtistRow>();
+  artists = res.results;
+}
+
+const thBase =
+  "font-body text-label-sm tracking-wider uppercase text-on-surface-variant/60 px-4 py-3 text-left border-b border-outline-variant bg-surface-container-low whitespace-nowrap";
+const tdBase =
+  "px-4 py-3 border-b border-outline-variant/40 text-body-md font-body";
+---
+
+<Base title="Artists — Admin — SAKNID">
+  {!authed ? (
+    <div class="min-h-screen flex items-center justify-center bg-surface px-5">
+      <div class="w-full max-w-[400px] card-bb p-10">
+        <div class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-5">
+          SAKNID / Admin
+        </div>
+        <h1 class="font-display text-headline-sm text-on-surface mb-7">
+          Sign in
+        </h1>
+        <form id="lf" novalidate>
+          <div class="mb-5">
+            <label for="pw" class="label-bb">Password</label>
+            <input
+              id="pw"
+              type="password"
+              class="input-bb"
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
+          </div>
+          <div id="login-err" style="font-family:'Sora',sans-serif;font-size:12px;color:#ba1a1a;margin-top:10px;display:none;"></div>
+          <button type="submit" class="btn-primary w-full mt-5"
+            >Enter dashboard</button
+          >
+        </form>
+        <script>
+          document.getElementById("lf")?.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const pw = (document.getElementById("pw") as HTMLInputElement).value;
+            const errEl = document.getElementById("login-err");
+            try {
+              const res = await fetch("/api/admin/login", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ password: pw }),
+              });
+              if (res.ok) {
+                location.reload();
+                return;
+              }
+              const body = await res.json().catch(() => ({}));
+              if (errEl) {
+                errEl.textContent = body?.error ?? "Login failed";
+                errEl.style.display = "block";
+              }
+            } catch {
+              if (errEl) {
+                errEl.textContent = "Network error — check your connection";
+                errEl.style.display = "block";
+              }
+            }
+          });
+        </script>
+      </div>
+    </div>
+  ) : (
+    <div class="max-w-container-max mx-auto px-5 md:px-16 py-10 pb-20">
+      {/* ── Header ── */}
+      <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 pb-6 border-b border-outline-variant mb-10">
+        <div>
+          <div class="kicker font-body text-label-md font-semibold text-primary-container tracking-wider uppercase mb-2">
+            SAKNID / Admin
+          </div>
+          <h1 class="font-display text-headline-md text-on-surface">
+            Artists
+          </h1>
+        </div>
+        <div class="flex gap-3">
+          <a href="/admin" class="btn-secondary">Dashboard</a>
+          <a href="/admin/bookings" class="btn-secondary">Bookings</a>
+          <a href="/admin/designs" class="btn-secondary">Designs</a>
+          <form method="POST" action="/api/admin/logout">
+            <button type="submit" class="btn-secondary">Sign out</button>
+          </form>
+        </div>
+      </div>
+
+      {/* ── Artist list ── */}
+      <div class="font-body text-label-sm tracking-wider uppercase text-on-surface-variant mb-4">
+        All artists ({artists.filter((a) => !a.deleted_at).length} active)
+      </div>
+      <div class="overflow-x-auto mb-12">
+        <table
+          class="w-full border border-outline-variant/40 border-collapse rounded-lg overflow-hidden"
+          data-testid="artists-table"
+        >
+          <thead>
+            <tr>
+              <th class={thBase}>Name</th>
+              <th class={thBase}>ID</th>
+              <th class={thBase}>Handle</th>
+              <th class={thBase}>City</th>
+              <th class={thBase}>Style</th>
+              <th class={thBase}>Email</th>
+              <th class={thBase}>Status</th>
+              <th class={thBase}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {artists.length === 0 ? (
+              <tr>
+                <td colspan="8" class={`${tdBase} text-center text-on-surface-variant/60`}>
+                  No artists found.
+                </td>
+              </tr>
+            ) : (
+              artists.map((a) => (
+                <tr
+                  class={`hover:bg-surface-container-low/50 transition-colors ${a.deleted_at ? "opacity-50" : ""}`}
+                  data-testid={`artist-row-${a.id}`}
+                >
+                  <td class={`${tdBase} font-medium text-on-surface`}>
+                    {a.name}
+                  </td>
+                  <td class={`${tdBase} text-label-sm text-on-surface-variant/60 font-mono`}>
+                    {a.id}
+                  </td>
+                  <td class={`${tdBase} text-body-md`}>
+                    {a.handle ?? <span class="text-on-surface-variant/40">—</span>}
+                  </td>
+                  <td class={`${tdBase} text-body-md`}>
+                    {a.city ?? <span class="text-on-surface-variant/40">—</span>}
+                  </td>
+                  <td class={`${tdBase} text-label-sm text-on-surface-variant/60`}>
+                    {a.style ?? <span class="text-on-surface-variant/40">—</span>}
+                  </td>
+                  <td class={`${tdBase} text-body-md`}>
+                    {a.email ?? <span class="text-on-surface-variant/40">—</span>}
+                  </td>
+                  <td class={tdBase}>
+                    {a.deleted_at ? (
+                      <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border bg-error/container text-error border-error/20">
+                        deleted
+                      </span>
+                    ) : (
+                      <span class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold border bg-green-50 text-green-700 border-green-200">
+                        active
+                      </span>
+                    )}
+                  </td>
+                  <td class={tdBase}>
+                    {!a.deleted_at ? (
+                      <div class="flex gap-2">
+                        <button
+                          type="button"
+                          class="btn-secondary text-label-sm py-1.5 px-4"
+                          data-testid={`edit-artist-${a.id}`}
+                          data-artist-id={a.id}
+                          data-artist-name={a.name}
+                          data-artist-handle={a.handle ?? ""}
+                          data-artist-city={a.city ?? ""}
+                          data-artist-style={a.style ?? ""}
+                          data-artist-email={a.email ?? ""}
+                        >
+                          Edit
+                        </button>
+                        <button
+                          type="button"
+                          class="btn-danger text-label-sm py-1.5 px-4"
+                          data-testid={`delete-artist-${a.id}`}
+                          data-artist-id={a.id}
+                          data-artist-name={a.name}
+                        >
+                          Delete
+                        </button>
+                      </div>
+                    ) : (
+                      <span class="text-on-surface-variant/40 text-label-sm">—</span>
+                    )}
+                  </td>
+                </tr>
+              ))
+            )}
+          </tbody>
+        </table>
+      </div>
+
+      {/* ── Edit artist modal ── */}
+      <div
+        id="edit-modal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40"
+        data-testid="edit-modal"
+      >
+        <div class="card-bb p-8 max-w-md w-full mx-4">
+          <h2 class="font-display text-title-lg text-on-surface mb-5">
+            Edit artist
+          </h2>
+          <form id="edit-form" novalidate>
+            <input type="hidden" id="edit-artist-id" />
+            <div class="mb-4">
+              <label for="edit-name" class="label-bb">Name *</label>
+              <input id="edit-name" type="text" class="input-bb" required />
+            </div>
+            <div class="mb-4">
+              <label for="edit-handle" class="label-bb">Handle</label>
+              <input id="edit-handle" type="text" class="input-bb" />
+            </div>
+            <div class="mb-4">
+              <label for="edit-city" class="label-bb">City</label>
+              <input id="edit-city" type="text" class="input-bb" />
+            </div>
+            <div class="mb-4">
+              <label for="edit-style" class="label-bb">Style</label>
+              <input id="edit-style" type="text" class="input-bb" />
+            </div>
+            <div class="mb-5">
+              <label for="edit-email" class="label-bb">Email</label>
+              <input id="edit-email" type="email" class="input-bb" />
+            </div>
+            <div id="edit-error" class="font-body text-body-sm text-error mb-4" style="display:none;"></div>
+            <div class="flex gap-3 justify-end">
+              <button
+                id="edit-cancel"
+                type="button"
+                class="btn-secondary text-label-md py-2 px-6"
+              >
+                Cancel
+              </button>
+              <button
+                id="edit-save"
+                type="submit"
+                class="btn-primary text-label-md py-2 px-6"
+                data-testid="edit-save"
+              >
+                Save changes
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      {/* ── Delete confirmation modal ── */}
+      <div
+        id="delete-modal"
+        class="fixed inset-0 z-50 hidden items-center justify-center bg-black/40"
+        data-testid="confirm-modal"
+      >
+        <div class="card-bb p-8 max-w-md w-full mx-4">
+          <h2 class="font-display text-title-lg text-on-surface mb-3">
+            Delete artist
+          </h2>
+          <p class="font-body text-body-md text-on-surface-variant mb-6">
+            Are you sure you want to delete <strong id="modal-artist-name"></strong>?
+            This is a soft delete — the artist will be hidden but data is preserved.
+          </p>
+          <div class="flex gap-3 justify-end">
+            <button
+              id="modal-cancel"
+              type="button"
+              class="btn-secondary text-label-md py-2 px-6"
+            >
+              Cancel
+            </button>
+            <button
+              id="modal-confirm"
+              type="button"
+              class="btn-danger text-label-md py-2 px-6"
+              data-testid="confirm-delete"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <script>
+        (() => {
+          const modal = document.getElementById("delete-modal")!;
+          const nameEl = document.getElementById("modal-artist-name")!;
+          const cancelBtn = document.getElementById("modal-cancel")!;
+          const confirmBtn = document.getElementById("modal-confirm")!;
+          let pendingId: string | null = null;
+
+          function openModal(id: string, name: string) {
+            pendingId = id;
+            nameEl.textContent = name;
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+          }
+
+          function closeModal() {
+            pendingId = null;
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+          }
+
+          // Attach click handlers to all delete buttons
+          document.querySelectorAll<HTMLElement>('[data-testid^="delete-artist-"]').forEach((btn) => {
+            btn.addEventListener("click", () => {
+              openModal(
+                btn.dataset.artistId!,
+                btn.dataset.artistName!,
+              );
+            });
+          });
+
+          cancelBtn.addEventListener("click", closeModal);
+
+          /* ── Edit modal logic ── */
+          const editModal = document.getElementById("edit-modal")!;
+          const editForm = document.getElementById("edit-form") as HTMLFormElement;
+          const editIdInput = document.getElementById("edit-artist-id") as HTMLInputElement;
+          const editNameInput = document.getElementById("edit-name") as HTMLInputElement;
+          const editHandleInput = document.getElementById("edit-handle") as HTMLInputElement;
+          const editCityInput = document.getElementById("edit-city") as HTMLInputElement;
+          const editStyleInput = document.getElementById("edit-style") as HTMLInputElement;
+          const editEmailInput = document.getElementById("edit-email") as HTMLInputElement;
+          const editError = document.getElementById("edit-error")!;
+          const editCancelBtn = document.getElementById("edit-cancel")!;
+          const editSaveBtn = document.getElementById("edit-save")!;
+
+          function openEditModal(btn: HTMLElement) {
+            editIdInput.value = btn.dataset.artistId ?? "";
+            editNameInput.value = btn.dataset.artistName ?? "";
+            editHandleInput.value = btn.dataset.artistHandle ?? "";
+            editCityInput.value = btn.dataset.artistCity ?? "";
+            editStyleInput.value = btn.dataset.artistStyle ?? "";
+            editEmailInput.value = btn.dataset.artistEmail ?? "";
+            editError.style.display = "none";
+            editModal.classList.remove("hidden");
+            editModal.classList.add("flex");
+            editNameInput.focus();
+          }
+
+          function closeEditModal() {
+            editModal.classList.add("hidden");
+            editModal.classList.remove("flex");
+          }
+
+          // Attach click handlers to all edit buttons
+          document.querySelectorAll<HTMLElement>('[data-testid^="edit-artist-"]').forEach((btn) => {
+            btn.addEventListener("click", () => openEditModal(btn));
+          });
+
+          editCancelBtn.addEventListener("click", closeEditModal);
+          editModal.addEventListener("click", (e) => {
+            if (e.target === editModal) closeEditModal();
+          });
+
+          editForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const artistId = editIdInput.value;
+            const name = editNameInput.value.trim();
+
+            if (!name) {
+              editError.textContent = "Name is required";
+              editError.style.display = "block";
+              editNameInput.focus();
+              return;
+            }
+
+            editError.style.display = "none";
+            editSaveBtn.textContent = "Saving…";
+            (editSaveBtn as HTMLButtonElement).disabled = true;
+
+            try {
+              const res = await fetch("/api/admin/edit-artist", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  artistId,
+                  name,
+                  handle: editHandleInput.value.trim() || null,
+                  city: editCityInput.value.trim() || null,
+                  style: editStyleInput.value.trim() || null,
+                  email: editEmailInput.value.trim() || null,
+                }),
+              });
+
+              if (res.ok) {
+                location.reload();
+              } else {
+                const body = await res.json().catch(() => ({}));
+                editError.textContent = body?.error ?? "Save failed";
+                editError.style.display = "block";
+              }
+            } catch {
+              editError.textContent = "Network error — check your connection";
+              editError.style.display = "block";
+            } finally {
+              editSaveBtn.textContent = "Save changes";
+              (editSaveBtn as HTMLButtonElement).disabled = false;
+            }
+          });
+
+          modal.addEventListener("click", (e) => {
+            if (e.target === modal) closeModal();
+          });
+
+          confirmBtn.addEventListener("click", async () => {
+            if (!pendingId) return;
+            confirmBtn.textContent = "Deleting…";
+            (confirmBtn as HTMLButtonElement).disabled = true;
+
+            try {
+              const res = await fetch("/api/admin/delete-artist", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ artistId: pendingId }),
+              });
+              if (res.ok) {
+                location.reload();
+              } else {
+                const body = await res.json().catch(() => ({}));
+                alert(body?.error ?? "Delete failed");
+                closeModal();
+              }
+            } catch {
+              alert("Network error — check your connection");
+              closeModal();
+            } finally {
+              confirmBtn.textContent = "Delete";
+              (confirmBtn as HTMLButtonElement).disabled = false;
+            }
+          });
+        })();
+      </script>
+    </div>
+  )}
+</Base>
