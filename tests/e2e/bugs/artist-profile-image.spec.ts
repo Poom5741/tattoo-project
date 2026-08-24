@@ -17,7 +17,7 @@ import { test, expect } from "@playwright/test";
 import { DatabaseSync } from "node:sqlite";
 import { readdirSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { ADMIN_PASSWORD } from "../helpers/admin-password";
+import { getAdminPassword } from "../helpers/admin-password";
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -205,7 +205,7 @@ test.describe("Artist profile image — API: no upload endpoint", () => {
   }) => {
     // Login as admin first
     const loginRes = await request.post("/api/admin/login", {
-      data: { password: ADMIN_PASSWORD },
+      data: { password: getAdminPassword() },
     });
     if (loginRes.status() === 429) return; // rate limited
     expect(loginRes.status()).toBe(200);

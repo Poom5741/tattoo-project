@@ -32,7 +32,7 @@ import { test, expect } from "@playwright/test";
 import { DatabaseSync } from "node:sqlite";
 import { readdirSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { ADMIN_PASSWORD } from "../helpers/admin-password";
+import { getAdminPassword } from "../helpers/admin-password";
 
 /** Locate all local wrangler D1 files. Same logic as the seed script. */
 function findD1Paths(): string[] {
@@ -145,7 +145,7 @@ test.describe("Admin login and dashboard - end-to-end user flow", () => {
     await expect(page.locator("button", { hasText: "Enter dashboard" })).toBeVisible();
 
     // 3. Fill the password and submit.
-    await page.fill("#pw", ADMIN_PASSWORD);
+    await page.fill("#pw", getAdminPassword());
     // The form does a fetch then `location.reload()`. We don't need to
     // wait for the fetch directly; we wait for the dashboard to render
     // after the reload.

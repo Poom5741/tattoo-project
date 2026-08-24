@@ -1,6 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "fs";
-import { ADMIN_PASSWORD } from "./helpers/admin-password";
+import { getAdminPassword } from "./helpers/admin-password";
 
 test.describe("Rebrand Core UI — SAKNID", () => {
   test("home page displays SAKNID in title", async ({ page }) => {
@@ -25,7 +25,7 @@ test.describe("Rebrand Core UI — SAKNID", () => {
 
   test("admin login accepts ADMIN_PASSWORD", async ({ request }) => {
     const res = await request.post("/api/admin/login", {
-      data: { password: ADMIN_PASSWORD },
+      data: { password: getAdminPassword() },
     });
     expect(res.status()).toBe(200);
     const body = await res.json();
@@ -34,7 +34,7 @@ test.describe("Rebrand Core UI — SAKNID", () => {
 
   test("admin login sets cookie with valid ADMIN_PASSWORD", async ({ request }) => {
     const res = await request.post("/api/admin/login", {
-      data: { password: ADMIN_PASSWORD },
+      data: { password: getAdminPassword() },
     });
     expect(res.status()).toBe(200);
     const setCookie = res.headers()["set-cookie"];

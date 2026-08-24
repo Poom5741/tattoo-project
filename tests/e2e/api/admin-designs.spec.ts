@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { ADMIN_PASSWORD } from "../helpers/admin-password";
+import { getAdminPassword } from "../helpers/admin-password";
 
 test.describe("DELETE /api/admin/designs/:id", () => {
   test("returns 401 when not authenticated", async ({ request }) => {
@@ -9,7 +9,7 @@ test.describe("DELETE /api/admin/designs/:id", () => {
 
   test("returns 404 for non-existent design", async ({ request }) => {
     const loginResponse = await request.post("/api/admin/login", {
-      data: { password: ADMIN_PASSWORD },
+      data: { password: getAdminPassword() },
     });
     const loginCookies = loginResponse.headers()["set-cookie"];
     const tokenMatch = loginCookies.match(/admin_token=([^;]+)/);
@@ -25,7 +25,7 @@ test.describe("DELETE /api/admin/designs/:id", () => {
 
   test("returns 409 when design has active bookings", async ({ request }) => {
     const loginResponse = await request.post("/api/admin/login", {
-      data: { password: ADMIN_PASSWORD },
+      data: { password: getAdminPassword() },
     });
     const loginCookies = loginResponse.headers()["set-cookie"];
     const tokenMatch = loginCookies.match(/admin_token=([^;]+)/);
@@ -51,7 +51,7 @@ test.describe("DELETE /api/admin/designs/:id", () => {
 
   test("returns 200 and hard-deletes design with no active bookings", async ({ request }) => {
     const loginResponse = await request.post("/api/admin/login", {
-      data: { password: ADMIN_PASSWORD },
+      data: { password: getAdminPassword() },
     });
     const loginCookies = loginResponse.headers()["set-cookie"];
     const tokenMatch = loginCookies.match(/admin_token=([^;]+)/);
@@ -96,7 +96,7 @@ test.describe("PUT /api/admin/designs/:id", () => {
 
   test("returns 404 for non-existent design", async ({ request }) => {
     const loginResponse = await request.post("/api/admin/login", {
-      data: { password: ADMIN_PASSWORD },
+      data: { password: getAdminPassword() },
     });
     const loginCookies = loginResponse.headers()["set-cookie"];
     const tokenMatch = loginCookies.match(/admin_token=([^;]+)/);
@@ -111,7 +111,7 @@ test.describe("PUT /api/admin/designs/:id", () => {
 
   test("returns 400 when no fields provided", async ({ request }) => {
     const loginResponse = await request.post("/api/admin/login", {
-      data: { password: ADMIN_PASSWORD },
+      data: { password: getAdminPassword() },
     });
     const loginCookies = loginResponse.headers()["set-cookie"];
     const tokenMatch = loginCookies.match(/admin_token=([^;]+)/);
@@ -128,7 +128,7 @@ test.describe("PUT /api/admin/designs/:id", () => {
 
   test("returns 200 and updates design fields", async ({ request }) => {
     const loginResponse = await request.post("/api/admin/login", {
-      data: { password: ADMIN_PASSWORD },
+      data: { password: getAdminPassword() },
     });
     const loginCookies = loginResponse.headers()["set-cookie"];
     const tokenMatch = loginCookies.match(/admin_token=([^;]+)/);

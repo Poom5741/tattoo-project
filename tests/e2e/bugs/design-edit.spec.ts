@@ -22,7 +22,7 @@ import { test, expect } from "@playwright/test";
 import { DatabaseSync } from "node:sqlite";
 import { readdirSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
-import { ADMIN_PASSWORD } from "../helpers/admin-password";
+import { getAdminPassword } from "../helpers/admin-password";
 
 // ── Helpers ────────────────────────────────────────────────────────
 
@@ -44,7 +44,7 @@ async function adminLogin(
   request: import("@playwright/test").APIRequestContext
 ): Promise<string | null> {
   const loginRes = await request.post("/api/admin/login", {
-    data: { password: ADMIN_PASSWORD },
+    data: { password: getAdminPassword() },
   });
   if (loginRes.status() === 429) return null; // rate limited
   if (loginRes.status() !== 200) return null;

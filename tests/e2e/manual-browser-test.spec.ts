@@ -5,7 +5,7 @@
 import { test, expect } from "@playwright/test";
 import { mkdirSync } from "fs";
 import { join } from "path";
-import { ADMIN_PASSWORD } from "./helpers/admin-password";
+import { getAdminPassword } from "./helpers/admin-password";
 
 const DIR = join(process.cwd(), "test-results", "manual-screenshots");
 
@@ -160,7 +160,7 @@ test.describe("Manual browser walkthrough", () => {
     await page.screenshot({ path: join(DIR, "14-admin.png"), fullPage: true });
     const pwInput = page.locator('input[type="password"]');
     if (await pwInput.isVisible().catch(() => false)) {
-      await pwInput.fill(ADMIN_PASSWORD);
+      await pwInput.fill(getAdminPassword());
       await page.locator('button[type="submit"], button:has-text("Sign in")').first().click();
       await page.waitForTimeout(2000);
       await page.screenshot({ path: join(DIR, "14b-admin-loggedin.png"), fullPage: true });
