@@ -71,15 +71,12 @@ jobs:
           cp .dev.vars.example .dev.vars
           sed -i 's/your-better-auth-secret-here/test-secret-12345678901234567890123456789012/' .dev.vars
           sed -i 's/your_md5_secret_here/test-webhook-secret-12345/' .dev.vars
-          sed -i 's/change-me-to-a-strong-password/test-admin-password-ci/' .dev.vars
 
       # webServer (playwright.config.ts) starts `astro dev`. The dev
       # command differs between local (pnpm not on PATH) and CI, so the
       # config reads E2E_DEV_COMMAND with a local-only default.
       - name: Run Playwright suite
-        run: |
-          export ADMIN_PASSWORD="test-admin-password-ci"
-          pnpm exec playwright test
+        run: pnpm exec playwright test
         env:
           CI: "true"
           E2E_DEV_COMMAND: "pnpm dev"
