@@ -69,7 +69,7 @@ try {
     }
     const [aRow, mRes, rRes] = await Promise.all([
       db
-        .prepare("SELECT id, name, city, style, seed FROM artists WHERE id = ?")
+        .prepare("SELECT id, name, city, style, seed FROM artists WHERE id = ? AND deleted_at IS NULL AND name NOT LIKE 'test-%'")
         .bind(design.artist_id)
         .first<ArtistRow>(),
       db

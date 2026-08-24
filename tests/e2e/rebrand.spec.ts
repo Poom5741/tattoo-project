@@ -1,5 +1,6 @@
 import { test, expect } from "@playwright/test";
 import { readFileSync } from "fs";
+import { getAdminPassword } from "./helpers/admin-password";
 
 test.describe("Rebrand Core UI — SAKNID", () => {
   test("home page displays SAKNID in title", async ({ page }) => {
@@ -22,18 +23,18 @@ test.describe("Rebrand Core UI — SAKNID", () => {
     await expect(footerCopyright).toBeVisible();
   });
 
-  test("admin login accepts saknid2026 password", async ({ request }) => {
+  test("admin login accepts ADMIN_PASSWORD", async ({ request }) => {
     const res = await request.post("/api/admin/login", {
-      data: { password: "saknid2026" },
+      data: { password: getAdminPassword() },
     });
     expect(res.status()).toBe(200);
     const body = await res.json();
     expect(body).toHaveProperty("ok", true);
   });
 
-  test("admin login sets cookie with valid saknid2026 password", async ({ request }) => {
+  test("admin login sets cookie with valid ADMIN_PASSWORD", async ({ request }) => {
     const res = await request.post("/api/admin/login", {
-      data: { password: "saknid2026" },
+      data: { password: getAdminPassword() },
     });
     expect(res.status()).toBe(200);
     const setCookie = res.headers()["set-cookie"];

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { getAdminPassword } from '../helpers/admin-password';
 
 test.describe('Admin API', () => {
   test.describe('POST /api/admin/login', () => {
@@ -31,9 +32,8 @@ test.describe('Admin API', () => {
     });
 
     test('returns 200 with valid password', async ({ request }) => {
-      // The default admin password is 'saknid2026'
       const response = await request.post('/api/admin/login', {
-        data: { password: 'saknid2026' },
+        data: { password: getAdminPassword() },
       });
       expect(response.status()).toBe(200);
       const data = await response.json();
@@ -47,7 +47,7 @@ test.describe('Admin API', () => {
 
     test('sets admin_token cookie with correct attributes', async ({ request }) => {
       const response = await request.post('/api/admin/login', {
-        data: { password: 'saknid2026' },
+        data: { password: getAdminPassword() },
       });
       expect(response.status()).toBe(200);
       
@@ -65,7 +65,7 @@ test.describe('Admin API', () => {
     test('returns 200 and clears admin_token cookie', async ({ request }) => {
       // First login to get a token
       const loginResponse = await request.post('/api/admin/login', {
-        data: { password: 'saknid2026' },
+        data: { password: getAdminPassword() },
       });
       expect(loginResponse.status()).toBe(200);
       
@@ -92,7 +92,7 @@ test.describe('Admin API', () => {
     test('returns 200 with valid admin session', async ({ request }) => {
       // Login first
       const loginResponse = await request.post('/api/admin/login', {
-        data: { password: 'saknid2026' },
+        data: { password: getAdminPassword() },
       });
       const loginCookies = loginResponse.headers()['set-cookie'];
       const tokenMatch = loginCookies.match(/admin_token=([a-f0-9-]+)/);
@@ -127,7 +127,7 @@ test.describe('Admin API', () => {
     test('returns 400 when required fields are missing', async ({ request }) => {
       // Login first
       const loginResponse = await request.post('/api/admin/login', {
-        data: { password: 'saknid2026' },
+        data: { password: getAdminPassword() },
       });
       const loginCookies = loginResponse.headers()['set-cookie'];
       const tokenMatch = loginCookies.match(/admin_token=([^;]+)/);
@@ -147,7 +147,7 @@ test.describe('Admin API', () => {
     test('returns 200 with valid artist data', async ({ request }) => {
       // Login first
       const loginResponse = await request.post('/api/admin/login', {
-        data: { password: 'saknid2026' },
+        data: { password: getAdminPassword() },
       });
       const loginCookies = loginResponse.headers()['set-cookie'];
       const tokenMatch = loginCookies.match(/admin_token=([a-f0-9-]+)/);
@@ -184,7 +184,7 @@ test.describe('Admin API', () => {
     test('returns 400 when action is invalid', async ({ request }) => {
       // Login first
       const loginResponse = await request.post('/api/admin/login', {
-        data: { password: 'saknid2026' },
+        data: { password: getAdminPassword() },
       });
       const loginCookies = loginResponse.headers()['set-cookie'];
       const tokenMatch = loginCookies.match(/admin_token=([^;]+)/);

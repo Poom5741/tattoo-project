@@ -1,0 +1,436 @@
+{
+  "schema_version": "mimosa-task-review/v2",
+  "run_id": "20260821T211434627Z-38757-8fd03faee5e3",
+  "run_status": "completed",
+  "errors": [],
+  "coverage": {
+    "schema_version": "mimosa-hook-coverage/v1",
+    "status": "complete",
+    "scope": "hook_observed_diff",
+    "baseline": {
+      "complete": true,
+      "captured_files": 234,
+      "candidate_limit": 5000,
+      "truncated": false,
+      "enumeration_error_count": 0,
+      "snapshot_error_count": 0,
+      "compensated_target_count": 7
+    },
+    "change_tracking": {
+      "touched_observed": 7,
+      "touched_retained": 7,
+      "truncated": false,
+      "bash_mutation": false,
+      "bash_discovered": 0,
+      "bash_discovery_limit": 80,
+      "bash_discovery_truncated": false
+    },
+    "candidates": {
+      "eligible_files": 7,
+      "selected_files": 7,
+      "limit": 20,
+      "truncated": false
+    },
+    "scanning": {
+      "required_files": 7,
+      "scanned_files": 7,
+      "skipped_files": 0,
+      "failed_files": 0,
+      "project_checks_required": 0,
+      "project_checks_completed": 0
+    },
+    "notification": {
+      "eligible_findings": 0,
+      "detailed_findings": 0,
+      "detail_limit": 3,
+      "truncated": false
+    },
+    "reason_counts": {},
+    "reasons": [],
+    "reasons_truncated": false
+  },
+  "generated_at": "2026-08-21T21:14:34.627Z",
+  "session_id": "sess_5704891e-b1e9-44fe-bb09-f125877de113",
+  "target": ".",
+  "revision": "1f0dc9fa369d1bd744baf59054426d132ed49e51",
+  "rules_version": "unavailable",
+  "diff_hash": "ff9ad9ab9efcfb9d8a62e50af3310d2f2b25ec7e2469e6019504f453f9738b4f",
+  "diff": {
+    "algorithm": "sha256",
+    "changed_file_count": 7,
+    "changed_files": [
+      {
+        "file": "tests/e2e/bugs/buyer-dashboard-details.spec.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 235
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "6741d1283b87c8fb9940335668d75016d948b4f950a4d197c82be9113770bfbd"
+      },
+      {
+        "file": "tests/e2e/bugs/responsive-design.spec.ts",
+        "ranges": [
+          {
+            "start": 211,
+            "end": 235
+          },
+          {
+            "start": 243,
+            "end": 244
+          },
+          {
+            "start": 246,
+            "end": 246
+          },
+          {
+            "start": 248,
+            "end": 253
+          },
+          {
+            "start": 279,
+            "end": 284
+          },
+          {
+            "start": 288,
+            "end": 288
+          },
+          {
+            "start": 292,
+            "end": 292
+          },
+          {
+            "start": 295,
+            "end": 295
+          },
+          {
+            "start": 298,
+            "end": 303
+          },
+          {
+            "start": 410,
+            "end": 410
+          },
+          {
+            "start": 415,
+            "end": 417
+          },
+          {
+            "start": 428,
+            "end": 430
+          },
+          {
+            "start": 450,
+            "end": 453
+          },
+          {
+            "start": 462,
+            "end": 464
+          },
+          {
+            "start": 473,
+            "end": 474
+          }
+        ],
+        "before_hash": "18c35ef469e28f2676b3ff1067f4a91ce8543c4c6f4d3cfadd9d61636a62840b",
+        "after_hash": "4187313978968f5d26a7493873a412c37601c0ff1ac919e8dfd29fa8c3b7a9dc"
+      },
+      {
+        "file": "tests/e2e/fixtures/index.ts",
+        "ranges": [
+          {
+            "start": 3,
+            "end": 6
+          },
+          {
+            "start": 14,
+            "end": 14
+          },
+          {
+            "start": 21,
+            "end": 34
+          }
+        ],
+        "before_hash": "7dda3eb537820aaa535487e682e5e44387bb8a7591a338709e034ecaa5e66720",
+        "after_hash": "fc9f65bda203df5377d6681751e5544e6b3f8511145adae91cc1ad0b59e43b56"
+      },
+      {
+        "file": "tests/unit/bugs/booking-date-validation.test.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 182
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "89f01a4493e0b968d4dac0fd999e55d0cb0e25a64f8a131fe535cf6ceeac1748"
+      },
+      {
+        "file": "tests/unit/bugs/chat-message-delivery.test.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 168
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "e05212d4c03554ccf872a5a03eb50ad557e51e6f7385fea6abab41d2963119f0"
+      },
+      {
+        "file": "tests/unit/bugs/design-status-transitions.test.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 147
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "733e64fd06b9939ebb62986605934b4918b32053b1e87adbbbe7edf23b850119"
+      },
+      {
+        "file": "tests/unit/bugs/responsive-layout.test.ts",
+        "ranges": [
+          {
+            "start": 1,
+            "end": 123
+          }
+        ],
+        "before_hash": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "after_hash": "d7658b38b1da340e9724db688a71491d2e792e6348ffe284ec21813a99330451"
+      }
+    ]
+  },
+  "timing": {
+    "started_at": "2026-08-21T21:14:33.599Z",
+    "completed_at": "2026-08-21T21:14:34.627Z",
+    "duration_ms": 1028,
+    "measurement": "hook_wall_clock"
+  },
+  "tokens": {
+    "input": 0,
+    "output": 0,
+    "total": 0,
+    "model_calls": 0,
+    "measurement": "known-zero"
+  },
+  "telemetry": {
+    "schemaVersion": "mimosa-gate-telemetry/v1",
+    "profile": "gate",
+    "operation": "Stop",
+    "outcome": "complete",
+    "latencyMs": 1028,
+    "peakMemoryBytes": 193331200,
+    "memoryMeasurement": "max-observed-process-rss",
+    "scannedFiles": 7,
+    "cache": {
+      "hits": 0,
+      "misses": 0,
+      "measurement": "not-applicable"
+    },
+    "denyCount": 0,
+    "tokens": {
+      "input": 0,
+      "output": 0,
+      "total": 0,
+      "modelCalls": 0,
+      "measurement": "known-zero"
+    }
+  },
+  "finding_count": 0,
+  "rewake_finding_count": 0,
+  "evidence_boundary": {
+    "scan": "candidate",
+    "static_fix_verification": "observed_static_only",
+    "runtime_verification": "not_performed"
+  },
+  "finding_events": [
+    {
+      "finding_id": "mimosa-cec0b4e69adfdc067a5a5f54",
+      "file": "tests/e2e/bugs/buyer-dashboard-details.spec.ts",
+      "line": 175,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "硬编码凭据",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-08-21T20:55:50.568Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-cec0b4e69adfdc067a5a5f54",
+      "file": "tests/e2e/bugs/buyer-dashboard-details.spec.ts",
+      "line": 225,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "硬编码凭据",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-08-21T20:55:50.568Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-cec0b4e69adfdc067a5a5f54",
+      "file": "tests/e2e/bugs/buyer-dashboard-details.spec.ts",
+      "line": 225,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "硬编码凭据",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-08-21T20:56:22.787Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "candidate_before_evidence_hash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "post_change_evidence_hash_at_previous_location": "4f69231f0f3e72817b231ddd16737cd85556f209b082080218033160ab583913",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-cec0b4e69adfdc067a5a5f54",
+      "file": "tests/e2e/bugs/buyer-dashboard-details.spec.ts",
+      "line": 225,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "硬编码凭据",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-08-21T20:56:22.787Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "candidate_before_evidence_hash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "post_change_evidence_hash_at_previous_location": "4f69231f0f3e72817b231ddd16737cd85556f209b082080218033160ab583913",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-b3a70075774eee7d3cc85115",
+      "file": "tests/e2e/fixtures/index.ts",
+      "line": 12,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "硬编码凭据",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-08-21T21:12:59.762Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-b3a70075774eee7d3cc85115",
+      "file": "tests/e2e/fixtures/index.ts",
+      "line": 26,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "硬编码凭据",
+      "status": "blocked",
+      "decision": "deny",
+      "at": "2026-08-21T21:12:59.762Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "runtime_oracle": false
+      }
+    },
+    {
+      "finding_id": "mimosa-b3a70075774eee7d3cc85115",
+      "file": "tests/e2e/fixtures/index.ts",
+      "line": 26,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "硬编码凭据",
+      "status": "fixed_candidate",
+      "decision": "repair_observed",
+      "at": "2026-08-21T21:13:07.682Z",
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "candidate_before_evidence_hash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "post_change_evidence_hash_at_previous_location": "29576b54e255e3c948eea5b5904fa38b81682fdd3cbd9ae841ff0e7bd80d394c",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    },
+    {
+      "finding_id": "mimosa-b3a70075774eee7d3cc85115",
+      "file": "tests/e2e/fixtures/index.ts",
+      "line": 26,
+      "rule_id": "security",
+      "severity": "high",
+      "category": "硬编码凭据",
+      "status": "static_verified",
+      "decision": "static_rescan_passed",
+      "at": "2026-08-21T21:13:07.682Z",
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "source": "semgrep",
+        "evidence_hash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "candidate_before_evidence_hash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "post_change_evidence_hash_at_previous_location": "29576b54e255e3c948eea5b5904fa38b81682fdd3cbd9ae841ff0e7bd80d394c",
+        "runtime_oracle": false,
+        "verification": {
+          "method": "mimosa-posttool-static-rescan",
+          "finding_absent": true,
+          "runtime_oracle": false
+        }
+      }
+    }
+  ],
+  "findings": [],
+  "artifacts": {
+    "immutable_report": ".mimosa/reports/task-review-sess_5704891e-b1e9-44fe-bb09-f125877de113-20260821T211434627Z-38757-8fd03faee5e3.json",
+    "latest_report": ".mimosa/reports/task-review-sess_5704891e-b1e9-44fe-bb09-f125877de113.json",
+    "history_summary": ".mimosa/history/run-20260821T211434627Z-38757-8fd03faee5e3.json"
+  }
+}

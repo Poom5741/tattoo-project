@@ -1,6 +1,9 @@
 # Local dev secrets — copy to .dev.vars and fill in real values
 # NEVER commit .dev.vars
 
+# Admin panel password (required for /api/admin/login)
+ADMIN_PASSWORD=change-me-to-a-strong-password
+
 # Test signer wallet (separate from production key — Base Sepolia testnet only)
 SIGNER_PRIVATE_KEY=0x0000000000000000000000000000000000000000000000000000000000000000
 

@@ -16,8 +16,8 @@
  *
  * Covers closed issues:
  *   #16 (Fix hardcoded admin password with typo - ignore env var) -
- *        the dev-env flow uses the hard-coded 'saknid2026' as the
- *        password, and the spec asserts that path works.
+ *        the dev-env flow reads the admin password from the
+ *        ADMIN_PASSWORD env var, and the spec asserts that path works.
  *   #22 (Codebase Health Improvements) - admin auth exercised.
  *
  * Prerequisite: `pnpm db:seed:dev` must have run so the dev D1 has
@@ -32,6 +32,7 @@ import { test, expect } from "@playwright/test";
 import { DatabaseSync } from "node:sqlite";
 import { readdirSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
+import { getAdminPassword } from "../helpers/admin-password";
 
 /** Locate all local wrangler D1 files. Same logic as the seed script. */
 function findD1Paths(): string[] {
@@ -144,7 +145,7 @@ test.describe("Admin login and dashboard - end-to-end user flow", () => {
     await expect(page.locator("button", { hasText: "Enter dashboard" })).toBeVisible();
 
     // 3. Fill the password and submit.
-    await page.fill("#pw", "saknid2026");
+    await page.fill("#pw", getAdminPassword());
     // The form does a fetch then `location.reload()`. We don't need to
     // wait for the fetch directly; we wait for the dashboard to render
     // after the reload.

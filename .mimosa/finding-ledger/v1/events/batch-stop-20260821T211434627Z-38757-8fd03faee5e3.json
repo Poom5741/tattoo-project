@@ -1,0 +1,204 @@
+{
+  "schemaVersion": "mimosa-finding-ledger-batch/v1",
+  "batchId": "stop-20260821T211434627Z-38757-8fd03faee5e3",
+  "runId": "20260821T211434627Z-38757-8fd03faee5e3",
+  "runStatus": "completed",
+  "coverage": {
+    "status": "complete",
+    "reasons": []
+  },
+  "source": {
+    "component": "zcode-hook",
+    "operationId": "Stop"
+  },
+  "revision": "1f0dc9fa369d1bd744baf59054426d132ed49e51",
+  "diffHash": "ff9ad9ab9efcfb9d8a62e50af3310d2f2b25ec7e2469e6019504f453f9738b4f",
+  "rulesVersion": "unavailable",
+  "sessionHash": "67f431ebdb38a1de4941a774b28041029a2b531720fe60084219346569272b3a",
+  "reportRef": ".mimosa/reports/task-review-sess_5704891e-b1e9-44fe-bb09-f125877de113-20260821T211434627Z-38757-8fd03faee5e3.json",
+  "events": [
+    {
+      "eventId": "hook-c9f5e8d96509c95f7f44d85dfc2dc084",
+      "findingId": "mimosa-cec0b4e69adfdc067a5a5f54",
+      "type": "finding_blocked",
+      "at": "2026-08-21T20:55:50.568Z",
+      "identity": {
+        "projectRelativeFile": "tests/e2e/bugs/buyer-dashboard-details.spec.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 175,
+      "endLine": 175,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92"
+      },
+      "sequence": 0
+    },
+    {
+      "eventId": "hook-cf16700281e8e8dc23e9969a318dc26e",
+      "findingId": "mimosa-cec0b4e69adfdc067a5a5f54",
+      "type": "finding_blocked",
+      "at": "2026-08-21T20:55:50.568Z",
+      "identity": {
+        "projectRelativeFile": "tests/e2e/bugs/buyer-dashboard-details.spec.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 225,
+      "endLine": 225,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92"
+      },
+      "sequence": 1
+    },
+    {
+      "eventId": "hook-0251a673ef86c1b73ba4ad59c8c4d9a5",
+      "findingId": "mimosa-cec0b4e69adfdc067a5a5f54",
+      "type": "static_fix_verified",
+      "at": "2026-08-21T20:56:22.787Z",
+      "identity": {
+        "projectRelativeFile": "tests/e2e/bugs/buyer-dashboard-details.spec.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 225,
+      "endLine": 225,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92"
+      },
+      "sequence": 2
+    },
+    {
+      "eventId": "hook-a38dcfa1d056d1d497a9ae0881a4cdef",
+      "findingId": "mimosa-b3a70075774eee7d3cc85115",
+      "type": "finding_blocked",
+      "at": "2026-08-21T21:12:59.762Z",
+      "identity": {
+        "projectRelativeFile": "tests/e2e/fixtures/index.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 12,
+      "endLine": 12,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92"
+      },
+      "sequence": 3
+    },
+    {
+      "eventId": "hook-5ba7b7b4a02c2733e75abee9ffe29708",
+      "findingId": "mimosa-b3a70075774eee7d3cc85115",
+      "type": "finding_blocked",
+      "at": "2026-08-21T21:12:59.762Z",
+      "identity": {
+        "projectRelativeFile": "tests/e2e/fixtures/index.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 26,
+      "endLine": 26,
+      "reasonCode": "deny",
+      "reportedToAgent": true,
+      "evidence": {
+        "kind": "source",
+        "boundary": "candidate",
+        "producer": "deterministic",
+        "evidenceHash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92"
+      },
+      "sequence": 4
+    },
+    {
+      "eventId": "hook-db7f6b9afdeb0bae75da1fc194a4b3d4",
+      "findingId": "mimosa-b3a70075774eee7d3cc85115",
+      "type": "static_fix_verified",
+      "at": "2026-08-21T21:13:07.682Z",
+      "identity": {
+        "projectRelativeFile": "tests/e2e/fixtures/index.ts",
+        "ruleId": "security",
+        "codeEvidenceHash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92",
+        "confidence": "stable"
+      },
+      "scope": "direct",
+      "line": 26,
+      "endLine": 26,
+      "reasonCode": "static_rescan_passed",
+      "reportedToAgent": false,
+      "evidence": {
+        "kind": "static_scan",
+        "boundary": "observed",
+        "producer": "deterministic",
+        "evidenceHash": "5f93caffed0f08c6713050605f0444f080cf7737fe5af1d90b4ab3c7ad652e92"
+      },
+      "sequence": 5
+    }
+  ],
+  "observedFindingIds": [],
+  "verifiedFiles": [
+    {
+      "file": "tests/e2e/bugs/buyer-dashboard-details.spec.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "tests/unit/bugs/booking-date-validation.test.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "tests/unit/bugs/design-status-transitions.test.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "tests/unit/bugs/chat-message-delivery.test.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "tests/unit/bugs/responsive-layout.test.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "tests/e2e/bugs/responsive-design.spec.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    },
+    {
+      "file": "tests/e2e/fixtures/index.ts",
+      "direct": "complete",
+      "projectContext": "partial"
+    }
+  ],
+  "recordedAt": "2026-08-21T21:14:35.010Z"
+}

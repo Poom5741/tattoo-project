@@ -1,4 +1,5 @@
 import { test as base, expect, type APIRequestContext } from "@playwright/test";
+import { getAdminPassword } from "../helpers/admin-password";
 
 export const test = base.extend<{
   adminPage: import("@playwright/test").Page;
@@ -7,7 +8,7 @@ export const test = base.extend<{
   adminPage: async ({ page }, use) => {
     // Log in as admin — sets admin_token cookie on the browser context
     const resp = await page.request.post("/api/admin/login", {
-      data: { password: "saknid2026" },
+      data: { password: getAdminPassword() },
     });
     // Cookies set by the API response are applied automatically to the context
     await expect(resp).toBeOK();
@@ -22,7 +23,7 @@ export const test = base.extend<{
       baseURL: "http://localhost:4321",
     });
     const resp = await ctx.post("/api/admin/login", {
-      data: { password: "saknid2026" },
+      data: { password: getAdminPassword() },
     });
     await expect(resp).toBeOK();
     await use(ctx);

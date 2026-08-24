@@ -92,10 +92,10 @@ All API calls require a cookie header. Use the section matching the role you are
 ```bash
 curl -s -c /tmp/admin_cookies.txt -X POST http://localhost:4321/api/admin/login \
   -H "Content-Type: application/json" \
-  -d '{"password":"saknid2026"}'
+  -d "{\"password\":\"$ADMIN_PASSWORD\"}"
 ```
 
-> Use the value of `ADMIN_PASSWORD` from your environment if it overrides the default.
+> Replace `$ADMIN_PASSWORD` with the value from your `.dev.vars` or shell environment.
 
 Use the saved cookies in subsequent calls:
 

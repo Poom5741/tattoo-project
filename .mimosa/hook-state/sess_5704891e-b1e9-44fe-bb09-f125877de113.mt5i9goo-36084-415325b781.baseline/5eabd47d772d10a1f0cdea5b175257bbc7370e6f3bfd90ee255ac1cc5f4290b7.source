@@ -1,0 +1,55 @@
+import { test, expect } from "@playwright/test";
+import { readFileSync } from "fs";
+import { ADMIN_PASSWORD } from "./helpers/admin-password";
+
+test.describe("Rebrand Core UI — SAKNID", () => {
+  test("home page displays SAKNID in title", async ({ page }) => {
+    await page.goto("/");
+    await expect(page).toHaveTitle(/SAKNID/);
+  });
+
+  test("nav displays SAKNID branding", async ({ page }) => {
+    await page.goto("/");
+    const navBrand = page.locator("nav a[href='/']").first();
+    await expect(navBrand).toHaveText("SAKNID");
+  });
+
+  test("footer displays SAKNID branding", async ({ page }) => {
+    await page.goto("/");
+    const footerBrand = page.locator("footer a[href='/']").first();
+    await expect(footerBrand).toHaveText("SAKNID");
+    
+    const footerCopyright = page.locator("footer").getByText(/© 2026 SAKNID/);
+    await expect(footerCopyright).toBeVisible();
+  });
+
+  test("admin login accepts ADMIN_PASSWORD", async ({ request }) => {
+    const res = await request.post("/api/admin/login", {
+      data: { password: ADMIN_PASSWORD },
+    });
+    expect(res.status()).toBe(200);
+    const body = await res.json();
+    expect(body).toHaveProperty("ok", true);
+  });
+
+  test("admin login sets cookie with valid ADMIN_PASSWORD", async ({ request }) => {
+    const res = await request.post("/api/admin/login", {
+      data: { password: ADMIN_PASSWORD },
+    });
+    expect(res.status()).toBe(200);
+    const setCookie = res.headers()["set-cookie"];
+    expect(setCookie).toBeTruthy();
+    expect(setCookie).toContain("admin_token=");
+  });
+
+  test("CONTEXT.md references SAKNID not SUKNID", () => {
+    const content = readFileSync("CONTEXT.md", "utf-8");
+    expect(content).toContain("SAKNID");
+    expect(content).not.toContain("SUKNID");
+  });
+
+  test("Base layout default title uses SAKNID", async ({ page }) => {
+    await page.goto("/");
+    await expect(page).toHaveTitle(/SAKNID/);
+  });
+});
